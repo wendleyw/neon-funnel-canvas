@@ -22,10 +22,7 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
   onConnectionDelete
 }) => {
   return (
-    <svg
-      className="absolute inset-0 w-full h-full pointer-events-none"
-      style={{ zIndex: 0 }}
-    >
+    <div className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 5 }}>
       {connections.map((connection) => {
         const fromComponent = components.find(c => c.id === connection.from);
         const toComponent = components.find(c => c.id === connection.to);
@@ -45,6 +42,6 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
           />
         );
       })}
-    </svg>
+    </div>
   );
 };
