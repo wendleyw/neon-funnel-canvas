@@ -9,7 +9,7 @@ export const useCanvasZoom = () => {
   const [zoom, setZoom] = useState(1);
 
   const handleWheel = useCallback((e: React.WheelEvent) => {
-    // Remove preventDefault for now to avoid the passive event listener error
+    e.preventDefault();
     setZoom(prevZoom => {
       const newZoom = e.deltaY > 0 
         ? Math.max(MIN_ZOOM, prevZoom - ZOOM_INTENSITY)
