@@ -52,7 +52,7 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
             >
               <div className="flex items-center gap-3">
                 <span className="text-sm">{template.icon}</span>
-                <span className="text-sm">{template.name}</span>
+                <span className="text-sm">{template.label}</span>
               </div>
               <button
                 onClick={(e) => {
