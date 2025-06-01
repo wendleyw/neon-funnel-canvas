@@ -1,3 +1,4 @@
+
 import { useCallback } from 'react';
 import { FunnelComponent, Connection, FunnelProject } from '../types/funnel';
 import { useWorkspace } from './useWorkspace';
@@ -99,8 +100,8 @@ export const useProjectHandlers = ({
 
       console.log('Found project record:', projectRecord);
       
-      // Extrair os dados do projeto
-      const projectData = projectRecord.project_data as FunnelProject;
+      // Extrair os dados do projeto com conversão segura de tipos
+      const projectData = projectRecord.project_data as unknown as FunnelProject;
       
       if (!projectData || typeof projectData !== 'object') {
         console.error('Invalid project data:', projectData);
