@@ -39,7 +39,6 @@ const Index = () => {
   };
 
   const handleLoad = () => {
-    // For demo, just show a message
     toast.info('Load functionality would open a project selector');
   };
 
@@ -54,7 +53,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 flex flex-col w-full">
+    <div className="min-h-screen bg-black flex flex-col w-full">
       {/* Toolbar */}
       <Toolbar
         onSave={handleSave}
@@ -80,7 +79,7 @@ const Index = () => {
       </div>
       
       {/* Status Bar */}
-      <div className="h-8 bg-gray-900 border-t border-gray-800 flex items-center justify-between px-4 text-xs text-gray-400">
+      <div className="h-8 bg-black border-t border-gray-800 flex items-center justify-between px-4 text-xs text-gray-400">
         <div>
           Ready • {project.components.length} components • {project.connections.length} connections
         </div>

@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface ToolbarProps {
@@ -19,60 +18,51 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onProjectNameChange
 }) => {
   return (
-    <div className="h-16 bg-gray-900 border-b border-gray-800 flex items-center justify-between px-6">
+    <div className="h-12 bg-black border-b border-gray-800 flex items-center justify-between px-4">
       {/* Left Section */}
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-3">
         <input
           type="text"
           value={projectName}
           onChange={(e) => onProjectNameChange(e.target.value)}
-          className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="bg-gray-900 border border-gray-800 rounded px-3 py-1 text-white text-sm focus:outline-none focus:ring-1 focus:ring-gray-600 focus:border-gray-600"
           placeholder="Project Name"
         />
-        <div className="text-gray-400 text-sm">
-          Last saved: {new Date().toLocaleTimeString()}
-        </div>
       </div>
 
       {/* Center Section */}
       <div className="flex items-center space-x-2">
         <button
           onClick={onSave}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          className="bg-white hover:bg-gray-200 text-black px-3 py-1 rounded text-sm font-medium transition-colors"
         >
-          💾 Save
+          Save
         </button>
         <button
           onClick={onLoad}
-          className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          className="bg-gray-800 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
         >
-          📁 Load
+          Load
         </button>
         <button
           onClick={onExport}
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          className="bg-gray-800 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
         >
-          📤 Export
+          Export
         </button>
         <button
           onClick={onClear}
-          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          className="bg-gray-800 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
         >
-          🗑️ Clear
+          Clear
         </button>
       </div>
 
       {/* Right Section */}
-      <div className="flex items-center space-x-4">
-        <div className="text-gray-400 text-sm">
+      <div className="flex items-center space-x-3">
+        <div className="text-gray-400 text-xs">
           Components: <span className="text-white font-medium">0</span>
         </div>
-        <div className="text-gray-400 text-sm">
-          Connections: <span className="text-white font-medium">0</span>
-        </div>
-        <button className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded-lg transition-colors">
-          ⚙️
-        </button>
       </div>
     </div>
   );

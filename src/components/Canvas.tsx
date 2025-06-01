@@ -17,7 +17,6 @@ export const Canvas: React.FC<CanvasProps> = ({
   onComponentDelete
 }) => {
   const canvasRef = useRef<HTMLDivElement>(null);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [selectedComponent, setSelectedComponent] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -33,24 +32,30 @@ export const Canvas: React.FC<CanvasProps> = ({
     const templateData = e.dataTransfer.getData('application/json');
     if (!templateData) return;
 
-    const template: ComponentTemplate = JSON.parse(templateData);
-    
-    const newComponent: FunnelComponent = {
-      id: `${template.type}-${Date.now()}`,
-      type: template.type,
-      position: {
-        x: (e.clientX - rect.left - pan.x) / zoom,
-        y: (e.clientY - rect.top - pan.y) / zoom
-      },
-      data: template.defaultData,
-      connections: []
-    };
+    try {
+      const template: ComponentTemplate = JSON.parse(templateData);
+      
+      const newComponent: FunnelComponent = {
+        id: `${template.type}-${Date.now()}`,
+        type: template.type,
+        position: {
+          x: (e.clientX - rect.left - pan.x) / zoom,
+          y: (e.clientY - rect.top - pan.y) / zoom
+        },
+        data: template.defaultData,
+        connections: []
+      };
 
-    onComponentAdd(newComponent);
+      console.log('Adding component:', newComponent);
+      onComponentAdd(newComponent);
+    } catch (error) {
+      console.error('Error parsing template data:', error);
+    }
   }, [onComponentAdd, zoom, pan]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
   }, []);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -94,14 +99,14 @@ export const Canvas: React.FC<CanvasProps> = ({
   }, [onComponentUpdate]);
 
   return (
-    <div className="flex-1 relative overflow-hidden bg-gray-950">
+    <div className="flex-1 relative overflow-hidden bg-black">
       {/* Canvas Grid */}
       <div 
-        className="absolute inset-0 opacity-20"
+        className="absolute inset-0 opacity-10"
         style={{
           backgroundImage: `
-            linear-gradient(rgba(99, 102, 241, 0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(99, 102, 241, 0.1) 1px, transparent 1px)
+            linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)
           `,
           backgroundSize: `${20 * zoom}px ${20 * zoom}px`,
           backgroundPosition: `${pan.x}px ${pan.y}px`
@@ -141,39 +146,22 @@ export const Canvas: React.FC<CanvasProps> = ({
       </div>
 
       {/* Zoom Controls */}
-      <div className="absolute bottom-6 right-6 flex flex-col gap-2">
+      <div className="absolute bottom-4 right-4 flex flex-col gap-1">
         <button
           onClick={() => setZoom(prev => Math.min(2, prev + 0.1))}
-          className="w-10 h-10 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg flex items-center justify-center text-white transition-colors"
+          className="w-8 h-8 bg-gray-900 hover:bg-gray-800 border border-gray-700 rounded flex items-center justify-center text-white text-sm transition-colors"
         >
           +
         </button>
-        <div className="w-10 h-8 bg-gray-800 border border-gray-600 rounded-lg flex items-center justify-center text-xs text-gray-300">
+        <div className="w-8 h-6 bg-gray-900 border border-gray-700 rounded flex items-center justify-center text-xs text-gray-300">
           {Math.round(zoom * 100)}%
         </div>
         <button
           onClick={() => setZoom(prev => Math.max(0.5, prev - 0.1))}
-          className="w-10 h-10 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg flex items-center justify-center text-white transition-colors"
+          className="w-8 h-8 bg-gray-900 hover:bg-gray-800 border border-gray-700 rounded flex items-center justify-center text-white text-sm transition-colors"
         >
           -
         </button>
-      </div>
-
-      {/* Mini Map */}
-      <div className="absolute top-6 right-6 w-48 h-32 bg-gray-900 border border-gray-700 rounded-lg p-2">
-        <div className="text-xs text-gray-400 mb-2">Minimap</div>
-        <div className="relative w-full h-20 bg-gray-800 rounded overflow-hidden">
-          {components.map((component) => (
-            <div
-              key={component.id}
-              className="absolute w-2 h-2 bg-blue-400 rounded-sm"
-              style={{
-                left: `${(component.position.x / 2000) * 100}%`,
-                top: `${(component.position.y / 1000) * 100}%`
-              }}
-            />
-          ))}
-        </div>
       </div>
     </div>
   );
