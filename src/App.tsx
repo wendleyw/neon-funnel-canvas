@@ -11,7 +11,7 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => {
-  console.log('FunnelCraft App initialized');
+  console.log('FunnelCraft App initialized - build refresh');
   
   return (
     <QueryClientProvider client={queryClient}>
