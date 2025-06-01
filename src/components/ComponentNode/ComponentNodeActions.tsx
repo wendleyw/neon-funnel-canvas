@@ -8,9 +8,9 @@ interface ComponentNodeActionsProps {
   component: FunnelComponent;
   isSelected: boolean;
   isConnecting: boolean;
-  onDuplicateClick: () => void;
-  onConnectionClick: () => void;
-  onEditClick?: () => void;
+  onDuplicateClick: (e: React.MouseEvent) => void;
+  onConnectionClick: (e: React.MouseEvent) => void;
+  onEditClick?: (e: React.MouseEvent) => void;
 }
 
 export const ComponentNodeActions: React.FC<ComponentNodeActionsProps> = ({
@@ -31,15 +31,17 @@ export const ComponentNodeActions: React.FC<ComponentNodeActionsProps> = ({
         top: component.position.y + 120, // Posicionar abaixo do componente
       }}
     >
-      <Button
-        size="sm"
-        variant="outline"
-        onClick={onEditClick}
-        className="bg-white/90 hover:bg-white border-gray-300 text-gray-700 shadow-lg backdrop-blur-sm transition-all duration-200 hover:scale-105"
-      >
-        <Edit3 size={14} className="mr-1" />
-        Editar
-      </Button>
+      {onEditClick && (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={onEditClick}
+          className="bg-white/90 hover:bg-white border-gray-300 text-gray-700 shadow-lg backdrop-blur-sm transition-all duration-200 hover:scale-105"
+        >
+          <Edit3 size={14} className="mr-1" />
+          Editar
+        </Button>
+      )}
       
       <Button
         size="sm"
