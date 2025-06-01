@@ -31,6 +31,7 @@ interface CanvasContainerProps {
   onDragOver: (e: React.DragEvent) => void;
   onDragEnter: (e: React.DragEvent) => void;
   onDragLeave: (e: React.DragEvent, canvasRef: React.RefObject<HTMLDivElement>) => void;
+  handleMouseDown: (e: React.MouseEvent, canvasRef: React.RefObject<HTMLDivElement>) => void;
 }
 
 export const CanvasContainer: React.FC<CanvasContainerProps> = ({
@@ -57,7 +58,8 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
   onDrop,
   onDragOver,
   onDragEnter,
-  onDragLeave
+  onDragLeave,
+  handleMouseDown
 }) => {
   const canvasRef = useRef<HTMLDivElement>(null);
 
@@ -85,6 +87,13 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
     }
   }, [components, onComponentAdd]);
 
+  const handleCanvasMouseDown = React.useCallback((e: React.MouseEvent) => {
+    // Call the canvas mouse down handler
+    onCanvasMouseDown(e);
+    // Call the pan mouse down handler with canvasRef
+    handleMouseDown(e, canvasRef);
+  }, [onCanvasMouseDown, handleMouseDown]);
+
   const transformStyle = useMemo(() => ({
     transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
     transformOrigin: '0 0'
@@ -102,7 +111,7 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
       onDragOver={onDragOver}
       onDragEnter={onDragEnter}
       onDragLeave={(e) => onDragLeave(e, canvasRef)}
-      onMouseDown={(e) => onCanvasMouseDown(e)}
+      onMouseDown={handleCanvasMouseDown}
       onMouseMove={onMouseMove}
       onMouseUp={onMouseUp}
       onWheel={onWheel}

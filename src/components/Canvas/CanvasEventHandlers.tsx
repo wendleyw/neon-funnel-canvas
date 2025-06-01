@@ -39,13 +39,13 @@ export const useCanvasEventHandlers = ({
   const dragDropHooks = useCanvasDragDrop(dragDropProps);
 
   // Enhanced mouse down handler that combines pan and selection
-  const handleCanvasMouseDown = useCallback((e: React.MouseEvent, canvasRef: React.RefObject<HTMLDivElement>) => {
+  const handleCanvasMouseDown = useCallback((e: React.MouseEvent) => {
     // Só limpa a seleção se o clique foi diretamente no canvas (não em componentes ou conexões)
     if (e.target === e.currentTarget) {
       selectionHooks.clearSelection();
     }
-    handleMouseDown(e, canvasRef);
-  }, [handleMouseDown, selectionHooks]);
+    // Note: The canvasRef will be handled internally in CanvasContainer
+  }, [selectionHooks]);
 
   return {
     // Zoom
@@ -57,6 +57,7 @@ export const useCanvasEventHandlers = ({
     // Pan
     pan,
     isPanning,
+    handleMouseDown,
     handleMouseMove,
     handleMouseUp,
     handleCanvasMouseDown,
