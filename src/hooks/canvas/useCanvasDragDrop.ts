@@ -41,7 +41,7 @@ export const useCanvasDragDrop = ({ onComponentAdd, pan, zoom }: UseCanvasDragDr
       
       const newComponent: FunnelComponent = {
         id: componentId,
-        type: template.type, // Aceita qualquer tipo de string, incluindo componentes personalizados
+        type: template.type,
         position: { x: Math.max(0, x - 80), y: Math.max(0, y - 40) },
         data: { ...template.defaultData },
         connections: []

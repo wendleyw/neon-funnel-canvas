@@ -1,7 +1,8 @@
 
 import React, { useState, useMemo, useCallback } from 'react';
+import { Copy, Link } from 'lucide-react';
 import { FunnelComponent } from '../types/funnel';
-import { componentTemplates } from '../data/componentTemplates';
+import { useComponentTemplates } from '../hooks/useComponentTemplates';
 import { useComponentDrag } from '../hooks/canvas/useComponentDrag';
 import { ComponentEditor } from './ComponentEditor';
 import { ComponentNodeCard } from './ComponentNode/ComponentNodeCard';
@@ -34,6 +35,7 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
   onDuplicate
 }) => {
   const [isEditing, setIsEditing] = useState(false);
+  const { allTemplates } = useComponentTemplates();
 
   const dragHandlers = useMemo(() => ({
     componentId: component.id,
@@ -48,8 +50,8 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
   } = useComponentDrag(dragHandlers);
 
   const template = useMemo(() => 
-    componentTemplates.find(t => t.type === component.type), 
-    [component.type]
+    allTemplates.find(t => t.type === component.type), 
+    [allTemplates, component.type]
   );
 
   const handleDeleteClick = useCallback((e: React.MouseEvent) => {
@@ -119,28 +121,61 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
     return classes;
   }, [isDragging, isSelected, canConnect]);
 
-  if (!template) return null;
+  if (!template) {
+    console.warn('Template not found for component type:', component.type);
+    return null;
+  }
 
   return (
-    <div
-      ref={nodeRef}
-      className={containerClassName}
-      style={containerStyle}
-      onMouseDown={handleMouseDown}
-      onDoubleClick={handleDoubleClick}
-      onClick={handleClick}
-    >
-      <ComponentNodeCard
-        component={component}
-        template={template}
-        isSelected={isSelected}
-        isConnecting={isConnecting}
-        canConnect={canConnect}
-        onEditClick={handleEditClick}
-        onDeleteClick={handleDeleteClick}
-        onConnectionClick={handleConnectionClick}
-        onDuplicateClick={handleDuplicateClick}
-      />
+    <div className="relative">
+      <div
+        ref={nodeRef}
+        className={containerClassName}
+        style={containerStyle}
+        onMouseDown={handleMouseDown}
+        onDoubleClick={handleDoubleClick}
+        onClick={handleClick}
+      >
+        <ComponentNodeCard
+          component={component}
+          template={template}
+          isSelected={isSelected}
+          isConnecting={isConnecting}
+          canConnect={canConnect}
+          onEditClick={handleEditClick}
+          onDeleteClick={handleDeleteClick}
+          onConnectionClick={handleConnectionClick}
+          onDuplicateClick={handleDuplicateClick}
+        />
+      </div>
+
+      {/* Botões externos abaixo do componente */}
+      {isSelected && !isConnecting && (
+        <div 
+          className="absolute flex items-center justify-center space-x-3"
+          style={{
+            left: component.position.x + 96 - 40, // Centraliza os botões (96 é metade da largura do card)
+            top: component.position.y + 180, // 20px abaixo do card
+            zIndex: 1001
+          }}
+        >
+          <button
+            onClick={handleDuplicateClick}
+            className="w-8 h-8 bg-green-600 hover:bg-green-700 text-white rounded-full flex items-center justify-center transition-colors shadow-lg"
+            title="Duplicar componente"
+          >
+            <Copy className="w-4 h-4" />
+          </button>
+          
+          <button
+            onClick={handleConnectionClick}
+            className="w-8 h-8 bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center justify-center transition-colors shadow-lg"
+            title="Conectar com outro componente"
+          >
+            <Link className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Editor Panel */}
       {isEditing && (
