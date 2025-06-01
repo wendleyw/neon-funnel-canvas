@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useWorkspace } from '../hooks/useWorkspace';
 import { useAuth } from '../contexts/AuthContext';
@@ -40,9 +39,11 @@ export const WorkspaceSelector = React.memo<WorkspaceSelectorProps>(({
     }
   }, [user, loadWorkspaces]);
 
-  const handleCreateWorkspace = useCallback((name: string, description?: string) => {
-    const workspace = createWorkspace(name, description);
-    setCurrentWorkspace(workspace);
+  const handleCreateWorkspace = useCallback(async (name: string, description?: string) => {
+    const workspace = await createWorkspace(name, description);
+    if (workspace) {
+      setCurrentWorkspace(workspace);
+    }
     setShowCreateForm(false);
   }, [createWorkspace, setCurrentWorkspace]);
 
