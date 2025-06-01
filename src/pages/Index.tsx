@@ -4,17 +4,27 @@ import { Sidebar } from '../components/Sidebar';
 import { Canvas } from '../components/Canvas';
 import { Toolbar } from '../components/Toolbar';
 import { StatusBar } from '../components/StatusBar';
+import { WorkspaceSelector } from '../components/WorkspaceSelector';
 import { CreateProjectModal } from '../components/ProjectCreator/CreateProjectModal';
 import { OpenProjectModal } from '../components/ProjectLoader/OpenProjectModal';
 import { FunnelComponent, Connection } from '../types/funnel';
-import { useLocalStorage } from '../hooks/useLocalStorage';
+import { useWorkspace } from '../hooks/useWorkspace';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { initialProject } from '../data/initialProject';
+import { toast } from 'sonner';
 
 const Index = () => {
-  const [project, setProject] = useLocalStorage('funnel-project', initialProject);
+  const { 
+    currentWorkspace, 
+    addProjectToWorkspace, 
+    loadProject 
+  } = useWorkspace();
+
+  const [project, setProject] = useState(initialProject);
+  const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isOpenModalOpen, setIsOpenModalOpen] = useState(false);
+  const [isInEditor, setIsInEditor] = useState(false);
 
   const handleDragStart = useCallback((template: any) => {
     console.log('Starting drag for template:', template);
@@ -25,7 +35,7 @@ const Index = () => {
       ...prev,
       components: [...prev.components, component]
     }));
-  }, [setProject]);
+  }, []);
 
   const handleComponentUpdate = useCallback((id: string, updates: Partial<FunnelComponent>) => {
     setProject(prev => ({
@@ -34,7 +44,7 @@ const Index = () => {
         component.id === id ? { ...component, ...updates } : component
       )
     }));
-  }, [setProject]);
+  }, []);
 
   const handleComponentDelete = useCallback((id: string) => {
     setProject(prev => {
@@ -49,21 +59,21 @@ const Index = () => {
         connections: updatedConnections
       };
     });
-  }, [setProject]);
+  }, []);
 
   const handleConnectionAdd = useCallback((connection: Connection) => {
     setProject(prev => ({
       ...prev,
       connections: [...prev.connections, connection]
     }));
-  }, [setProject]);
+  }, []);
 
   const handleConnectionDelete = useCallback((connectionId: string) => {
     setProject(prev => ({
       ...prev,
       connections: prev.connections.filter(connection => connection.id !== connectionId)
     }));
-  }, [setProject]);
+  }, []);
 
   const handleConnectionUpdate = useCallback((connectionId: string, updates: Partial<Connection>) => {
     setProject(prev => ({
@@ -72,17 +82,37 @@ const Index = () => {
         connection.id === connectionId ? { ...connection, ...updates } : connection
       )
     }));
-  }, [setProject]);
+  }, []);
+
+  const handleProjectSelect = useCallback((projectId: string) => {
+    const projectData = loadProject(projectId);
+    if (projectData) {
+      setProject(projectData);
+      setCurrentProjectId(projectId);
+      setIsInEditor(true);
+      console.log('Project loaded:', projectData.name);
+    } else {
+      toast.error('Erro ao carregar projeto');
+    }
+  }, [loadProject]);
+
+  const handleNewProject = useCallback(() => {
+    setProject(initialProject);
+    setCurrentProjectId(null);
+    setIsInEditor(true);
+  }, []);
 
   const handleProjectCreate = useCallback((newProject: any) => {
     setProject(newProject);
+    setCurrentProjectId(null);
     setIsCreateModalOpen(false);
-  }, [setProject]);
+    setIsInEditor(true);
+  }, []);
 
   const handleProjectOpen = useCallback((loadedProject: any) => {
     setProject(loadedProject);
     setIsOpenModalOpen(false);
-  }, [setProject]);
+  }, []);
 
   const handleAddCompleteTemplate = useCallback((newComponents: FunnelComponent[], newConnections: Connection[]) => {
     setProject(prev => ({
@@ -90,11 +120,23 @@ const Index = () => {
       components: [...prev.components, ...newComponents],
       connections: [...prev.connections, ...newConnections]
     }));
-  }, [setProject]);
-
-  const handleSave = useCallback(() => {
-    alert('Projeto salvo!');
   }, []);
+
+  const handleSave = useCallback(async () => {
+    if (!currentWorkspace) {
+      toast.error('Nenhum workspace selecionado');
+      return;
+    }
+
+    const success = await addProjectToWorkspace(project, currentWorkspace.id);
+    if (success) {
+      toast.success('Projeto salvo com sucesso!');
+      if (!currentProjectId) {
+        // Se é um novo projeto, pode definir um ID baseado no timestamp
+        setCurrentProjectId(`project-${Date.now()}`);
+      }
+    }
+  }, [project, currentWorkspace, addProjectToWorkspace, currentProjectId]);
 
   const handleLoad = useCallback(() => {
     setIsOpenModalOpen(true);
@@ -111,17 +153,20 @@ const Index = () => {
     link.click();
     
     URL.revokeObjectURL(url);
+    toast.success('Projeto exportado!');
   }, [project]);
 
   const handleClear = useCallback(() => {
     if (window.confirm('Tem certeza que deseja limpar o projeto?')) {
       setProject(initialProject);
+      toast.success('Projeto limpo!');
     }
-  }, [setProject]);
+  }, []);
 
   const handleBackToWorkspace = useCallback(() => {
-    // Implementar navegação para workspace
     console.log('Voltar para workspace');
+    setIsInEditor(false);
+    setCurrentProjectId(null);
   }, []);
 
   const handleProjectNameChange = useCallback((name: string) => {
@@ -129,13 +174,26 @@ const Index = () => {
       ...prev,
       name
     }));
-  }, [setProject]);
+  }, []);
 
   useHotkeys('ctrl+s, command+s', (e) => {
     e.preventDefault();
-    handleSave();
+    if (isInEditor) {
+      handleSave();
+    }
   });
 
+  // Se não está no editor, mostra o WorkspaceSelector
+  if (!isInEditor) {
+    return (
+      <WorkspaceSelector
+        onProjectSelect={handleProjectSelect}
+        onNewProject={handleNewProject}
+      />
+    );
+  }
+
+  // Se está no editor, mostra o editor de funil
   return (
     <div className="h-screen flex bg-black">
       <Sidebar 
@@ -152,7 +210,7 @@ const Index = () => {
           onBackToWorkspace={handleBackToWorkspace}
           projectName={project.name}
           onProjectNameChange={handleProjectNameChange}
-          workspaceName="Workspace"
+          workspaceName={currentWorkspace?.name}
           componentsCount={project.components.length}
         />
         <StatusBar 
