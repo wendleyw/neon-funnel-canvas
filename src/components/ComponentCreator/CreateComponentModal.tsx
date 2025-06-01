@@ -42,7 +42,8 @@ export const CreateComponentModal: React.FC<CreateComponentModalProps> = ({
       icon: formData.icon,
       label: formData.label,
       color: formData.color,
-      defaultData: {
+      category: 'custom',
+      defaultProps: {
         title: formData.label,
         description: formData.description,
         status: 'draft',

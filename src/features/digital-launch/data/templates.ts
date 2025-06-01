@@ -7,7 +7,8 @@ export const digitalLaunchTemplates: ComponentTemplate[] = [
     icon: '🎁',
     label: 'Oferta',
     color: '#DC2626',
-    defaultData: {
+    category: 'digital-launch',
+    defaultProps: {
       title: 'Nova Oferta',
       description: 'Produto/serviço principal + bônus e garantia',
       status: 'draft',
@@ -26,7 +27,8 @@ export const digitalLaunchTemplates: ComponentTemplate[] = [
     icon: '🎯',
     label: 'Público-alvo',
     color: '#7C3AED',
-    defaultData: {
+    category: 'digital-launch',
+    defaultProps: {
       title: 'Avatar/Persona',
       description: 'Definição detalhada do público-alvo',
       status: 'draft',
@@ -44,7 +46,8 @@ export const digitalLaunchTemplates: ComponentTemplate[] = [
     icon: '🌱',
     label: 'Tráfego Orgânico',
     color: '#059669',
-    defaultData: {
+    category: 'digital-launch',
+    defaultProps: {
       title: 'Tráfego Orgânico',
       description: 'Conteúdo gratuito, posts, vídeos, lives',
       status: 'draft',
@@ -61,7 +64,8 @@ export const digitalLaunchTemplates: ComponentTemplate[] = [
     icon: '💰',
     label: 'Tráfego Pago',
     color: '#EA580C',
-    defaultData: {
+    category: 'digital-launch',
+    defaultProps: {
       title: 'Tráfego Pago',
       description: 'Facebook Ads, Google Ads, Instagram Ads',
       status: 'draft',
@@ -78,7 +82,8 @@ export const digitalLaunchTemplates: ComponentTemplate[] = [
     icon: '📥',
     label: 'Captura de Leads',
     color: '#2563EB',
-    defaultData: {
+    category: 'digital-launch',
+    defaultProps: {
       title: 'Página de Captura',
       description: 'Landing page com oferta gratuita (lead magnet)',
       status: 'draft',
@@ -95,7 +100,8 @@ export const digitalLaunchTemplates: ComponentTemplate[] = [
     icon: '💌',
     label: 'Nutrição',
     color: '#DB2777',
-    defaultData: {
+    category: 'digital-launch',
+    defaultProps: {
       title: 'Sequência de Nutrição',
       description: 'E-mails/mensagens para construir relacionamento',
       status: 'draft',
@@ -112,7 +118,8 @@ export const digitalLaunchTemplates: ComponentTemplate[] = [
     icon: '🎬',
     label: 'Webinar/VSL',
     color: '#7C2D12',
-    defaultData: {
+    category: 'digital-launch',
+    defaultProps: {
       title: 'Apresentação Principal',
       description: 'Webinar ou VSL com pitch da oferta',
       status: 'draft',
@@ -130,7 +137,8 @@ export const digitalLaunchTemplates: ComponentTemplate[] = [
     icon: '📄',
     label: 'Página de Vendas',
     color: '#B91C1C',
-    defaultData: {
+    category: 'digital-launch',
+    defaultProps: {
       title: 'Página de Vendas',
       description: 'Descrição detalhada com benefícios e depoimentos',
       status: 'draft',
@@ -148,7 +156,8 @@ export const digitalLaunchTemplates: ComponentTemplate[] = [
     icon: '💳',
     label: 'Checkout + Upsell',
     color: '#991B1B',
-    defaultData: {
+    category: 'digital-launch',
+    defaultProps: {
       title: 'Finalização + Ofertas',
       description: 'Checkout integrado com upsells e downsells',
       status: 'draft',
@@ -165,7 +174,8 @@ export const digitalLaunchTemplates: ComponentTemplate[] = [
     icon: '🎉',
     label: 'Pós-venda',
     color: '#166534',
-    defaultData: {
+    category: 'digital-launch',
+    defaultProps: {
       title: 'Pós-venda',
       description: 'Entrega, suporte e acompanhamento',
       status: 'draft',
@@ -182,7 +192,8 @@ export const digitalLaunchTemplates: ComponentTemplate[] = [
     icon: '📊',
     label: 'Análise & Otimização',
     color: '#0891B2',
-    defaultData: {
+    category: 'digital-launch',
+    defaultProps: {
       title: 'Métricas e Otimização',
       description: 'CPL, CTR, conversão, ROI e ajustes',
       status: 'draft',

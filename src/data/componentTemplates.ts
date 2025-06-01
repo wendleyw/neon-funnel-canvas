@@ -11,7 +11,9 @@ export const defaultTemplates: ComponentTemplate[] = [
     category: 'product-offer',
     defaultProps: {
       title: 'Produto Principal',
-      description: 'Apresente seu produto digital, físico ou serviço'
+      description: 'Apresente seu produto digital, físico ou serviço',
+      status: 'draft',
+      properties: {}
     }
   },
   {
@@ -22,7 +24,9 @@ export const defaultTemplates: ComponentTemplate[] = [
     category: 'product-offer',
     defaultProps: {
       title: 'Bônus Exclusivos',
-      description: 'Complementos e vantagens adicionais'
+      description: 'Complementos e vantagens adicionais',
+      status: 'draft',
+      properties: {}
     }
   },
   {
@@ -33,7 +37,9 @@ export const defaultTemplates: ComponentTemplate[] = [
     category: 'product-offer',
     defaultProps: {
       title: 'Garantia de 30 dias',
-      description: 'Reembolso garantido'
+      description: 'Reembolso garantido',
+      status: 'draft',
+      properties: {}
     }
   },
   {
@@ -44,7 +50,9 @@ export const defaultTemplates: ComponentTemplate[] = [
     category: 'product-offer',
     defaultProps: {
       title: 'Preços e Condições',
-      description: 'Parcelamento e descontos disponíveis'
+      description: 'Parcelamento e descontos disponíveis',
+      status: 'draft',
+      properties: {}
     }
   },
 
@@ -57,7 +65,9 @@ export const defaultTemplates: ComponentTemplate[] = [
     category: 'target-audience',
     defaultProps: {
       title: 'Seu Avatar',
-      description: 'Perfil detalhado do cliente ideal'
+      description: 'Perfil detalhado do cliente ideal',
+      status: 'draft',
+      properties: {}
     }
   },
   {
@@ -68,7 +78,9 @@ export const defaultTemplates: ComponentTemplate[] = [
     category: 'target-audience',
     defaultProps: {
       title: 'Nossa Posição',
-      description: 'Mensagem-chave e diferencial'
+      description: 'Mensagem-chave e diferencial',
+      status: 'draft',
+      properties: {}
     }
   },
 
@@ -81,7 +93,9 @@ export const defaultTemplates: ComponentTemplate[] = [
     category: 'traffic-acquisition',
     defaultProps: {
       title: 'Conteúdo Orgânico',
-      description: 'Posts para Instagram, YouTube, Blog'
+      description: 'Posts para Instagram, YouTube, Blog',
+      status: 'draft',
+      properties: {}
     }
   },
   {
@@ -92,7 +106,9 @@ export const defaultTemplates: ComponentTemplate[] = [
     category: 'traffic-acquisition',
     defaultProps: {
       title: 'Tráfego Pago',
-      description: 'Facebook Ads, Google Ads, TikTok'
+      description: 'Facebook Ads, Google Ads, TikTok',
+      status: 'draft',
+      properties: {}
     }
   },
   {
@@ -103,7 +119,9 @@ export const defaultTemplates: ComponentTemplate[] = [
     category: 'traffic-acquisition',
     defaultProps: {
       title: 'Parcerias',
-      description: 'Rede de afiliados e influenciadores'
+      description: 'Rede de afiliados e influenciadores',
+      status: 'draft',
+      properties: {}
     }
   },
 
@@ -116,7 +134,9 @@ export const defaultTemplates: ComponentTemplate[] = [
     category: 'lead-capture',
     defaultProps: {
       title: 'Página de Captura',
-      description: 'Formulário para capturar leads'
+      description: 'Formulário para capturar leads',
+      status: 'draft',
+      properties: {}
     }
   },
   {
@@ -127,7 +147,9 @@ export const defaultTemplates: ComponentTemplate[] = [
     category: 'lead-capture',
     defaultProps: {
       title: 'Isca Digital',
-      description: 'eBook, minicurso, checklist gratuito'
+      description: 'eBook, minicurso, checklist gratuito',
+      status: 'draft',
+      properties: {}
     }
   },
   {
@@ -138,7 +160,9 @@ export const defaultTemplates: ComponentTemplate[] = [
     category: 'lead-capture',
     defaultProps: {
       title: 'Formulário',
-      description: 'Captura dados e integração CRM'
+      description: 'Captura dados e integração CRM',
+      status: 'draft',
+      properties: {}
     }
   },
 
@@ -151,7 +175,9 @@ export const defaultTemplates: ComponentTemplate[] = [
     category: 'nurturing-relationship',
     defaultProps: {
       title: 'Automação de E-mail',
-      description: 'Sequência educativa automática'
+      description: 'Sequência educativa automática',
+      status: 'draft',
+      properties: {}
     }
   },
   {
@@ -162,7 +188,9 @@ export const defaultTemplates: ComponentTemplate[] = [
     category: 'nurturing-relationship',
     defaultProps: {
       title: 'Conteúdo de Valor',
-      description: 'Vídeos, artigos, lives educativas'
+      description: 'Vídeos, artigos, lives educativas',
+      status: 'draft',
+      properties: {}
     }
   },
   {
@@ -173,7 +201,9 @@ export const defaultTemplates: ComponentTemplate[] = [
     category: 'nurturing-relationship',
     defaultProps: {
       title: 'Prova Social',
-      description: 'Reviews, cases de sucesso'
+      description: 'Reviews, cases de sucesso',
+      status: 'draft',
+      properties: {}
     }
   },
 
@@ -186,7 +216,9 @@ export const defaultTemplates: ComponentTemplate[] = [
     category: 'engagement-conversion',
     defaultProps: {
       title: 'Webinar ao Vivo',
-      description: 'Apresentação educativa e vendas'
+      description: 'Apresentação educativa e vendas',
+      status: 'draft',
+      properties: {}
     }
   },
   {
@@ -197,7 +229,9 @@ export const defaultTemplates: ComponentTemplate[] = [
     category: 'engagement-conversion',
     defaultProps: {
       title: 'VSL - Video Sales Letter',
-      description: 'Vídeo persuasivo de vendas'
+      description: 'Vídeo persuasivo de vendas',
+      status: 'draft',
+      properties: {}
     }
   },
   {
@@ -208,7 +242,9 @@ export const defaultTemplates: ComponentTemplate[] = [
     category: 'engagement-conversion',
     defaultProps: {
       title: 'Consulta de Vendas',
-      description: 'Agendamento para produtos complexos'
+      description: 'Agendamento para produtos complexos',
+      status: 'draft',
+      properties: {}
     }
   },
 
@@ -221,7 +257,9 @@ export const defaultTemplates: ComponentTemplate[] = [
     category: 'sales-checkout',
     defaultProps: {
       title: 'Página de Vendas',
-      description: 'Copy persuasiva com CTA'
+      description: 'Copy persuasiva com CTA',
+      status: 'draft',
+      properties: {}
     }
   },
   {
@@ -232,7 +270,9 @@ export const defaultTemplates: ComponentTemplate[] = [
     category: 'sales-checkout',
     defaultProps: {
       title: 'Finalização',
-      description: 'Integração Stripe, PayPal, Hotmart'
+      description: 'Integração Stripe, PayPal, Hotmart',
+      status: 'draft',
+      properties: {}
     }
   },
   {
@@ -243,7 +283,9 @@ export const defaultTemplates: ComponentTemplate[] = [
     category: 'sales-checkout',
     defaultProps: {
       title: 'Upsell/Downsell',
-      description: 'Ofertas complementares'
+      description: 'Ofertas complementares',
+      status: 'draft',
+      properties: {}
     }
   },
 
@@ -256,7 +298,9 @@ export const defaultTemplates: ComponentTemplate[] = [
     category: 'analytics-optimization',
     defaultProps: {
       title: 'Métricas e KPIs',
-      description: 'CPL, CTR, conversão, ROI'
+      description: 'CPL, CTR, conversão, ROI',
+      status: 'draft',
+      properties: {}
     }
   },
   {
@@ -267,7 +311,9 @@ export const defaultTemplates: ComponentTemplate[] = [
     category: 'analytics-optimization',
     defaultProps: {
       title: 'Tracking Avançado',
-      description: 'Facebook Pixel, Google Analytics'
+      description: 'Facebook Pixel, Google Analytics',
+      status: 'draft',
+      properties: {}
     }
   },
   {
@@ -278,7 +324,9 @@ export const defaultTemplates: ComponentTemplate[] = [
     category: 'analytics-optimization',
     defaultProps: {
       title: 'Testes A/B',
-      description: 'Otimização baseada em dados'
+      description: 'Otimização baseada em dados',
+      status: 'draft',
+      properties: {}
     }
   },
 
@@ -291,7 +339,9 @@ export const defaultTemplates: ComponentTemplate[] = [
     category: 'post-sale-retention',
     defaultProps: {
       title: 'Área de Membros',
-      description: 'Entrega e acesso ao produto'
+      description: 'Entrega e acesso ao produto',
+      status: 'draft',
+      properties: {}
     }
   },
   {
@@ -302,7 +352,9 @@ export const defaultTemplates: ComponentTemplate[] = [
     category: 'post-sale-retention',
     defaultProps: {
       title: 'Central de Ajuda',
-      description: 'FAQ, chat, tickets'
+      description: 'FAQ, chat, tickets',
+      status: 'draft',
+      properties: {}
     }
   },
   {
@@ -313,7 +365,9 @@ export const defaultTemplates: ComponentTemplate[] = [
     category: 'post-sale-retention',
     defaultProps: {
       title: 'Indique e Ganhe',
-      description: 'Sistema de recompensas'
+      description: 'Sistema de recompensas',
+      status: 'draft',
+      properties: {}
     }
   }
 ];
