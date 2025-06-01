@@ -7,7 +7,7 @@ import { StatusBar } from '../components/StatusBar';
 import { WorkspaceSelector } from '../components/WorkspaceSelector';
 import { CreateProjectModal } from '../components/ProjectCreator/CreateProjectModal';
 import { OpenProjectModal } from '../components/ProjectLoader/OpenProjectModal';
-import { FunnelComponent, Connection } from '../types/funnel';
+import { FunnelComponent, Connection, FunnelProject } from '../types/funnel';
 import { useWorkspace } from '../hooks/useWorkspace';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { initialProject } from '../data/initialProject';
@@ -87,10 +87,16 @@ const Index = () => {
   const handleProjectSelect = useCallback((projectId: string) => {
     const projectData = loadProject(projectId);
     if (projectData) {
-      setProject(projectData);
-      setCurrentProjectId(projectId);
-      setIsInEditor(true);
-      console.log('Project loaded:', projectData.name);
+      // Type cast the loaded data to FunnelProject and validate it has required properties
+      const typedProject = projectData as FunnelProject;
+      if (typedProject && typeof typedProject === 'object' && 'name' in typedProject) {
+        setProject(typedProject);
+        setCurrentProjectId(projectId);
+        setIsInEditor(true);
+        console.log('Project loaded:', typedProject.name);
+      } else {
+        toast.error('Dados do projeto inválidos');
+      }
     } else {
       toast.error('Erro ao carregar projeto');
     }
