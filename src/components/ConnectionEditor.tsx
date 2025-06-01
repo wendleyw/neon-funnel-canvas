@@ -120,8 +120,8 @@ export const ConnectionEditor: React.FC<ConnectionEditorProps> = ({
     <>
       {/* Overlay para fechar ao clicar fora */}
       <div
-        className="fixed inset-0 bg-black/20 backdrop-blur-sm"
-        style={{ zIndex: 999999 }}
+        className="fixed inset-0 bg-black/30 backdrop-blur-sm"
+        style={{ zIndex: 99999 }}
         onClick={onClose}
       />
       
@@ -132,7 +132,7 @@ export const ConnectionEditor: React.FC<ConnectionEditorProps> = ({
         style={{
           left: adjustedPosition.x,
           top: adjustedPosition.y,
-          zIndex: 1000000,
+          zIndex: 100000,
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.1)',
         }}
         onClick={(e) => e.stopPropagation()}
@@ -230,7 +230,7 @@ export const ConnectionEditor: React.FC<ConnectionEditorProps> = ({
                 </div>
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-72 p-4 bg-gray-800 border-gray-700" style={{ zIndex: 1000001 }}>
+            <PopoverContent className="w-72 p-4 bg-gray-800 border-gray-700" style={{ zIndex: 100001 }}>
               <div className="space-y-4">
                 <input
                   type="color"
