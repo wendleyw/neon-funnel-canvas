@@ -2,7 +2,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Workspace, WorkspaceProject } from '../types/workspace';
 import { FunnelProject } from '../types/funnel';
-import { supabase } from '../integrations/supabase/client';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'sonner';
 
@@ -28,7 +27,6 @@ export const useWorkspace = () => {
     };
 
     try {
-      // Salvar no Supabase (usando localStorage como fallback até termos tabelas no Supabase)
       const savedWorkspaces = JSON.parse(localStorage.getItem(`funnel-workspaces-${user.id}`) || '[]');
       savedWorkspaces.push(newWorkspace);
       localStorage.setItem(`funnel-workspaces-${user.id}`, JSON.stringify(savedWorkspaces));
@@ -50,18 +48,15 @@ export const useWorkspace = () => {
     try {
       setWorkspaces(prev => prev.filter(w => w.id !== workspaceId));
       
-      // Remover do localStorage
       const savedWorkspaces = JSON.parse(localStorage.getItem(`funnel-workspaces-${user.id}`) || '[]');
       const updatedWorkspaces = savedWorkspaces.filter((w: Workspace) => w.id !== workspaceId);
       localStorage.setItem(`funnel-workspaces-${user.id}`, JSON.stringify(updatedWorkspaces));
       
-      // Remover projetos associados
       const savedProjects = JSON.parse(localStorage.getItem(`funnel-projects-${user.id}`) || '[]');
       const updatedProjects = savedProjects.filter((p: WorkspaceProject) => p.workspaceId !== workspaceId);
       localStorage.setItem(`funnel-projects-${user.id}`, JSON.stringify(updatedProjects));
       setWorkspaceProjects(updatedProjects);
       
-      // Se workspace atual foi deletado, limpar
       if (currentWorkspace?.id === workspaceId) {
         setCurrentWorkspace(null);
       }
@@ -76,7 +71,7 @@ export const useWorkspace = () => {
   const addProjectToWorkspace = useCallback(async (project: FunnelProject, workspaceId: string) => {
     if (!user) {
       toast.error('Usuário não autenticado');
-      return;
+      return false;
     }
 
     try {
@@ -109,10 +104,11 @@ export const useWorkspace = () => {
       localStorage.setItem(`funnel-workspaces-${user.id}`, JSON.stringify(updatedWorkspaces));
       setWorkspaces(updatedWorkspaces);
       
-      toast.success('Projeto salvo com sucesso!');
+      return true;
     } catch (error) {
       console.error('Erro ao salvar projeto:', error);
       toast.error('Erro ao salvar projeto');
+      return false;
     }
   }, [user]);
 

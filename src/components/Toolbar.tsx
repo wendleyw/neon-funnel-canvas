@@ -11,6 +11,7 @@ interface ToolbarProps {
   projectName: string;
   onProjectNameChange: (name: string) => void;
   workspaceName?: string;
+  componentsCount?: number;
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
@@ -21,7 +22,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onBackToWorkspace,
   projectName,
   onProjectNameChange,
-  workspaceName
+  workspaceName,
+  componentsCount = 0
 }) => {
   return (
     <div className="h-12 bg-black border-b border-gray-800 flex items-center justify-between px-4">
@@ -75,7 +77,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       {/* Right Section */}
       <div className="flex items-center space-x-3">
         <div className="text-gray-400 text-xs">
-          Componentes: <span className="text-white font-medium">0</span>
+          Componentes: <span className="text-white font-medium">{componentsCount}</span>
         </div>
       </div>
     </div>

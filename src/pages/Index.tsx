@@ -29,7 +29,8 @@ const Index = () => {
     loadProject,
     exportProject,
     clearProject,
-    updateProjectName
+    updateProjectName,
+    setProjectData
   } = useFunnelProject();
 
   const {
@@ -51,27 +52,34 @@ const Index = () => {
     console.log('Dragging component:', template.label);
   }, []);
 
-  // Função para atualizar conexões
   const handleConnectionUpdate = useCallback((connectionId: string, updates: Partial<Connection>) => {
     const updatedConnections = project.connections.map(conn => 
       conn.id === connectionId ? { ...conn, ...updates } : conn
     );
     
-    // Como useFunnelProject não tem updateConnection, vamos atualizar manualmente
     const updatedProject = {
       ...project,
       connections: updatedConnections,
       updatedAt: new Date().toISOString()
     };
     
-    // Aqui seria ideal ter uma função updateConnection no hook, mas por enquanto fazemos assim
+    setProjectData(updatedProject);
     console.log('Connection updated:', connectionId, updates);
-  }, [project]);
+  }, [project, setProjectData]);
 
   const handleSave = useCallback(() => {
-    saveProject();
-    if (currentWorkspace) {
+    if (!currentWorkspace) {
+      toast.error('Nenhum workspace selecionado');
+      return;
+    }
+
+    // Salvar projeto no hook useFunnelProject
+    const saved = saveProject(currentWorkspace.id);
+    
+    if (saved) {
+      // Adicionar projeto ao workspace
       addProjectToWorkspace(project, currentWorkspace.id);
+      toast.success('Projeto salvo no workspace!');
     }
   }, [saveProject, currentWorkspace, addProjectToWorkspace, project]);
 
@@ -94,12 +102,13 @@ const Index = () => {
     // Carregar projeto do workspace
     const projectData = loadProjectFromWorkspace(projectId);
     if (projectData) {
-      loadProject(projectId);
+      setProjectData(projectData);
       setCurrentView('project');
+      toast.success('Projeto carregado!');
     } else {
       toast.error('Projeto não encontrado');
     }
-  }, [loadProject, loadProjectFromWorkspace]);
+  }, [loadProjectFromWorkspace, setProjectData]);
 
   const handleNewProject = useCallback(() => {
     clearProject();
@@ -137,6 +146,7 @@ const Index = () => {
             projectName={project.name}
             onProjectNameChange={updateProjectName}
             workspaceName={currentWorkspace?.name}
+            componentsCount={project.components.length}
           />
         </div>
         
