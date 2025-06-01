@@ -1,9 +1,13 @@
+
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useWorkspace } from '../hooks/useWorkspace';
-import { Plus, FolderOpen } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { Plus, FolderOpen, User, LogIn } from 'lucide-react';
 import { WorkspaceCard } from './Workspace/WorkspaceCard';
 import { ProjectCard } from './Workspace/ProjectCard';
 import { CreateWorkspaceModal } from './Workspace/CreateWorkspaceModal';
+import { AuthModal } from './Auth/AuthModal';
+import { ProfileModal } from './Profile/ProfileModal';
 import { ErrorBoundary } from './ErrorBoundary';
 
 interface WorkspaceSelectorProps {
@@ -15,6 +19,7 @@ export const WorkspaceSelector = React.memo<WorkspaceSelectorProps>(({
   onProjectSelect,
   onNewProject
 }) => {
+  const { user, loading: authLoading } = useAuth();
   const {
     currentWorkspace,
     setCurrentWorkspace,
@@ -26,10 +31,14 @@ export const WorkspaceSelector = React.memo<WorkspaceSelectorProps>(({
   } = useWorkspace();
 
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   useEffect(() => {
-    loadWorkspaces();
-  }, [loadWorkspaces]);
+    if (user) {
+      loadWorkspaces();
+    }
+  }, [user, loadWorkspaces]);
 
   const handleCreateWorkspace = useCallback((name: string, description?: string) => {
     const workspace = createWorkspace(name, description);
@@ -56,38 +65,92 @@ export const WorkspaceSelector = React.memo<WorkspaceSelectorProps>(({
     return currentWorkspace ? getWorkspaceProjects(currentWorkspace.id) : [];
   }, [currentWorkspace, getWorkspaceProjects]);
 
-  if (!currentWorkspace) {
+  if (authLoading) {
+    return (
+      <div className="flex-1 flex items-center justify-center bg-black text-white">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4"></div>
+          <p>Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
     return (
       <ErrorBoundary>
         <div className="flex-1 flex flex-col items-center justify-center bg-black text-white p-8">
-          <div className="max-w-md w-full">
-            <h1 className="text-2xl font-bold mb-8 text-center">Workspaces</h1>
+          <div className="max-w-md w-full text-center">
+            <h1 className="text-3xl font-bold mb-4">Funnel Builder</h1>
+            <p className="text-gray-400 mb-8">
+              Crie e gerencie seus funnels de vendas de forma visual e intuitiva
+            </p>
             
-            {workspaces.length === 0 ? (
-              <div className="text-center mb-8">
-                <p className="text-gray-400 mb-4">Nenhum workspace encontrado</p>
-                <p className="text-sm text-gray-500">Crie seu primeiro workspace para começar</p>
-              </div>
-            ) : (
-              <div className="space-y-2 mb-8">
-                {workspaces.map((workspace) => (
-                  <WorkspaceCard
-                    key={workspace.id}
-                    workspace={workspace}
-                    onSelect={setCurrentWorkspace}
-                    onDelete={handleDeleteWorkspace}
-                  />
-                ))}
-              </div>
-            )}
-
-            <CreateWorkspaceModal
-              showCreateForm={showCreateForm}
-              onToggleForm={handleToggleCreateForm}
-              onCreate={handleCreateWorkspace}
-            />
+            <button
+              onClick={() => setShowAuthModal(true)}
+              className="w-full flex items-center justify-center gap-2 p-4 bg-white text-black rounded hover:bg-gray-200 transition-colors font-medium"
+            >
+              <LogIn size={20} />
+              Entrar / Criar Conta
+            </button>
+            
+            <p className="text-xs text-gray-500 mt-4">
+              Faça login para acessar seus workspaces e projetos
+            </p>
           </div>
         </div>
+
+        <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      </ErrorBoundary>
+    );
+  }
+
+  if (!currentWorkspace) {
+    return (
+      <ErrorBoundary>
+        <div className="flex-1 flex flex-col bg-black text-white">
+          {/* Header with user info */}
+          <div className="p-4 border-b border-gray-800 flex items-center justify-between">
+            <h1 className="text-2xl font-bold">Meus Workspaces</h1>
+            <button
+              onClick={() => setShowProfileModal(true)}
+              className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors p-2 rounded"
+            >
+              <User size={20} />
+              <span className="text-sm">{user.email}</span>
+            </button>
+          </div>
+
+          <div className="flex-1 flex flex-col items-center justify-center p-8">
+            <div className="max-w-md w-full">
+              {workspaces.length === 0 ? (
+                <div className="text-center mb-8">
+                  <p className="text-gray-400 mb-4">Nenhum workspace encontrado</p>
+                  <p className="text-sm text-gray-500">Crie seu primeiro workspace para começar</p>
+                </div>
+              ) : (
+                <div className="space-y-2 mb-8">
+                  {workspaces.map((workspace) => (
+                    <WorkspaceCard
+                      key={workspace.id}
+                      workspace={workspace}
+                      onSelect={setCurrentWorkspace}
+                      onDelete={handleDeleteWorkspace}
+                    />
+                  ))}
+                </div>
+              )}
+
+              <CreateWorkspaceModal
+                showCreateForm={showCreateForm}
+                onToggleForm={handleToggleCreateForm}
+                onCreate={handleCreateWorkspace}
+              />
+            </div>
+          </div>
+        </div>
+
+        <ProfileModal isOpen={showProfileModal} onClose={() => setShowProfileModal(false)} />
       </ErrorBoundary>
     );
   }
@@ -104,6 +167,14 @@ export const WorkspaceSelector = React.memo<WorkspaceSelectorProps>(({
             >
               <FolderOpen size={16} />
               <span className="text-sm">Voltar aos Workspaces</span>
+            </button>
+            
+            <button
+              onClick={() => setShowProfileModal(true)}
+              className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors p-2 rounded"
+            >
+              <User size={16} />
+              <span className="text-xs">{user.email}</span>
             </button>
           </div>
           <h1 className="text-xl font-bold">{currentWorkspace.name}</h1>
@@ -134,6 +205,8 @@ export const WorkspaceSelector = React.memo<WorkspaceSelectorProps>(({
             ))}
           </div>
         </div>
+
+        <ProfileModal isOpen={showProfileModal} onClose={() => setShowProfileModal(false)} />
       </div>
     </ErrorBoundary>
   );

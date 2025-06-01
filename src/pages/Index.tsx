@@ -1,17 +1,23 @@
+
 import React, { useEffect, useState, useCallback } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { Canvas } from '../components/Canvas';
 import { Toolbar } from '../components/Toolbar';
 import { WorkspaceSelector } from '../components/WorkspaceSelector';
+import { ProfileModal } from '../components/Profile/ProfileModal';
 import { useFunnelProject } from '../hooks/useFunnelProject';
 import { useWorkspace } from '../hooks/useWorkspace';
+import { useAuth } from '../contexts/AuthContext';
 import { ComponentTemplate, Connection } from '../types/funnel';
 import { toast } from 'sonner';
 import { StatusBar } from '../components/StatusBar';
+import { User } from 'lucide-react';
 
 const Index = () => {
+  const { user } = useAuth();
   const [currentView, setCurrentView] = useState<'workspace' | 'project'>('workspace');
   const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
+  const [showProfileModal, setShowProfileModal] = useState(false);
   
   const {
     project,
@@ -115,16 +121,33 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-black flex flex-col w-full">
       {/* Toolbar */}
-      <Toolbar
-        onSave={handleSave}
-        onLoad={handleLoad}
-        onExport={handleExport}
-        onClear={handleClear}
-        onBackToWorkspace={handleBackToWorkspace}
-        projectName={project.name}
-        onProjectNameChange={updateProjectName}
-        workspaceName={currentWorkspace?.name}
-      />
+      <div className="flex items-center justify-between bg-black border-b border-gray-800">
+        <div className="flex-1">
+          <Toolbar
+            onSave={handleSave}
+            onLoad={handleLoad}
+            onExport={handleExport}
+            onClear={handleClear}
+            onBackToWorkspace={handleBackToWorkspace}
+            projectName={project.name}
+            onProjectNameChange={updateProjectName}
+            workspaceName={currentWorkspace?.name}
+          />
+        </div>
+        
+        {/* User info in project view */}
+        {user && (
+          <div className="px-4">
+            <button
+              onClick={() => setShowProfileModal(true)}
+              className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors p-2 rounded"
+            >
+              <User size={16} />
+              <span className="text-xs">{user.email}</span>
+            </button>
+          </div>
+        )}
+      </div>
       
       {/* Main Content */}
       <div className="flex-1 flex w-full">
@@ -149,6 +172,8 @@ const Index = () => {
         components={project.components}
         connections={project.connections}
       />
+
+      <ProfileModal isOpen={showProfileModal} onClose={() => setShowProfileModal(false)} />
     </div>
   );
 };
