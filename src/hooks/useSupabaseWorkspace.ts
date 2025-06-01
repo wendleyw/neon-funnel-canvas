@@ -90,7 +90,7 @@ export const useSupabaseWorkspace = () => {
   const addProjectToWorkspace = useCallback(async (project: any, workspaceId: string, projectId?: string) => {
     if (!user) {
       toast.error('Usuário não autenticado');
-      return false;
+      return { success: false };
     }
 
     setLoading(true);
@@ -116,7 +116,7 @@ export const useSupabaseWorkspace = () => {
         if (error) {
           console.error('Erro ao atualizar projeto:', error);
           toast.error('Erro ao salvar projeto');
-          return false;
+          return { success: false };
         }
 
         result = data;
@@ -141,7 +141,7 @@ export const useSupabaseWorkspace = () => {
         if (error) {
           console.error('Erro ao criar projeto:', error);
           toast.error('Erro ao salvar projeto');
-          return false;
+          return { success: false };
         }
 
         result = data;
@@ -154,11 +154,11 @@ export const useSupabaseWorkspace = () => {
         return [...filtered, result];
       });
 
-      return true;
+      return { success: true, projectId: result.id };
     } catch (error) {
       console.error('Erro ao salvar projeto:', error);
       toast.error('Erro ao salvar projeto');
-      return false;
+      return { success: false };
     } finally {
       setLoading(false);
     }

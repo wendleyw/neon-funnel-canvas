@@ -1,4 +1,3 @@
-
 import { useCallback } from 'react';
 import { FunnelComponent, Connection, FunnelProject } from '../types/funnel';
 import { useWorkspace } from './useWorkspace';
@@ -138,7 +137,7 @@ export const useProjectHandlers = ({
     console.log('Current project ID:', currentProjectId);
 
     const result = await addProjectToWorkspace(projectToSave, currentWorkspace.id, currentProjectId || undefined);
-    if (result && result.success) {
+    if (result.success) {
       setProject(projectToSave);
       toast.success('Projeto salvo com sucesso!');
       
