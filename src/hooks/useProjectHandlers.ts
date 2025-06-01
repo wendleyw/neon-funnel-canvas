@@ -1,3 +1,4 @@
+
 import { useCallback } from 'react';
 import { FunnelComponent, Connection, FunnelProject } from '../types/funnel';
 import { useWorkspace } from './useWorkspace';
@@ -128,7 +129,6 @@ export const useProjectHandlers = ({
       return;
     }
 
-    // Atualizar o timestamp antes de salvar
     const projectToSave = {
       ...project,
       updatedAt: new Date().toISOString()
@@ -137,18 +137,13 @@ export const useProjectHandlers = ({
     console.log('Salvando projeto:', projectToSave.name, 'no workspace:', currentWorkspace.name);
     console.log('Current project ID:', currentProjectId);
 
-    const success = await addProjectToWorkspace(projectToSave, currentWorkspace.id, currentProjectId || undefined);
-    if (success) {
-      // Atualizar o estado local com o timestamp atualizado
+    const result = await addProjectToWorkspace(projectToSave, currentWorkspace.id, currentProjectId || undefined);
+    if (result && result.success) {
       setProject(projectToSave);
-      
       toast.success('Projeto salvo com sucesso!');
       
-      // Se não tinha ID antes (projeto novo), vamos gerar um temporário
-      // O ID real será definido pelo Supabase, mas precisamos de algo para evitar duplicação
-      if (!currentProjectId) {
-        const tempId = `temp-${Date.now()}`;
-        setCurrentProjectId(tempId);
+      if (result.projectId && !currentProjectId) {
+        setCurrentProjectId(result.projectId);
       }
     }
   }, [project, currentWorkspace, addProjectToWorkspace, currentProjectId, setCurrentProjectId, setProject]);

@@ -32,7 +32,6 @@ const Index = () => {
     enterEditor
   });
 
-  // Se não está no editor, mostra o WorkspaceSelector
   if (!isInEditor) {
     return (
       <WorkspaceSelector
@@ -42,7 +41,6 @@ const Index = () => {
     );
   }
 
-  // Se está no editor, mostra o editor de funil
   return (
     <FunnelEditor
       project={project}
