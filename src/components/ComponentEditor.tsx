@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useRef } from 'react';
 import {
   Dialog,
@@ -151,27 +152,29 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
   return (
     <>
-      {/* Overlay de fundo com blur */}
+      {/* Overlay de fundo com blur - tela cheia */}
       <div
-        className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50"
+        className="fixed inset-0 bg-black/20 backdrop-blur-sm"
+        style={{ zIndex: 9999 }}
         onClick={onClose}
       />
       
-      {/* Modal customizado com blur */}
+      {/* Modal customizado com blur - tela cheia */}
       <div
-        className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-2xl translate-x-[-50%] translate-y-[-50%] bg-white/95 backdrop-blur-md border border-gray-200 rounded-xl shadow-2xl max-h-[90vh] overflow-y-auto"
+        className="fixed inset-4 bg-gray-900/95 backdrop-blur-md border border-gray-700 rounded-xl shadow-2xl overflow-y-auto"
+        style={{ zIndex: 10000 }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-6 border-b border-gray-700">
           <div className="flex items-center gap-2">
             {getPlatformIcon()}
-            <h2 className="text-lg font-semibold text-gray-900">Editar Componente</h2>
-            <Badge variant="outline">{component.type}</Badge>
+            <h2 className="text-lg font-semibold text-white">Editar Componente</h2>
+            <Badge variant="outline" className="border-gray-600 text-gray-300">{component.type}</Badge>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 transition-colors p-1 hover:bg-gray-100 rounded"
+            className="text-gray-400 hover:text-gray-200 transition-colors p-1 hover:bg-gray-800 rounded"
           >
             <X className="h-4 w-4" />
           </button>
@@ -181,56 +184,56 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Info */}
-            <Card className="bg-white/50 backdrop-blur-sm border-gray-200">
+            <Card className="bg-gray-800/50 backdrop-blur-sm border-gray-700">
               <CardHeader>
-                <CardTitle className="text-lg text-gray-900">Informações Básicas</CardTitle>
+                <CardTitle className="text-lg text-white">Informações Básicas</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Título</label>
+                  <label className="text-sm font-medium text-gray-300">Título</label>
                   <Input
                     value={formData.title}
                     onChange={(e) => handleInputChange('title', e.target.value)}
                     placeholder="Digite o título do componente..."
                     required
-                    className="bg-white/70 border-gray-300"
+                    className="bg-gray-800/70 border-gray-600 text-white placeholder:text-gray-400"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Descrição</label>
+                  <label className="text-sm font-medium text-gray-300">Descrição</label>
                   <Textarea
                     value={formData.description}
                     onChange={(e) => handleInputChange('description', e.target.value)}
                     placeholder="Descreva a funcionalidade do componente..."
                     rows={3}
-                    className="bg-white/70 border-gray-300"
+                    className="bg-gray-800/70 border-gray-600 text-white placeholder:text-gray-400"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">URL/Link</label>
+                  <label className="text-sm font-medium text-gray-300">URL/Link</label>
                   <Input
                     value={formData.url}
                     onChange={(e) => handleInputChange('url', e.target.value)}
                     placeholder="https://exemplo.com"
                     type="url"
-                    className="bg-white/70 border-gray-300"
+                    className="bg-gray-800/70 border-gray-600 text-white placeholder:text-gray-400"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Status</label>
+                  <label className="text-sm font-medium text-gray-300">Status</label>
                   <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
-                    <SelectTrigger className="bg-white/70 border-gray-300">
+                    <SelectTrigger className="bg-gray-800/70 border-gray-600 text-white">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="draft">Rascunho</SelectItem>
-                      <SelectItem value="active">Ativo</SelectItem>
-                      <SelectItem value="test">Teste</SelectItem>
-                      <SelectItem value="published">Publicado</SelectItem>
-                      <SelectItem value="inactive">Inativo</SelectItem>
+                    <SelectContent className="bg-gray-800 border-gray-700">
+                      <SelectItem value="draft" className="text-white">Rascunho</SelectItem>
+                      <SelectItem value="active" className="text-white">Ativo</SelectItem>
+                      <SelectItem value="test" className="text-white">Teste</SelectItem>
+                      <SelectItem value="published" className="text-white">Publicado</SelectItem>
+                      <SelectItem value="inactive" className="text-white">Inativo</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -239,9 +242,9 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
             {/* Social Media Specs */}
             {isSocialMediaComponent && (
-              <Card className="bg-white/50 backdrop-blur-sm border-gray-200">
+              <Card className="bg-gray-800/50 backdrop-blur-sm border-gray-700">
                 <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2 text-gray-900">
+                  <CardTitle className="text-lg flex items-center gap-2 text-white">
                     {getPlatformIcon()}
                     Especificações da Plataforma
                   </CardTitle>
@@ -249,14 +252,14 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-600">Dimensões</label>
-                      <p className="text-sm font-mono bg-gray-100 p-2 rounded">
+                      <label className="text-sm font-medium text-gray-300">Dimensões</label>
+                      <p className="text-sm font-mono bg-gray-700 p-2 rounded text-gray-200">
                         {getDimensionsInfo()}
                       </p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-600">Plataforma</label>
-                      <p className="text-sm bg-gray-100 p-2 rounded">
+                      <label className="text-sm font-medium text-gray-300">Plataforma</label>
+                      <p className="text-sm bg-gray-700 p-2 rounded text-gray-200">
                         {component.data.properties?.platform || component.type.split('-')[0]}
                       </p>
                     </div>
@@ -264,8 +267,8 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
                   
                   {component.data.properties?.duration && (
                     <div>
-                      <label className="text-sm font-medium text-gray-600">Duração</label>
-                      <p className="text-sm bg-gray-100 p-2 rounded">
+                      <label className="text-sm font-medium text-gray-300">Duração</label>
+                      <p className="text-sm bg-gray-700 p-2 rounded text-gray-200">
                         {component.data.properties.duration}
                       </p>
                     </div>
@@ -275,9 +278,9 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
             )}
 
             {/* Image Upload */}
-            <Card className="bg-white/50 backdrop-blur-sm border-gray-200">
+            <Card className="bg-gray-800/50 backdrop-blur-sm border-gray-700">
               <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2 text-gray-900">
+                <CardTitle className="text-lg flex items-center gap-2 text-white">
                   <ImageIcon className="w-5 h-5" />
                   Imagem do Componente
                 </CardTitle>
@@ -299,7 +302,7 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
                       <img
                         src={formData.image}
                         alt="Preview"
-                        className="w-full h-48 object-cover rounded-lg border"
+                        className="w-full h-48 object-cover rounded-lg border border-gray-600"
                         onError={(e) => {
                           console.error('Erro ao carregar imagem de preview');
                           e.currentTarget.src = '';
@@ -318,9 +321,9 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
                     </div>
                   </div>
                 ) : (
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-white/30">
-                    <ImageIcon className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-                    <p className="text-sm text-gray-600 mb-4">
+                  <div className="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center bg-gray-800/30">
+                    <ImageIcon className="w-12 h-12 mx-auto mb-4 text-gray-500" />
+                    <p className="text-sm text-gray-400 mb-4">
                       Adicione uma imagem para representar este componente
                       {isSocialMediaComponent && (
                         <span className="block text-xs text-gray-500 mt-1">
@@ -332,7 +335,7 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
                       type="button" 
                       variant="outline" 
                       onClick={handleFileButtonClick}
-                      className="inline-flex items-center gap-2 bg-white/70"
+                      className="inline-flex items-center gap-2 bg-gray-700/70 border-gray-600 text-white hover:bg-gray-600"
                       disabled={isUploading}
                     >
                       <Upload className="w-4 h-4" />
@@ -342,14 +345,14 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
                 )}
                 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Ou cole uma URL de imagem</label>
+                  <label className="text-sm font-medium text-gray-300">Ou cole uma URL de imagem</label>
                   <Input
                     value={formData.image}
                     onChange={(e) => handleInputChange('image', e.target.value)}
                     placeholder="https://exemplo.com/imagem.jpg"
                     type="url"
                     disabled={isUploading}
-                    className="bg-white/70 border-gray-300"
+                    className="bg-gray-800/70 border-gray-600 text-white placeholder:text-gray-400"
                   />
                 </div>
               </CardContent>
@@ -357,10 +360,20 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
             {/* Actions */}
             <div className="flex justify-end space-x-3 pt-4">
-              <Button type="button" variant="outline" onClick={onClose} disabled={isUploading}>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={onClose} 
+                disabled={isUploading}
+                className="bg-gray-700/70 border-gray-600 text-white hover:bg-gray-600"
+              >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isUploading}>
+              <Button 
+                type="submit" 
+                disabled={isUploading}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
                 {isUploading ? 'Processando...' : 'Salvar Alterações'}
               </Button>
             </div>
