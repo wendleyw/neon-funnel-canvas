@@ -1,5 +1,5 @@
 
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, useCallback } from 'react';
 import { FunnelComponent, Connection } from '../../types/funnel';
 import { ComponentNode } from '../ComponentNode';
 import { ConnectionManager } from './ConnectionManager';
@@ -19,7 +19,7 @@ interface CanvasContainerProps {
   onComponentDelete: (id: string) => void;
   onComponentAdd: (component: FunnelComponent) => void;
   onConnectionSelect: (connectionId: string) => void;
-  onConnectionColorChange?: (connectionId: string, newType: string) => void;
+  onConnectionColorChange?: (connectionId: string, updates: Partial<Connection>) => void;
   onComponentSelect: (componentId: string) => void;
   startConnection: (componentId: string) => void;
   handleComponentConnect: (componentId: string) => void;
@@ -105,13 +105,8 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
 
   // Handler para deletar conexão
   const handleConnectionDelete = useCallback((connectionId: string) => {
-    // Usar o handler já existente do Canvas
-    const deleteHandler = onConnectionColorChange; // Este é na verdade o handler de update/delete
-    if (deleteHandler) {
-      // Para deletar, vamos usar o onConnectionSelect que já tem a lógica de delete
-      onConnectionSelect(connectionId);
-    }
-  }, [onConnectionSelect, onConnectionColorChange]);
+    onConnectionSelect(connectionId);
+  }, [onConnectionSelect]);
 
   return (
     <div
