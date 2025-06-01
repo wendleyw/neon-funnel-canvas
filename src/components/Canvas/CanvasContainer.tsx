@@ -108,7 +108,7 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
 
   const canvasStyle = useMemo(() => ({
     cursor: isPanning ? 'grabbing' : isDragOver ? 'copy' : 'grab',
-    userSelect: isPanning ? 'none' : 'auto'
+    userSelect: (isPanning ? 'none' : 'auto') as 'none' | 'auto'
   }), [isPanning, isDragOver]);
 
   // Handler para deletar conexão
