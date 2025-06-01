@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useWorkspace } from '../hooks/useWorkspace';
-import { Plus, FolderOpen, Trash2 } from 'lucide-react';
+import { Plus, FolderOpen } from 'lucide-react';
+import { WorkspaceCard } from './Workspace/WorkspaceCard';
+import { ProjectCard } from './Workspace/ProjectCard';
+import { CreateWorkspaceModal } from './Workspace/CreateWorkspaceModal';
 
 interface WorkspaceSelectorProps {
   onProjectSelect: (projectId: string) => void;
@@ -22,21 +25,15 @@ export const WorkspaceSelector: React.FC<WorkspaceSelectorProps> = ({
   } = useWorkspace();
 
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [newWorkspaceName, setNewWorkspaceName] = useState('');
-  const [newWorkspaceDesc, setNewWorkspaceDesc] = useState('');
 
   useEffect(() => {
     loadWorkspaces();
   }, [loadWorkspaces]);
 
-  const handleCreateWorkspace = () => {
-    if (newWorkspaceName.trim()) {
-      const workspace = createWorkspace(newWorkspaceName, newWorkspaceDesc);
-      setCurrentWorkspace(workspace);
-      setNewWorkspaceName('');
-      setNewWorkspaceDesc('');
-      setShowCreateForm(false);
-    }
+  const handleCreateWorkspace = (name: string, description?: string) => {
+    const workspace = createWorkspace(name, description);
+    setCurrentWorkspace(workspace);
+    setShowCreateForm(false);
   };
 
   const handleDeleteWorkspace = (workspaceId: string, e: React.MouseEvent) => {
@@ -60,72 +57,21 @@ export const WorkspaceSelector: React.FC<WorkspaceSelectorProps> = ({
           ) : (
             <div className="space-y-2 mb-8">
               {workspaces.map((workspace) => (
-                <div
+                <WorkspaceCard
                   key={workspace.id}
-                  onClick={() => setCurrentWorkspace(workspace)}
-                  className="p-4 bg-gray-900 rounded border border-gray-700 hover:border-gray-600 cursor-pointer transition-colors flex items-center justify-between"
-                >
-                  <div>
-                    <h3 className="font-medium">{workspace.name}</h3>
-                    {workspace.description && (
-                      <p className="text-sm text-gray-400">{workspace.description}</p>
-                    )}
-                    <p className="text-xs text-gray-500 mt-1">
-                      {workspace.projects.length} projeto(s)
-                    </p>
-                  </div>
-                  <button
-                    onClick={(e) => handleDeleteWorkspace(workspace.id, e)}
-                    className="p-1 text-gray-400 hover:text-red-400 transition-colors"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
+                  workspace={workspace}
+                  onSelect={setCurrentWorkspace}
+                  onDelete={handleDeleteWorkspace}
+                />
               ))}
             </div>
           )}
 
-          {showCreateForm ? (
-            <div className="space-y-3">
-              <input
-                type="text"
-                placeholder="Nome do workspace"
-                value={newWorkspaceName}
-                onChange={(e) => setNewWorkspaceName(e.target.value)}
-                className="w-full p-3 bg-gray-900 border border-gray-700 rounded text-white placeholder-gray-400 focus:outline-none focus:border-gray-500"
-                autoFocus
-              />
-              <input
-                type="text"
-                placeholder="Descrição (opcional)"
-                value={newWorkspaceDesc}
-                onChange={(e) => setNewWorkspaceDesc(e.target.value)}
-                className="w-full p-3 bg-gray-900 border border-gray-700 rounded text-white placeholder-gray-400 focus:outline-none focus:border-gray-500"
-              />
-              <div className="flex gap-2">
-                <button
-                  onClick={handleCreateWorkspace}
-                  className="flex-1 bg-white text-black py-2 px-4 rounded hover:bg-gray-200 transition-colors"
-                >
-                  Criar
-                </button>
-                <button
-                  onClick={() => setShowCreateForm(false)}
-                  className="flex-1 bg-gray-700 text-white py-2 px-4 rounded hover:bg-gray-600 transition-colors"
-                >
-                  Cancelar
-                </button>
-              </div>
-            </div>
-          ) : (
-            <button
-              onClick={() => setShowCreateForm(true)}
-              className="w-full flex items-center justify-center gap-2 p-3 bg-white text-black rounded hover:bg-gray-200 transition-colors"
-            >
-              <Plus size={20} />
-              Novo Workspace
-            </button>
-          )}
+          <CreateWorkspaceModal
+            showCreateForm={showCreateForm}
+            onToggleForm={() => setShowCreateForm(!showCreateForm)}
+            onCreate={handleCreateWorkspace}
+          />
         </div>
       </div>
     );
@@ -166,18 +112,11 @@ export const WorkspaceSelector: React.FC<WorkspaceSelectorProps> = ({
 
           {/* Existing Projects */}
           {projects.map((project) => (
-            <div
+            <ProjectCard
               key={project.id}
-              onClick={() => onProjectSelect(project.id)}
-              className="p-4 bg-gray-900 rounded border border-gray-700 hover:border-gray-600 cursor-pointer transition-colors"
-            >
-              <h3 className="font-medium mb-2">{project.name}</h3>
-              <div className="text-xs text-gray-400 space-y-1">
-                <p>{project.componentsCount} componentes</p>
-                <p>{project.connectionsCount} conexões</p>
-                <p>Atualizado: {new Date(project.updatedAt).toLocaleDateString('pt-BR')}</p>
-              </div>
-            </div>
+              project={project}
+              onSelect={onProjectSelect}
+            />
           ))}
         </div>
       </div>
