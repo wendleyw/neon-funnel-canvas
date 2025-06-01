@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronRight, Rocket } from 'lucide-react';
+import { ChevronDown, ChevronRight, Package } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible';
 import { ComponentTemplateItem } from './ComponentTemplateItem';
 import { digitalLaunchTemplates } from '../../features/digital-launch/data/templates';
@@ -83,18 +83,14 @@ export const DigitalLaunchOrganizedSection: React.FC<DigitalLaunchOrganizedSecti
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <Rocket className="w-4 h-4 text-blue-500" />
+        <Package className="w-4 h-4 text-blue-500" />
         <h3 className="text-sm font-semibold text-gray-300">
-          Componentes Organizados
+          Componentes
         </h3>
       </div>
 
-      {/* Digital Launch Stages */}
+      {/* Funnel Stages */}
       <div className="space-y-2">
-        <h4 className="text-xs font-medium text-gray-400 uppercase tracking-wider px-2">
-          Lançamento Digital
-        </h4>
-        
         {Object.entries(funnelStages).map(([stageKey, stage]) => (
           <Collapsible
             key={stageKey}
