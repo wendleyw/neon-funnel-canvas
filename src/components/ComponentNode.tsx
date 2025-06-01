@@ -1,7 +1,8 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FunnelComponent } from '../types/funnel';
 import { componentTemplates } from '../data/componentTemplates';
+import { useComponentDrag } from '../hooks/canvas/useComponentDrag';
 
 interface ComponentNodeProps {
   component: FunnelComponent;
@@ -24,54 +25,23 @@ export const ComponentNode: React.FC<ComponentNodeProps> = ({
   onConnectionEnd,
   isConnecting = false
 }) => {
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [showConnectionPoints, setShowConnectionPoints] = useState(false);
-  const nodeRef = useRef<HTMLDivElement>(null);
+
+  const {
+    isDragging,
+    nodeRef,
+    handleMouseDown,
+    handleMouseMove,
+    handleMouseUp
+  } = useComponentDrag({
+    componentId: component.id,
+    onDrag,
+    onSelect
+  });
 
   const template = componentTemplates.find(t => t.type === component.type);
-  
-  const handleMouseDown = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    
-    // Don't start dragging if clicking on connection points
-    if ((e.target as Element).closest('.connection-point')) {
-      return;
-    }
-    
-    setIsDragging(true);
-    onSelect();
-    
-    const rect = nodeRef.current?.getBoundingClientRect();
-    if (rect) {
-      setDragOffset({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
-      });
-    }
-  };
 
-  const handleMouseMove = (e: MouseEvent) => {
-    if (isDragging && nodeRef.current) {
-      e.preventDefault();
-      const canvas = nodeRef.current.closest('.canvas-container');
-      const canvasRect = canvas?.getBoundingClientRect();
-      
-      if (canvasRect) {
-        const newPosition = {
-          x: Math.max(0, e.clientX - canvasRect.left - dragOffset.x),
-          y: Math.max(0, e.clientY - canvasRect.top - dragOffset.y)
-        };
-        onDrag(component.id, newPosition);
-      }
-    }
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  React.useEffect(() => {
+  useEffect(() => {
     if (isDragging) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
@@ -80,7 +50,7 @@ export const ComponentNode: React.FC<ComponentNodeProps> = ({
         document.removeEventListener('mouseup', handleMouseUp);
       };
     }
-  }, [isDragging, dragOffset]);
+  }, [isDragging, handleMouseMove, handleMouseUp]);
 
   const handleConnectionPointClick = (e: React.MouseEvent, isOutput: boolean) => {
     e.stopPropagation();
