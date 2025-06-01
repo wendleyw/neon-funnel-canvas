@@ -71,6 +71,7 @@ export const Canvas = React.memo<CanvasProps>(({
         />
         
         <CanvasContainer
+          canvasRef={eventHandlers.canvasRef}
           components={components}
           connections={connections}
           selectedComponent={eventHandlers.selectedComponent}

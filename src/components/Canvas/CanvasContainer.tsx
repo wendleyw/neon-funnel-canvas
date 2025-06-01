@@ -1,4 +1,5 @@
-import React, { useRef, useMemo, useCallback } from 'react';
+
+import React, { useMemo, useCallback } from 'react';
 import { FunnelComponent, Connection } from '../../types/funnel';
 import { ComponentNode } from '../ComponentNode';
 import { ConnectionManager } from './ConnectionManager';
@@ -6,6 +7,7 @@ import { FlowAnimation } from '../FlowAnimation';
 import { ErrorBoundary } from '../ErrorBoundary';
 
 interface CanvasContainerProps {
+  canvasRef: React.RefObject<HTMLDivElement>;
   components: FunnelComponent[];
   connections: Connection[];
   selectedComponent: string | null;
@@ -35,6 +37,7 @@ interface CanvasContainerProps {
 }
 
 export const CanvasContainer: React.FC<CanvasContainerProps> = ({
+  canvasRef,
   components,
   connections,
   selectedComponent,
@@ -62,8 +65,6 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
   handleMouseDown,
   isDragOver = false
 }) => {
-  const canvasRef = useRef<HTMLDivElement>(null);
-
   const handleComponentDrag = React.useCallback((id: string, position: { x: number; y: number }) => {
     onComponentUpdate(id, { position });
   }, [onComponentUpdate]);
@@ -126,7 +127,7 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
       style={canvasStyle}
     >
       <div 
-        className="absolute inset-0"
+        className="absolute inset-0 canvas-background"
         style={transformStyle}
       >
         <ErrorBoundary>

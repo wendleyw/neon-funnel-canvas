@@ -59,7 +59,30 @@ export const useCanvasDragDrop = ({
       const canvasRect = canvasRef.current?.getBoundingClientRect();
       
       if (!canvasRect) {
-        console.warn('Canvas rect not found');
+        console.warn('Canvas rect not found, canvas ref:', canvasRef.current);
+        // Fallback: use relative position
+        const x = Math.max(0, (e.clientX - panOffset.x) / scale);
+        const y = Math.max(0, (e.clientY - panOffset.y) / scale);
+        
+        console.log('Using fallback position:', { x, y });
+        
+        const newComponent: FunnelComponent = {
+          id: `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          type: template.type,
+          position: { x, y },
+          connections: [],
+          data: {
+            title: template.defaultProps.title,
+            description: template.defaultProps.description || '',
+            image: template.defaultProps.image || '',
+            url: template.defaultProps.url || '',
+            status: template.defaultProps.status,
+            properties: { ...template.defaultProps.properties }
+          }
+        };
+
+        console.log('Creating new component with fallback:', newComponent);
+        onAddComponent(newComponent);
         return;
       }
 

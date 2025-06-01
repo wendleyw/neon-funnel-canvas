@@ -55,6 +55,9 @@ export const useCanvasEventHandlers = ({
   }, [selectionHooks]);
 
   return {
+    // Canvas ref
+    canvasRef,
+    
     // Zoom
     zoom,
     handleWheel,
