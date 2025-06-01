@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useCallback } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { Canvas } from '../components/Canvas';
@@ -35,7 +34,8 @@ const Index = () => {
 
   const {
     currentWorkspace,
-    addProjectToWorkspace
+    addProjectToWorkspace,
+    loadProject: loadProjectFromWorkspace
   } = useWorkspace();
 
   // Register service worker for PWA
@@ -73,7 +73,6 @@ const Index = () => {
     if (currentWorkspace) {
       addProjectToWorkspace(project, currentWorkspace.id);
     }
-    toast.success('Projeto salvo com sucesso!');
   }, [saveProject, currentWorkspace, addProjectToWorkspace, project]);
 
   const handleLoad = useCallback(() => {
@@ -82,7 +81,6 @@ const Index = () => {
 
   const handleExport = useCallback(() => {
     exportProject();
-    toast.success('Projeto exportado com sucesso!');
   }, [exportProject]);
 
   const handleClear = useCallback(() => {
@@ -92,9 +90,16 @@ const Index = () => {
 
   const handleProjectSelect = useCallback((projectId: string) => {
     setCurrentProjectId(projectId);
-    loadProject(projectId);
-    setCurrentView('project');
-  }, [loadProject]);
+    
+    // Carregar projeto do workspace
+    const projectData = loadProjectFromWorkspace(projectId);
+    if (projectData) {
+      loadProject(projectId);
+      setCurrentView('project');
+    } else {
+      toast.error('Projeto não encontrado');
+    }
+  }, [loadProject, loadProjectFromWorkspace]);
 
   const handleNewProject = useCallback(() => {
     clearProject();
