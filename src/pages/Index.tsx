@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { Canvas } from '../components/Canvas';
@@ -91,9 +92,48 @@ const Index = () => {
     }));
   }, [setProject]);
 
+  const handleSave = useCallback(() => {
+    alert('Projeto salvo!');
+  }, []);
+
+  const handleLoad = useCallback(() => {
+    setIsOpenModalOpen(true);
+  }, []);
+
+  const handleExport = useCallback(() => {
+    const dataStr = JSON.stringify(project, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${project.name.replace(/\s+/g, '-').toLowerCase()}.json`;
+    link.click();
+    
+    URL.revokeObjectURL(url);
+  }, [project]);
+
+  const handleClear = useCallback(() => {
+    if (window.confirm('Tem certeza que deseja limpar o projeto?')) {
+      setProject(initialProject);
+    }
+  }, [setProject]);
+
+  const handleBackToWorkspace = useCallback(() => {
+    // Implementar navegação para workspace
+    console.log('Voltar para workspace');
+  }, []);
+
+  const handleProjectNameChange = useCallback((name: string) => {
+    setProject(prev => ({
+      ...prev,
+      name
+    }));
+  }, [setProject]);
+
   useHotkeys('ctrl+s, command+s', (e) => {
     e.preventDefault();
-    alert('Project saved!');
+    handleSave();
   });
 
   return (
@@ -104,11 +144,20 @@ const Index = () => {
       />
       
       <div className="flex-1 flex flex-col">
-        <Toolbar />
-        <StatusBar 
+        <Toolbar 
+          onSave={handleSave}
+          onLoad={handleLoad}
+          onExport={handleExport}
+          onClear={handleClear}
+          onBackToWorkspace={handleBackToWorkspace}
           projectName={project.name}
+          onProjectNameChange={handleProjectNameChange}
+          workspaceName="Workspace"
           componentsCount={project.components.length}
-          connectionsCount={project.connections.length}
+        />
+        <StatusBar 
+          components={project.components}
+          connections={project.connections}
         />
         
         <Canvas
