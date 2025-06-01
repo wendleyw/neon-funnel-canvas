@@ -1,6 +1,5 @@
 
 import { useMemo } from 'react';
-import { useProject } from '../contexts/ProjectContext';
 import { FunnelComponent, Connection } from '../types/funnel';
 import { ProjectStats, ProjectValidation } from '../types/project';
 
@@ -13,10 +12,13 @@ interface OptimizedProjectData {
   connectionsMap: Map<string, Connection[]>;
 }
 
-export const useOptimizedProject = (): OptimizedProjectData => {
-  const { state } = useProject();
-  const { project } = state;
+interface ProjectData {
+  components: FunnelComponent[];
+  connections: Connection[];
+  updatedAt: string;
+}
 
+export const useOptimizedProject = (project: ProjectData): OptimizedProjectData => {
   return useMemo(() => {
     const componentsByType = new Map<string, FunnelComponent[]>();
     const connectionsMap = new Map<string, Connection[]>();
