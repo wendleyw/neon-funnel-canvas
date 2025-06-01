@@ -25,10 +25,10 @@ export const ComponentNodeActions: React.FC<ComponentNodeActionsProps> = ({
 
   return (
     <div
-      className="absolute flex gap-2 z-[1001]"
+      className="absolute flex gap-2 z-[800]"
       style={{
-        left: component.position.x + 56, // Centralizar horizontalmente no card (192/2 - 40)
-        top: component.position.y + 170, // Posicionar mais abaixo do card
+        left: component.position.x + 56, // Centralizar horizontalmente no card
+        top: component.position.y + 170, // Posicionar abaixo do card
       }}
     >
       {onEditClick && (
