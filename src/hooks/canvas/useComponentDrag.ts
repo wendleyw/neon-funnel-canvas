@@ -22,6 +22,8 @@ export const useComponentDrag = ({ componentId, onDrag, onSelect }: UseComponent
     
     e.stopPropagation();
     
+    console.log('Starting drag for component:', componentId);
+    
     const rect = nodeRef.current?.getBoundingClientRect();
     if (rect) {
       setDragOffset({
@@ -54,12 +56,14 @@ export const useComponentDrag = ({ componentId, onDrag, onSelect }: UseComponent
               x: Math.max(0, event.clientX - canvasRect.left - dragOffset.x),
               y: Math.max(0, event.clientY - canvasRect.top - dragOffset.y)
             };
+            console.log('Dragging component to position:', newPosition);
             onDrag(componentId, newPosition);
           }
         }
       };
       
       const handleMouseUp = () => {
+        console.log('Drag ended for component:', componentId, 'hasDragged:', hasDragged);
         setIsDragging(false);
         
         // Remove listeners

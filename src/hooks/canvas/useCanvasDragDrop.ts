@@ -16,15 +16,36 @@ export const useCanvasDragDrop = ({ onComponentAdd, pan, zoom }: UseCanvasDragDr
     e.stopPropagation();
     setIsDragOver(false);
     
+    console.log('Drop event triggered');
+    
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) {
       console.error('Canvas rect not found');
       return;
     }
 
-    const templateData = e.dataTransfer.getData('application/json');
+    // Try to get template data from drag event
+    let templateData = '';
+    try {
+      templateData = e.dataTransfer.getData('application/json');
+      console.log('Template data from dataTransfer:', templateData);
+    } catch (error) {
+      console.error('Error getting data from dataTransfer:', error);
+    }
+
+    // If no JSON data, try getting text data
+    if (!templateData) {
+      try {
+        templateData = e.dataTransfer.getData('text/plain');
+        console.log('Template data from text/plain:', templateData);
+      } catch (error) {
+        console.error('Error getting text data from dataTransfer:', error);
+      }
+    }
+
     if (!templateData) {
       console.error('No template data found in drop event');
+      console.log('Available data types:', e.dataTransfer.types);
       return;
     }
 
@@ -43,7 +64,13 @@ export const useCanvasDragDrop = ({ onComponentAdd, pan, zoom }: UseCanvasDragDr
         id: componentId,
         type: template.type,
         position: { x: Math.max(0, x - 80), y: Math.max(0, y - 40) },
-        data: { ...template.defaultData },
+        data: { 
+          ...template.defaultData,
+          title: template.defaultData?.title || template.label,
+          description: template.defaultData?.description || '',
+          status: template.defaultData?.status || 'draft',
+          properties: template.defaultData?.properties || {}
+        },
         connections: []
       };
 
@@ -51,6 +78,7 @@ export const useCanvasDragDrop = ({ onComponentAdd, pan, zoom }: UseCanvasDragDr
       onComponentAdd(newComponent);
     } catch (error) {
       console.error('Error parsing template data:', error);
+      console.log('Raw template data:', templateData);
     }
   }, [onComponentAdd, pan, zoom]);
 
