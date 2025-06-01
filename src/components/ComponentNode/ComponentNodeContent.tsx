@@ -30,12 +30,11 @@ export const ComponentNodeContent: React.FC<ComponentNodeContentProps> = ({
       
       {/* Content */}
       <div className="p-3">
-        {/* Title and Status */}
+        {/* Title - removido o status badge daqui pois agora está no topo */}
         <div className="flex items-start justify-between mb-2">
           <h4 className="text-white font-medium text-sm flex-1 min-w-0 truncate">
             {component.data.title}
           </h4>
-          <StatusBadge status={component.data.status} />
         </div>
         
         {/* Description */}

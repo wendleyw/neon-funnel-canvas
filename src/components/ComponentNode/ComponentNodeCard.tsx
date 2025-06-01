@@ -29,15 +29,35 @@ export const ComponentNodeCard: React.FC<ComponentNodeCardProps> = ({
   onConnectionClick,
   onDuplicateClick
 }) => {
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active':
+        return 'bg-green-500';
+      case 'test':
+        return 'bg-yellow-500';
+      case 'published':
+        return 'bg-blue-500';
+      case 'inactive':
+        return 'bg-red-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
   return (
     <div className="w-64 bg-gray-900 rounded-xl border border-gray-700 shadow-xl hover:shadow-2xl transition-all duration-300 hover:border-gray-600 relative group overflow-hidden">
       {/* Header com gradiente baseado na cor do template */}
       <div 
-        className="h-2 w-full"
+        className="h-2 w-full relative"
         style={{ 
           background: `linear-gradient(90deg, ${template.color}, ${template.color}80)` 
         }}
-      />
+      >
+        {/* Status indicator reposicionado no topo esquerdo sobre o gradiente */}
+        <div className="absolute top-1 left-3">
+          <div className={`w-3 h-3 rounded-full ${getStatusColor(component.data.status)} border border-white shadow-sm`} />
+        </div>
+      </div>
       
       <ComponentNodeHeader
         template={template}
@@ -56,16 +76,6 @@ export const ComponentNodeCard: React.FC<ComponentNodeCardProps> = ({
       <ComponentNodeContent component={component} />
       
       <ComponentNodeConnectionPoints />
-      
-      {/* Status indicator */}
-      <div className="absolute top-4 right-4">
-        <div className={`w-3 h-3 rounded-full ${
-          component.data.status === 'active' ? 'bg-green-500' :
-          component.data.status === 'test' ? 'bg-yellow-500' :
-          component.data.status === 'published' ? 'bg-blue-500' :
-          'bg-gray-500'
-        }`} />
-      </div>
     </div>
   );
 };
