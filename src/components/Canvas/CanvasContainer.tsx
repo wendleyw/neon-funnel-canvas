@@ -1,4 +1,3 @@
-
 import React, { useMemo, useCallback } from 'react';
 import { FunnelComponent, Connection } from '../../types/funnel';
 import { ComponentNode } from '../ComponentNode';
@@ -128,9 +127,7 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
   return (
     <div
       ref={canvasRef}
-      className={`canvas-container fixed inset-0 ${
-        isDragOver ? 'bg-blue-900/10 border-2 border-blue-500 border-dashed' : ''
-      }`}
+      className="canvas-container"
       onDrop={onDrop}
       onDragOver={onDragOver}
       onDragEnter={onDragEnter}
@@ -143,15 +140,22 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
       onContextMenu={onContextMenu}
       style={{
         ...canvasStyle,
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
         width: '100vw',
         height: '100vh',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        zIndex: 1
       }}
     >
       <div 
-        className="absolute canvas-background"
+        className="canvas-background"
         style={{
           ...transformStyle,
+          position: 'absolute',
           width: '10000px',
           height: '10000px',
           top: '-5000px',
