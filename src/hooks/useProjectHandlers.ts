@@ -135,15 +135,20 @@ export const useProjectHandlers = ({
     };
 
     console.log('Salvando projeto:', projectToSave.name, 'no workspace:', currentWorkspace.name);
+    console.log('Current project ID:', currentProjectId);
 
-    const success = await addProjectToWorkspace(projectToSave, currentWorkspace.id);
+    const success = await addProjectToWorkspace(projectToSave, currentWorkspace.id, currentProjectId || undefined);
     if (success) {
       // Atualizar o estado local com o timestamp atualizado
       setProject(projectToSave);
       
       toast.success('Projeto salvo com sucesso!');
+      
+      // Se não tinha ID antes (projeto novo), vamos gerar um temporário
+      // O ID real será definido pelo Supabase, mas precisamos de algo para evitar duplicação
       if (!currentProjectId) {
-        setCurrentProjectId(`project-${Date.now()}`);
+        const tempId = `temp-${Date.now()}`;
+        setCurrentProjectId(tempId);
       }
     }
   }, [project, currentWorkspace, addProjectToWorkspace, currentProjectId, setCurrentProjectId, setProject]);

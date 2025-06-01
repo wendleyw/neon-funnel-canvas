@@ -5,10 +5,14 @@ import { useAuth } from '../contexts/AuthContext';
 import { Plus, FolderOpen, User, LogIn } from 'lucide-react';
 import { WorkspaceCard } from './Workspace/WorkspaceCard';
 import { ProjectCard } from './Workspace/ProjectCard';
+import { ProjectEditModal } from './Workspace/ProjectEditModal';
 import { CreateWorkspaceModal } from './Workspace/CreateWorkspaceModal';
 import { AuthModal } from './Auth/AuthModal';
 import { ProfileModal } from './Profile/ProfileModal';
 import { ErrorBoundary } from './ErrorBoundary';
+import { Database } from '../integrations/supabase/types';
+
+type WorkspaceProject = Database['public']['Tables']['workspace_projects']['Row'];
 
 interface WorkspaceSelectorProps {
   onProjectSelect: (projectId: string) => void;
@@ -26,6 +30,8 @@ export const WorkspaceSelector = React.memo<WorkspaceSelectorProps>(({
     workspaces,
     createWorkspace,
     deleteWorkspace,
+    updateProjectName,
+    deleteProject,
     loadWorkspaces,
     getWorkspaceProjects,
     loading: workspaceLoading
@@ -34,6 +40,7 @@ export const WorkspaceSelector = React.memo<WorkspaceSelectorProps>(({
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [projectToEdit, setProjectToEdit] = useState<WorkspaceProject | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -63,6 +70,14 @@ export const WorkspaceSelector = React.memo<WorkspaceSelectorProps>(({
   const handleBackToWorkspaces = useCallback(() => {
     setCurrentWorkspace(null);
   }, [setCurrentWorkspace]);
+
+  const handleProjectEdit = useCallback((project: WorkspaceProject) => {
+    setProjectToEdit(project);
+  }, []);
+
+  const handleCloseEditModal = useCallback(() => {
+    setProjectToEdit(null);
+  }, []);
 
   const projects = useMemo(() => {
     return currentWorkspace ? getWorkspaceProjects(currentWorkspace.id) : [];
@@ -204,12 +219,23 @@ export const WorkspaceSelector = React.memo<WorkspaceSelectorProps>(({
                 key={project.id}
                 project={project}
                 onSelect={onProjectSelect}
+                onEdit={handleProjectEdit}
               />
             ))}
           </div>
         </div>
 
         <ProfileModal isOpen={showProfileModal} onClose={() => setShowProfileModal(false)} />
+        
+        {projectToEdit && (
+          <ProjectEditModal
+            isOpen={true}
+            onClose={handleCloseEditModal}
+            project={projectToEdit}
+            onUpdateName={updateProjectName}
+            onDelete={deleteProject}
+          />
+        )}
       </div>
     </ErrorBoundary>
   );
