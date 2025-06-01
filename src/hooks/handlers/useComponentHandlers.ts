@@ -8,46 +8,82 @@ interface UseComponentHandlersProps {
 
 export const useComponentHandlers = ({ setProject }: UseComponentHandlersProps) => {
   const handleComponentAdd = useCallback((component: FunnelComponent) => {
-    setProject(prev => ({
-      ...prev,
-      components: [...prev.components, component],
-      updatedAt: new Date().toISOString()
-    }));
+    console.log('Adding component:', component);
+    setProject(prev => {
+      const updatedProject = {
+        ...prev,
+        components: [...prev.components, component],
+        updatedAt: new Date().toISOString()
+      };
+      console.log('Project after component add:', {
+        componentsCount: updatedProject.components.length,
+        newComponent: component.data.title
+      });
+      return updatedProject;
+    });
   }, [setProject]);
 
   const handleComponentUpdate = useCallback((id: string, updates: Partial<FunnelComponent>) => {
-    setProject(prev => ({
-      ...prev,
-      components: prev.components.map(component =>
-        component.id === id ? { ...component, ...updates } : component
-      ),
-      updatedAt: new Date().toISOString()
-    }));
+    console.log('Updating component:', id, updates);
+    setProject(prev => {
+      const updatedProject = {
+        ...prev,
+        components: prev.components.map(component =>
+          component.id === id ? { ...component, ...updates } : component
+        ),
+        updatedAt: new Date().toISOString()
+      };
+      console.log('Project after component update:', {
+        componentsCount: updatedProject.components.length,
+        updatedComponent: id
+      });
+      return updatedProject;
+    });
   }, [setProject]);
 
   const handleComponentDelete = useCallback((id: string) => {
+    console.log('Deleting component:', id);
     setProject(prev => {
       const updatedComponents = prev.components.filter(component => component.id !== id);
       const updatedConnections = prev.connections.filter(connection =>
         connection.from !== id && connection.to !== id
       );
 
-      return {
+      const updatedProject = {
         ...prev,
         components: updatedComponents,
         connections: updatedConnections,
         updatedAt: new Date().toISOString()
       };
+      
+      console.log('Project after component delete:', {
+        componentsCount: updatedProject.components.length,
+        connectionsCount: updatedProject.connections.length,
+        deletedComponent: id
+      });
+      
+      return updatedProject;
     });
   }, [setProject]);
 
   const handleAddCompleteTemplate = useCallback((newComponents: FunnelComponent[], newConnections: Connection[]) => {
-    setProject(prev => ({
-      ...prev,
-      components: [...prev.components, ...newComponents],
-      connections: [...prev.connections, ...newConnections],
-      updatedAt: new Date().toISOString()
-    }));
+    console.log('Adding complete template:', { 
+      componentsCount: newComponents.length, 
+      connectionsCount: newConnections.length 
+    });
+    setProject(prev => {
+      const updatedProject = {
+        ...prev,
+        components: [...prev.components, ...newComponents],
+        connections: [...prev.connections, ...newConnections],
+        updatedAt: new Date().toISOString()
+      };
+      console.log('Project after template add:', {
+        totalComponentsCount: updatedProject.components.length,
+        totalConnectionsCount: updatedProject.connections.length
+      });
+      return updatedProject;
+    });
   }, [setProject]);
 
   return {

@@ -73,6 +73,7 @@ export const useProjectManagementHandlers = ({
       return;
     }
 
+    // Ensure we're saving the most current project state with updated timestamp
     const projectToSave = {
       ...project,
       updatedAt: new Date().toISOString()
@@ -80,15 +81,25 @@ export const useProjectManagementHandlers = ({
 
     console.log('Salvando projeto:', projectToSave.name, 'no workspace:', currentWorkspace.name);
     console.log('Current project ID:', currentProjectId);
+    console.log('Project data being saved:', {
+      componentsCount: projectToSave.components.length,
+      connectionsCount: projectToSave.connections.length,
+      lastComponent: projectToSave.components[projectToSave.components.length - 1]
+    });
 
     const result = await addProjectToWorkspace(projectToSave, currentWorkspace.id, currentProjectId || undefined);
     if (result.success) {
+      // Update local state to reflect saved project
       setProject(projectToSave);
       toast.success('Projeto salvo com sucesso!');
       
+      // Set current project ID if it's a new project
       if (result.projectId && !currentProjectId) {
+        console.log('Setting new project ID:', result.projectId);
         setCurrentProjectId(result.projectId);
       }
+    } else {
+      toast.error('Erro ao salvar projeto');
     }
   }, [project, currentWorkspace, addProjectToWorkspace, currentProjectId, setCurrentProjectId, setProject]);
 
