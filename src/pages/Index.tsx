@@ -1,13 +1,18 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { Canvas } from '../components/Canvas';
 import { Toolbar } from '../components/Toolbar';
+import { WorkspaceSelector } from '../components/WorkspaceSelector';
 import { useFunnelProject } from '../hooks/useFunnelProject';
+import { useWorkspace } from '../hooks/useWorkspace';
 import { ComponentTemplate } from '../types/funnel';
 import { toast } from 'sonner';
 
 const Index = () => {
+  const [currentView, setCurrentView] = useState<'workspace' | 'project'>('workspace');
+  const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
+  
   const {
     project,
     addComponent,
@@ -19,6 +24,11 @@ const Index = () => {
     clearProject,
     updateProjectName
   } = useFunnelProject();
+
+  const {
+    currentWorkspace,
+    addProjectToWorkspace
+  } = useWorkspace();
 
   // Register service worker for PWA
   useEffect(() => {
@@ -35,22 +45,53 @@ const Index = () => {
 
   const handleSave = () => {
     saveProject();
-    toast.success('Project saved successfully!');
+    if (currentWorkspace) {
+      addProjectToWorkspace(project, currentWorkspace.id);
+    }
+    toast.success('Projeto salvo com sucesso!');
   };
 
   const handleLoad = () => {
-    toast.info('Load functionality would open a project selector');
+    toast.info('Funcionalidade de carregar abriria um seletor de projeto');
   };
 
   const handleExport = () => {
     exportProject();
-    toast.success('Project exported successfully!');
+    toast.success('Projeto exportado com sucesso!');
   };
 
   const handleClear = () => {
     clearProject();
-    toast.success('Canvas cleared!');
+    toast.success('Canvas limpo!');
   };
+
+  const handleProjectSelect = (projectId: string) => {
+    setCurrentProjectId(projectId);
+    loadProject(projectId);
+    setCurrentView('project');
+  };
+
+  const handleNewProject = () => {
+    clearProject();
+    setCurrentProjectId(null);
+    setCurrentView('project');
+  };
+
+  const handleBackToWorkspace = () => {
+    setCurrentView('workspace');
+    setCurrentProjectId(null);
+  };
+
+  if (currentView === 'workspace') {
+    return (
+      <div className="min-h-screen bg-black">
+        <WorkspaceSelector
+          onProjectSelect={handleProjectSelect}
+          onNewProject={handleNewProject}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black flex flex-col w-full">
@@ -60,8 +101,10 @@ const Index = () => {
         onLoad={handleLoad}
         onExport={handleExport}
         onClear={handleClear}
+        onBackToWorkspace={handleBackToWorkspace}
         projectName={project.name}
         onProjectNameChange={updateProjectName}
+        workspaceName={currentWorkspace?.name}
       />
       
       {/* Main Content */}
@@ -81,7 +124,7 @@ const Index = () => {
       {/* Status Bar */}
       <div className="h-8 bg-black border-t border-gray-800 flex items-center justify-between px-4 text-xs text-gray-400">
         <div>
-          Ready • {project.components.length} components • {project.connections.length} connections
+          Pronto • {project.components.length} componentes • {project.connections.length} conexões
         </div>
         <div>
           FunnelCraft v1.0 • PWA Ready

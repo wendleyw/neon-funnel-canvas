@@ -22,31 +22,45 @@ export const Canvas: React.FC<CanvasProps> = ({
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
   const [lastPanPosition, setLastPanPosition] = useState({ x: 0, y: 0 });
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
+    setIsDragOver(false);
+    
+    console.log('Drop event triggered');
     
     const rect = canvasRef.current?.getBoundingClientRect();
-    if (!rect) return;
+    if (!rect) {
+      console.log('No canvas rect found');
+      return;
+    }
 
     const templateData = e.dataTransfer.getData('application/json');
-    if (!templateData) return;
+    console.log('Template data:', templateData);
+    
+    if (!templateData) {
+      console.log('No template data found');
+      return;
+    }
 
     try {
       const template: ComponentTemplate = JSON.parse(templateData);
+      console.log('Parsed template:', template);
+      
+      // Calculate position relative to canvas with zoom and pan
+      const x = (e.clientX - rect.left - pan.x) / zoom;
+      const y = (e.clientY - rect.top - pan.y) / zoom;
       
       const newComponent: FunnelComponent = {
-        id: `${template.type}-${Date.now()}`,
+        id: `${template.type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         type: template.type,
-        position: {
-          x: (e.clientX - rect.left - pan.x) / zoom,
-          y: (e.clientY - rect.top - pan.y) / zoom
-        },
-        data: template.defaultData,
+        position: { x, y },
+        data: { ...template.defaultData },
         connections: []
       };
 
-      console.log('Adding component:', newComponent);
+      console.log('Adding new component:', newComponent);
       onComponentAdd(newComponent);
     } catch (error) {
       console.error('Error parsing template data:', error);
@@ -56,10 +70,18 @@ export const Canvas: React.FC<CanvasProps> = ({
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'copy';
+    setIsDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (rect && (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom)) {
+      setIsDragOver(false);
+    }
   }, []);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (e.target === canvasRef.current) {
+    if (e.target === canvasRef.current || (e.target as Element).closest('.canvas-background')) {
       setIsPanning(true);
       setLastPanPosition({ x: e.clientX, y: e.clientY });
       setSelectedComponent(null);
@@ -102,7 +124,7 @@ export const Canvas: React.FC<CanvasProps> = ({
     <div className="flex-1 relative overflow-hidden bg-black">
       {/* Canvas Grid */}
       <div 
-        className="absolute inset-0 opacity-10"
+        className={`absolute inset-0 opacity-5 canvas-background ${isDragOver ? 'bg-gray-900' : ''}`}
         style={{
           backgroundImage: `
             linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
@@ -113,12 +135,18 @@ export const Canvas: React.FC<CanvasProps> = ({
         }}
       />
       
+      {/* Drop indicator */}
+      {isDragOver && (
+        <div className="absolute inset-0 border-2 border-dashed border-white opacity-30 pointer-events-none" />
+      )}
+      
       {/* Canvas */}
       <div
         ref={canvasRef}
-        className="w-full h-full cursor-grab active:cursor-grabbing"
+        className="w-full h-full"
         onDrop={handleDrop}
         onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -149,16 +177,16 @@ export const Canvas: React.FC<CanvasProps> = ({
       <div className="absolute bottom-4 right-4 flex flex-col gap-1">
         <button
           onClick={() => setZoom(prev => Math.min(2, prev + 0.1))}
-          className="w-8 h-8 bg-gray-900 hover:bg-gray-800 border border-gray-700 rounded flex items-center justify-center text-white text-sm transition-colors"
+          className="w-8 h-8 bg-gray-900 hover:bg-gray-700 border border-gray-600 rounded flex items-center justify-center text-white text-sm transition-colors"
         >
           +
         </button>
-        <div className="w-8 h-6 bg-gray-900 border border-gray-700 rounded flex items-center justify-center text-xs text-gray-300">
+        <div className="w-8 h-6 bg-gray-900 border border-gray-600 rounded flex items-center justify-center text-xs text-white">
           {Math.round(zoom * 100)}%
         </div>
         <button
           onClick={() => setZoom(prev => Math.max(0.5, prev - 0.1))}
-          className="w-8 h-8 bg-gray-900 hover:bg-gray-800 border border-gray-700 rounded flex items-center justify-center text-white text-sm transition-colors"
+          className="w-8 h-8 bg-gray-900 hover:bg-gray-700 border border-gray-600 rounded flex items-center justify-center text-white text-sm transition-colors"
         >
           -
         </button>

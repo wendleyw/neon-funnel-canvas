@@ -1,12 +1,16 @@
+
 import React from 'react';
+import { ArrowLeft } from 'lucide-react';
 
 interface ToolbarProps {
   onSave: () => void;
   onLoad: () => void;
   onExport: () => void;
   onClear: () => void;
+  onBackToWorkspace: () => void;
   projectName: string;
   onProjectNameChange: (name: string) => void;
+  workspaceName?: string;
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
@@ -14,19 +18,29 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onLoad,
   onExport,
   onClear,
+  onBackToWorkspace,
   projectName,
-  onProjectNameChange
+  onProjectNameChange,
+  workspaceName
 }) => {
   return (
     <div className="h-12 bg-black border-b border-gray-800 flex items-center justify-between px-4">
       {/* Left Section */}
       <div className="flex items-center space-x-3">
+        <button
+          onClick={onBackToWorkspace}
+          className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+        >
+          <ArrowLeft size={16} />
+          <span className="text-sm">{workspaceName || 'Workspaces'}</span>
+        </button>
+        <div className="w-px h-6 bg-gray-700" />
         <input
           type="text"
           value={projectName}
           onChange={(e) => onProjectNameChange(e.target.value)}
-          className="bg-gray-900 border border-gray-800 rounded px-3 py-1 text-white text-sm focus:outline-none focus:ring-1 focus:ring-gray-600 focus:border-gray-600"
-          placeholder="Project Name"
+          className="bg-transparent border-none text-white text-sm focus:outline-none focus:bg-gray-900 px-2 py-1 rounded"
+          placeholder="Nome do Projeto"
         />
       </div>
 
@@ -36,32 +50,32 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           onClick={onSave}
           className="bg-white hover:bg-gray-200 text-black px-3 py-1 rounded text-sm font-medium transition-colors"
         >
-          Save
+          Salvar
         </button>
         <button
           onClick={onLoad}
-          className="bg-gray-800 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
+          className="bg-gray-800 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors border border-gray-600"
         >
-          Load
+          Carregar
         </button>
         <button
           onClick={onExport}
-          className="bg-gray-800 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
+          className="bg-gray-800 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors border border-gray-600"
         >
-          Export
+          Exportar
         </button>
         <button
           onClick={onClear}
-          className="bg-gray-800 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
+          className="bg-gray-800 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors border border-gray-600"
         >
-          Clear
+          Limpar
         </button>
       </div>
 
       {/* Right Section */}
       <div className="flex items-center space-x-3">
         <div className="text-gray-400 text-xs">
-          Components: <span className="text-white font-medium">0</span>
+          Componentes: <span className="text-white font-medium">0</span>
         </div>
       </div>
     </div>
