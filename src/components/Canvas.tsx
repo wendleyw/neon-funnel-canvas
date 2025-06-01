@@ -1,16 +1,12 @@
 
-import React, { useRef, useCallback, useMemo } from 'react';
-import { FunnelComponent, ComponentTemplate, Connection } from '../types/funnel';
-import { ComponentNode } from './ComponentNode';
+import React, { useCallback } from 'react';
+import { FunnelComponent, Connection } from '../types/funnel';
 import { CanvasGrid } from './Canvas/CanvasGrid';
 import { CanvasControls } from './Canvas/CanvasControls';
-import { ConnectionManager } from './Canvas/ConnectionManager';
-import { FlowAnimation } from './FlowAnimation';
+import { CanvasHelpers } from './Canvas/CanvasHelpers';
+import { CanvasContainer } from './Canvas/CanvasContainer';
 import { ErrorBoundary } from './ErrorBoundary';
-import { useCanvasDragDrop } from '../hooks/canvas/useCanvasDragDrop';
-import { useCanvasZoom } from '../hooks/canvas/useCanvasZoom';
-import { useCanvasSelection } from '../hooks/canvas/useCanvasSelection';
-import { useCanvasPan } from '../hooks/canvas/useCanvasPan';
+import { useCanvasEventHandlers } from './Canvas/CanvasEventHandlers';
 import { MiniMap } from './MiniMap';
 
 interface CanvasProps {
@@ -34,178 +30,71 @@ export const Canvas = React.memo<CanvasProps>(({
   onConnectionDelete,
   onConnectionUpdate
 }) => {
-  const canvasRef = useRef<HTMLDivElement>(null);
-
-  // Canvas zoom functionality
-  const { zoom, handleWheel, handleZoomIn, handleZoomOut } = useCanvasZoom();
-
-  // Canvas pan functionality
-  const { pan, isPanning, handleMouseDown, handleMouseMove, handleMouseUp } = useCanvasPan();
-
-  // Canvas selection and connection functionality
-  const selectionProps = useMemo(() => ({ 
-    onConnectionAdd, 
+  const eventHandlers = useCanvasEventHandlers({
+    onComponentAdd,
+    onConnectionAdd,
     onConnectionDelete,
     onConnectionUpdate
-  }), [onConnectionAdd, onConnectionDelete, onConnectionUpdate]);
-  
-  const {
-    selectedComponent,
-    connectingFrom,
-    selectedConnection,
-    setSelectedComponent,
-    handleComponentSelect,
-    startConnection,
-    handleComponentConnect,
-    handleConnectionSelect,
-    handleConnectionColorChange,
-    clearSelection
-  } = useCanvasSelection(selectionProps);
-
-  // Canvas drag and drop functionality
-  const dragDropProps = useMemo(() => ({ onComponentAdd, pan, zoom }), [onComponentAdd, pan, zoom]);
-  const {
-    isDragOver,
-    handleDrop,
-    handleDragOver,
-    handleDragEnter,
-    handleDragLeave
-  } = useCanvasDragDrop(dragDropProps);
-
-  // Enhanced mouse down handler that combines pan and selection
-  const handleCanvasMouseDown = useCallback((e: React.MouseEvent) => {
-    // Só limpa a seleção se o clique foi diretamente no canvas (não em componentes ou conexões)
-    if (e.target === e.currentTarget) {
-      clearSelection();
-    }
-    handleMouseDown(e, canvasRef);
-  }, [handleMouseDown, clearSelection]);
-
-  const handleComponentDrag = useCallback((id: string, position: { x: number; y: number }) => {
-    onComponentUpdate(id, { position });
-  }, [onComponentUpdate]);
+  });
 
   const handleMiniMapComponentClick = useCallback((componentId: string) => {
     const component = components.find(c => c.id === componentId);
     if (component) {
-      setSelectedComponent(componentId);
+      eventHandlers.setSelectedComponent(componentId);
     }
-  }, [components, setSelectedComponent]);
-
-  // Função para duplicar componente
-  const handleComponentDuplicate = useCallback((componentId: string) => {
-    const originalComponent = components.find(c => c.id === componentId);
-    if (originalComponent) {
-      const newComponent: FunnelComponent = {
-        ...originalComponent,
-        id: `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        position: {
-          x: originalComponent.position.x + 50,
-          y: originalComponent.position.y + 50
-        },
-        data: {
-          ...originalComponent.data,
-          title: `${originalComponent.data.title} (Cópia)`
-        },
-        connections: []
-      };
-      onComponentAdd(newComponent);
-    }
-  }, [components, onComponentAdd]);
-
-  const transformStyle = useMemo(() => ({
-    transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-    transformOrigin: '0 0'
-  }), [pan.x, pan.y, zoom]);
-
-  const canvasStyle = useMemo(() => ({
-    cursor: isPanning ? 'grabbing' : 'grab'
-  }), [isPanning]);
+  }, [components, eventHandlers]);
 
   return (
     <ErrorBoundary>
       <div className="flex-1 relative overflow-hidden bg-black">
-        <CanvasGrid zoom={zoom} pan={pan} isDragOver={isDragOver} />
+        <CanvasGrid 
+          zoom={eventHandlers.zoom} 
+          pan={eventHandlers.pan} 
+          isDragOver={eventHandlers.isDragOver} 
+        />
         
-        {/* Helper text */}
-        {connectingFrom && (
-          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse">
-            Clique em outro componente para conectar
-          </div>
-        )}
+        <CanvasHelpers
+          connectingFrom={eventHandlers.connectingFrom}
+          selectedConnection={eventHandlers.selectedConnection}
+        />
         
-        {selectedConnection && (
-          <div className="absolute top-16 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse">
-            Clique novamente na conexão ou no X para deletar
-          </div>
-        )}
-        
-        <div
-          ref={canvasRef}
-          className="w-full h-full relative canvas-container"
-          onDrop={(e) => handleDrop(e, canvasRef)}
-          onDragOver={handleDragOver}
-          onDragEnter={handleDragEnter}
-          onDragLeave={(e) => handleDragLeave(e, canvasRef)}
-          onMouseDown={handleCanvasMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onWheel={handleWheel}
-          style={canvasStyle}
-        >
-          <div 
-            className="absolute inset-0"
-            style={transformStyle}
-          >
-            <ErrorBoundary>
-              <ConnectionManager
-                components={components}
-                connections={connections}
-                connectingFrom={connectingFrom}
-                selectedConnection={selectedConnection}
-                onConnectionSelect={handleConnectionSelect}
-                onConnectionColorChange={handleConnectionColorChange}
-              />
-            </ErrorBoundary>
-
-            <ErrorBoundary>
-              <FlowAnimation
-                components={components}
-                connections={connections}
-              />
-            </ErrorBoundary>
-
-            {/* Components */}
-            {components.map((component) => (
-              <ErrorBoundary key={component.id}>
-                <ComponentNode
-                  component={component}
-                  isSelected={selectedComponent === component.id}
-                  isConnecting={connectingFrom !== null}
-                  canConnect={connectingFrom !== null && connectingFrom !== component.id}
-                  onSelect={() => handleComponentSelect(component.id)}
-                  onStartConnection={() => startConnection(component.id)}
-                  onConnect={() => handleComponentConnect(component.id)}
-                  onDrag={handleComponentDrag}
-                  onDelete={() => onComponentDelete(component.id)}
-                  onUpdate={onComponentUpdate}
-                  onDuplicate={() => handleComponentDuplicate(component.id)}
-                />
-              </ErrorBoundary>
-            ))}
-          </div>
-        </div>
+        <CanvasContainer
+          components={components}
+          connections={connections}
+          selectedComponent={eventHandlers.selectedComponent}
+          connectingFrom={eventHandlers.connectingFrom}
+          selectedConnection={eventHandlers.selectedConnection}
+          pan={eventHandlers.pan}
+          zoom={eventHandlers.zoom}
+          isPanning={eventHandlers.isPanning}
+          onComponentUpdate={onComponentUpdate}
+          onComponentDelete={onComponentDelete}
+          onComponentAdd={onComponentAdd}
+          onConnectionSelect={eventHandlers.handleConnectionSelect}
+          onConnectionColorChange={eventHandlers.handleConnectionColorChange}
+          onComponentSelect={eventHandlers.handleComponentSelect}
+          startConnection={eventHandlers.startConnection}
+          handleComponentConnect={eventHandlers.handleComponentConnect}
+          onCanvasMouseDown={eventHandlers.handleCanvasMouseDown}
+          onMouseMove={eventHandlers.handleMouseMove}
+          onMouseUp={eventHandlers.handleMouseUp}
+          onWheel={eventHandlers.handleWheel}
+          onDrop={eventHandlers.handleDrop}
+          onDragOver={eventHandlers.handleDragOver}
+          onDragEnter={eventHandlers.handleDragEnter}
+          onDragLeave={eventHandlers.handleDragLeave}
+        />
 
         <CanvasControls
-          zoom={zoom}
-          onZoomIn={handleZoomIn}
-          onZoomOut={handleZoomOut}
+          zoom={eventHandlers.zoom}
+          onZoomIn={eventHandlers.handleZoomIn}
+          onZoomOut={eventHandlers.handleZoomOut}
         />
 
         <MiniMap
           components={components}
           connections={connections}
-          canvasTransform={{ pan, zoom }}
+          canvasTransform={{ pan: eventHandlers.pan, zoom: eventHandlers.zoom }}
           onComponentClick={handleMiniMapComponentClick}
         />
       </div>
