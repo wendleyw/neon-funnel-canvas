@@ -1,39 +1,47 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { ComponentTemplate } from '../types/funnel';
-import { defaultTemplates } from '../data/componentTemplates';
+import { componentTemplatesByCategory } from '../data/componentTemplates';
+import { digitalLaunchTemplates } from '../features/digital-launch/data/templates';
 
 export const useComponentTemplates = () => {
   const [customTemplates, setCustomTemplates] = useState<ComponentTemplate[]>([]);
 
+  // Combine all templates from different sources
+  const allTemplates = useMemo(() => {
+    const categoryTemplates = Object.values(componentTemplatesByCategory).flat();
+    return [
+      ...categoryTemplates,
+      ...digitalLaunchTemplates,
+      ...customTemplates
+    ];
+  }, [customTemplates]);
+
   const addCustomTemplate = useCallback((template: ComponentTemplate) => {
-    // Gera um tipo único para o template customizado
-    const customType = `custom-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const newTemplate: ComponentTemplate = {
-      ...template,
-      type: customType as any
-    };
-    
-    console.log('Adding custom template:', newTemplate);
-    setCustomTemplates(prev => [...prev, newTemplate]);
-    return newTemplate;
+    setCustomTemplates(prev => {
+      const exists = prev.some(t => t.type === template.type);
+      if (exists) {
+        return prev.map(t => t.type === template.type ? template : t);
+      }
+      return [...prev, template];
+    });
   }, []);
 
   const removeCustomTemplate = useCallback((type: string) => {
-    console.log('Removing custom template:', type);
-    setCustomTemplates(prev => prev.filter(template => template.type !== type));
+    setCustomTemplates(prev => prev.filter(t => t.type !== type));
   }, []);
 
-  // Memoiza os templates para evitar re-renders desnecessários
-  const allTemplates = useMemo(() => {
-    return [...defaultTemplates, ...customTemplates];
-  }, [customTemplates]);
+  const getTemplateByType = useCallback((type: string) => {
+    return allTemplates.find(t => t.type === type);
+  }, [allTemplates]);
 
   return {
-    defaultTemplates,
-    customTemplates,
     allTemplates,
+    customTemplates,
+    digitalLaunchTemplates,
+    categoryTemplates: Object.values(componentTemplatesByCategory).flat(),
     addCustomTemplate,
-    removeCustomTemplate
+    removeCustomTemplate,
+    getTemplateByType
   };
 };

@@ -56,27 +56,22 @@ export const useCanvasDragDrop = ({
       const template: ComponentTemplate = JSON.parse(templateData);
       console.log('Parsed template:', template);
       
-      // Encontrar o canvas container (o elemento com a classe canvas-container)
-      const canvasContainer = canvasRef.current?.querySelector('.canvas-container') as HTMLElement;
-      const canvasRect = canvasContainer?.getBoundingClientRect() || canvasRef.current?.getBoundingClientRect();
+      // Get the main canvas container element
+      const canvasContainer = canvasRef.current;
       
-      console.log('Canvas container:', canvasContainer);
+      if (!canvasContainer) {
+        console.error('Canvas container not found');
+        return;
+      }
+      
+      const canvasRect = canvasContainer.getBoundingClientRect();
       console.log('Canvas rect:', canvasRect);
       
-      let x, y;
-      
-      if (canvasRect) {
-        // Calcular posição considerando zoom e pan
-        x = Math.max(0, (e.clientX - canvasRect.left - panOffset.x) / scale);
-        y = Math.max(0, (e.clientY - canvasRect.top - panOffset.y) / scale);
-      } else {
-        // Fallback: usar posição relativa básica
-        x = Math.max(0, (e.clientX - panOffset.x) / scale);
-        y = Math.max(0, (e.clientY - panOffset.y) / scale);
-        console.warn('Using fallback position calculation');
-      }
+      // Calculate position with proper scaling and panning
+      const x = Math.max(0, (e.clientX - canvasRect.left - panOffset.x) / scale);
+      const y = Math.max(0, (e.clientY - canvasRect.top - panOffset.y) / scale);
 
-      console.log('Calculated drop position:', { x, y });
+      console.log('Calculated drop position:', { x, y, scale, panOffset });
 
       const newComponent: FunnelComponent = {
         id: `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,

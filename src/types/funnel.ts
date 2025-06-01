@@ -1,7 +1,7 @@
 
 export interface FunnelComponent {
   id: string;
-  type: 'landing-page' | 'quiz' | 'form' | 'email-sequence' | 'checkout' | 'automation' | 'analytics' | 'segmentation' | 'conversion' | 'custom' | string;
+  type: 'landing-page' | 'quiz' | 'form' | 'email-sequence' | 'checkout' | 'automation' | 'analytics' | 'segmentation' | 'conversion' | 'custom' | 'target-audience' | 'offer' | 'traffic-organic' | 'traffic-paid' | 'lead-capture' | 'nurturing' | 'webinar-vsl' | 'sales-page' | 'checkout-upsell' | 'post-sales' | 'analysis' | string;
   position: { x: number; y: number };
   data: {
     title: string;

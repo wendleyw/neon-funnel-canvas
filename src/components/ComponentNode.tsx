@@ -35,7 +35,7 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
   onDuplicate
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const { allTemplates } = useComponentTemplates();
+  const { getTemplateByType } = useComponentTemplates();
 
   const dragHandlers = useMemo(() => ({
     componentId: component.id,
@@ -49,10 +49,24 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
     handleMouseDown
   } = useComponentDrag(dragHandlers);
 
-  const template = useMemo(() => 
-    allTemplates.find(t => t.type === component.type), 
-    [allTemplates, component.type]
-  );
+  const template = useMemo(() => {
+    const foundTemplate = getTemplateByType(component.type);
+    
+    // If template not found, create a fallback template
+    if (!foundTemplate) {
+      console.warn(`Template not found for component type: ${component.type}, creating fallback`);
+      return {
+        type: component.type,
+        icon: '🔧',
+        label: component.data.title || 'Unknown Component',
+        color: '#6B7280',
+        category: 'custom',
+        defaultProps: component.data
+      };
+    }
+    
+    return foundTemplate;
+  }, [component.type, component.data, getTemplateByType]);
 
   const handleDeleteClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -120,11 +134,6 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
     
     return classes;
   }, [isDragging, isSelected, canConnect]);
-
-  if (!template) {
-    console.warn('Template not found for component type:', component.type);
-    return null;
-  }
 
   return (
     <>
