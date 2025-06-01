@@ -2,9 +2,8 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { InstagramMockup } from './InstagramMockup';
-import { DeviceSelector, DEVICE_OPTIONS, DeviceOption } from './DeviceSelector';
 import { Button } from '../ui/button';
-import { X, Download, Save } from 'lucide-react';
+import { X, Download } from 'lucide-react';
 
 interface InstagramMockupModalProps {
   isOpen: boolean;
@@ -16,14 +15,6 @@ export const InstagramMockupModal: React.FC<InstagramMockupModalProps> = ({
   onClose
 }) => {
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
-  const [selectedDevice, setSelectedDevice] = useState<DeviceOption>(DEVICE_OPTIONS[0]);
-  const [savedMockups, setSavedMockups] = useState<Array<{
-    id: string;
-    name: string;
-    images: string[];
-    device: DeviceOption;
-    createdAt: Date;
-  }>>([]);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -37,45 +28,21 @@ export const InstagramMockupModal: React.FC<InstagramMockupModalProps> = ({
     setUploadedImages(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleSaveMockup = () => {
-    if (uploadedImages.length === 0) return;
-    
-    const newMockup = {
-      id: `mockup-${Date.now()}`,
-      name: `${selectedDevice.name} Mockup`,
-      images: uploadedImages,
-      device: selectedDevice,
-      createdAt: new Date()
-    };
-    
-    setSavedMockups(prev => [...prev, newMockup]);
-    console.log('Mockup saved:', newMockup);
-  };
-
   const handleDownload = () => {
+    // TODO: Implementar lógica de download do mockup
     console.log('Download mockup');
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto bg-gray-900 border-gray-700">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gray-900 border-gray-700">
         <DialogHeader>
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-white text-xl">Instagram Reels Mockup Generator</DialogTitle>
+            <DialogTitle className="text-white text-xl">Instagram Mockup Generator</DialogTitle>
             <div className="flex gap-2">
-              <Button 
-                onClick={handleSaveMockup}
-                size="sm"
-                disabled={uploadedImages.length === 0}
-                className="bg-green-600 hover:bg-green-700"
-              >
-                <Save className="w-4 h-4 mr-2" />
-                Save Mockup
-              </Button>
               <Button 
                 onClick={handleDownload}
                 size="sm"
-                disabled={uploadedImages.length === 0}
                 className="bg-blue-600 hover:bg-blue-700"
               >
                 <Download className="w-4 h-4 mr-2" />
@@ -88,106 +55,59 @@ export const InstagramMockupModal: React.FC<InstagramMockupModalProps> = ({
           </div>
         </DialogHeader>
         
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mt-4">
-          {/* Controls Column */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+          {/* Upload Area */}
           <div className="space-y-4">
-            <DeviceSelector 
-              selectedDevice={selectedDevice}
-              onDeviceChange={setSelectedDevice}
-            />
+            <h3 className="text-white text-lg font-medium">Upload Photos</h3>
             
-            <div className="space-y-4">
-              <h3 className="text-white text-lg font-medium">Upload Photos</h3>
-              
-              <div className="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center hover:border-gray-500 transition-colors">
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                  id="image-upload"
-                />
-                <label htmlFor="image-upload" className="cursor-pointer">
-                  <div className="text-gray-400 mb-2">
-                    <svg className="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                    </svg>
-                  </div>
-                  <p className="text-white font-medium">Click to upload photos</p>
-                  <p className="text-gray-400 text-sm">or drag and drop</p>
-                </label>
-              </div>
-
-              {/* Uploaded Images Preview */}
-              {uploadedImages.length > 0 && (
-                <div className="space-y-2">
-                  <h4 className="text-white font-medium">Uploaded Photos</h4>
-                  <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto">
-                    {uploadedImages.map((image, index) => (
-                      <div key={index} className="relative group">
-                        <img
-                          src={image}
-                          alt={`Upload ${index + 1}`}
-                          className="w-full h-20 object-cover rounded border border-gray-600"
-                        />
-                        <button
-                          onClick={() => handleRemoveImage(index)}
-                          className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+            <div className="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center hover:border-gray-500 transition-colors">
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+                id="image-upload"
+              />
+              <label htmlFor="image-upload" className="cursor-pointer">
+                <div className="text-gray-400 mb-2">
+                  <svg className="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
                 </div>
-              )}
+                <p className="text-white font-medium">Click to upload photos</p>
+                <p className="text-gray-400 text-sm">or drag and drop</p>
+              </label>
             </div>
-          </div>
 
-          {/* Mockup Preview */}
-          <div className="flex justify-center">
-            <InstagramMockup images={uploadedImages} device={selectedDevice} />
-          </div>
-
-          {/* Saved Mockups */}
-          <div className="space-y-4">
-            <h3 className="text-white text-lg font-medium">Saved Mockups</h3>
-            {savedMockups.length === 0 ? (
-              <div className="text-gray-400 text-center py-8">
-                <Save className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>No saved mockups yet</p>
-              </div>
-            ) : (
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {savedMockups.map((mockup) => (
-                  <div key={mockup.id} className="bg-gray-800 rounded-lg p-3 border border-gray-700">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="text-white font-medium text-sm">{mockup.name}</h4>
-                      <span className="text-xs text-gray-400">
-                        {mockup.createdAt.toLocaleDateString()}
-                      </span>
+            {/* Uploaded Images Preview */}
+            {uploadedImages.length > 0 && (
+              <div className="space-y-2">
+                <h4 className="text-white font-medium">Uploaded Photos</h4>
+                <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto">
+                  {uploadedImages.map((image, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={image}
+                        alt={`Upload ${index + 1}`}
+                        className="w-full h-20 object-cover rounded border border-gray-600"
+                      />
+                      <button
+                        onClick={() => handleRemoveImage(index)}
+                        className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        ×
+                      </button>
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-gray-400 mb-2">
-                      <span className={`w-2 h-2 rounded-full ${
-                        mockup.device.type === 'ios' ? 'bg-blue-500' : 'bg-green-500'
-                      }`}></span>
-                      <span>{mockup.device.name}</span>
-                      <span>•</span>
-                      <span>{mockup.images.length} photos</span>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline" className="text-xs h-7">
-                        Load
-                      </Button>
-                      <Button size="sm" variant="outline" className="text-xs h-7">
-                        Download
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             )}
+          </div>
+
+          {/* Instagram Mockup */}
+          <div className="flex justify-center">
+            <InstagramMockup images={uploadedImages} />
           </div>
         </div>
       </DialogContent>

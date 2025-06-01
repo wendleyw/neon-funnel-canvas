@@ -12,7 +12,6 @@ interface ComponentNodeProps {
   isSelected: boolean;
   isConnecting?: boolean;
   canConnect?: boolean;
-  connectingFrom?: string | null;
   onSelect: () => void;
   onStartConnection: () => void;
   onConnect: () => void;
@@ -20,7 +19,6 @@ interface ComponentNodeProps {
   onDelete: () => void;
   onUpdate: (id: string, updates: Partial<FunnelComponent>) => void;
   onDuplicate?: () => void;
-  onInstagramMockupOpen?: () => void;
 }
 
 export const ComponentNode = React.memo<ComponentNodeProps>(({
@@ -28,15 +26,13 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
   isSelected,
   isConnecting = false,
   canConnect = false,
-  connectingFrom = null,
   onSelect,
   onStartConnection,
   onConnect,
   onDrag,
   onDelete,
   onUpdate,
-  onDuplicate,
-  onInstagramMockupOpen
+  onDuplicate
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const { getTemplateByType } = useComponentTemplates();
@@ -159,14 +155,14 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
       >
         <ComponentNodeCard
           component={component}
+          template={template}
           isSelected={isSelected}
-          connectingFrom={connectingFrom}
-          onSelect={onSelect}
-          onDelete={onDelete}
-          onUpdate={handleUpdateComponent}
-          onStartConnection={onStartConnection}
-          onConnect={onConnect}
-          onInstagramMockupOpen={onInstagramMockupOpen}
+          isConnecting={isConnecting}
+          canConnect={canConnect}
+          onEditClick={handleEditClick}
+          onDeleteClick={handleDeleteClick}
+          onConnectionClick={handleConnectionClick}
+          onDuplicateClick={handleDuplicateClick}
         />
       </div>
 
