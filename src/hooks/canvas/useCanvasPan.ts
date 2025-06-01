@@ -7,8 +7,9 @@ export const useCanvasPan = () => {
   const [isPanning, setIsPanning] = useState(false);
   const [lastPanPosition, setLastPanPosition] = useState<CanvasPosition>({ x: 0, y: 0 });
 
-  const handleMouseDown = useCallback((e: React.MouseEvent, canvasRef: React.RefObject<HTMLDivElement>) => {
-    if (e.target === canvasRef.current || (e.target as Element).closest('.canvas-background')) {
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    // Check if the click is on the canvas background
+    if (e.target === e.currentTarget || (e.target as Element).closest('.canvas-background')) {
       setIsPanning(true);
       setLastPanPosition({ x: e.clientX, y: e.clientY });
     }
