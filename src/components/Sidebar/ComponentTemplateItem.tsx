@@ -1,67 +1,59 @@
 
-import React, { useCallback } from 'react';
+import React from 'react';
 import { ComponentTemplate } from '../../types/funnel';
 
 interface ComponentTemplateItemProps {
   template: ComponentTemplate;
   onDragStart: (e: React.DragEvent, template: ComponentTemplate) => void;
-  isCustom?: boolean;
   onRemove?: () => void;
+  isCustom?: boolean;
 }
 
-export const ComponentTemplateItem = React.memo<ComponentTemplateItemProps>(({ 
-  template, 
-  onDragStart, 
-  isCustom = false, 
-  onRemove 
+export const ComponentTemplateItem: React.FC<ComponentTemplateItemProps> = ({
+  template,
+  onDragStart,
+  onRemove,
+  isCustom = false
 }) => {
-  const handleDragStart = useCallback((e: React.DragEvent) => {
-    console.log('Starting drag for template:', template);
-    
-    // Garante que os dados sejam serializados corretamente
-    const templateData = JSON.stringify(template);
-    e.dataTransfer.setData('application/json', templateData);
-    e.dataTransfer.setData('text/plain', template.label); // Fallback
-    e.dataTransfer.effectAllowed = 'copy';
-    
+  const handleDragStart = (e: React.DragEvent) => {
     onDragStart(e, template);
-  }, [onDragStart, template]);
-
-  const handleRemove = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    if (onRemove) {
-      onRemove();
-    }
-  }, [onRemove]);
+  };
 
   return (
     <div
       draggable
       onDragStart={handleDragStart}
-      className="flex items-center p-3 bg-gray-900 rounded border border-gray-800 cursor-grab hover:bg-gray-800 hover:border-gray-700 transition-all active:cursor-grabbing group"
+      className="group relative flex items-center gap-2 p-2 rounded-md cursor-grab hover:bg-gray-800/70 transition-colors border border-gray-700/50 hover:border-gray-600"
     >
-      <div 
-        className="w-8 h-8 rounded flex items-center justify-center text-white text-sm mr-3 flex-shrink-0"
-        style={{ backgroundColor: template.color }}
-      >
-        {template.icon}
+      <div className="flex items-center gap-2 flex-1 min-w-0">
+        <span className="text-lg flex-shrink-0">{template.icon}</span>
+        <span className="text-xs text-gray-300 truncate font-medium">
+          {template.label}
+        </span>
       </div>
-      <div className="flex-1 min-w-0">
-        <h4 className="text-white font-medium text-sm truncate">{template.label}</h4>
-        <p className="text-gray-400 text-xs truncate">{template.defaultData.description}</p>
-      </div>
+      
       {isCustom && onRemove && (
         <button
-          onClick={handleRemove}
-          className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-400 transition-all ml-2 flex-shrink-0 w-6 h-6 flex items-center justify-center"
-          title="Remover componente personalizado"
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove();
+          }}
+          className="opacity-0 group-hover:opacity-100 transition-opacity text-red-400 hover:text-red-300 p-1"
+          title="Remover componente"
         >
-          ×
+          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fillRule="evenodd"
+              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+              clipRule="evenodd"
+            />
+          </svg>
         </button>
       )}
+      
+      <div 
+        className={`absolute left-0 top-0 bottom-0 w-1 rounded-r ${template.color} opacity-60`}
+      />
     </div>
   );
-});
-
-ComponentTemplateItem.displayName = 'ComponentTemplateItem';
+};

@@ -7,6 +7,7 @@ import { ReadyTemplatesModal } from './ReadyTemplates/ReadyTemplatesModal';
 import { useComponentTemplates } from '../hooks/useComponentTemplates';
 import { SidebarHeader } from './Sidebar/SidebarHeader';
 import { TemplateSection } from './Sidebar/TemplateSection';
+import { CategorizedTemplates } from './Sidebar/CategorizedTemplates';
 import { DigitalLaunchSection } from '../features/digital-launch/components/DigitalLaunchSection';
 
 interface SidebarProps {
@@ -17,7 +18,7 @@ interface SidebarProps {
 export const Sidebar = React.memo<SidebarProps>(({ onDragStart, onAddCompleteTemplate }) => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isReadyTemplatesOpen, setIsReadyTemplatesOpen] = useState(false);
-  const { defaultTemplates, customTemplates, addCustomTemplate, removeCustomTemplate } = useComponentTemplates();
+  const { customTemplates, addCustomTemplate, removeCustomTemplate } = useComponentTemplates();
 
   const handleDragStart = useCallback((e: React.DragEvent, template: ComponentTemplate) => {
     console.log('Starting drag for template:', template);
@@ -37,7 +38,6 @@ export const Sidebar = React.memo<SidebarProps>(({ onDragStart, onAddCompleteTem
     }
   }, [onAddCompleteTemplate]);
 
-  console.log('Default templates count:', defaultTemplates.length);
   console.log('Custom templates count:', customTemplates.length);
 
   return (
@@ -49,17 +49,13 @@ export const Sidebar = React.memo<SidebarProps>(({ onDragStart, onAddCompleteTem
         />
         
         <div className="flex-1 p-3 overflow-y-auto">
-          <div className="space-y-4">
+          <div className="space-y-6">
             <DigitalLaunchSection
               onDragStart={onDragStart}
               onAddCompleteTemplate={onAddCompleteTemplate}
             />
 
-            <TemplateSection
-              title="Componentes Padrão"
-              templates={defaultTemplates}
-              onDragStart={handleDragStart}
-            />
+            <CategorizedTemplates onDragStart={handleDragStart} />
 
             {customTemplates.length > 0 && (
               <TemplateSection
