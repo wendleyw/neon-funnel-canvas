@@ -1,3 +1,4 @@
+
 import { ComponentTemplate } from '../types/funnel';
 
 export const componentTemplates: ComponentTemplate[] = [
@@ -173,6 +174,19 @@ export const templatesByCategory = componentTemplates.reduce((acc, template) => 
   acc[template.category].push(template);
   return acc;
 }, {} as Record<string, ComponentTemplate[]>);
+
+// Export with backward compatibility
+export const componentTemplatesByCategory = templatesByCategory;
+
+// Export category labels
+export const categoryLabels: Record<string, string> = {
+  'conversion': 'Conversão',
+  'engagement': 'Engajamento',
+  'lead-capture': 'Captura de Leads',
+  'nurturing': 'Nutrição',
+  'content': 'Conteúdo',
+  'visual-helpers': 'Helpers Visuais'
+};
 
 // Export individual categories for easier access
 export const conversionTemplates = templatesByCategory['conversion'] || [];

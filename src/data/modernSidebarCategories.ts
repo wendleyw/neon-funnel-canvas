@@ -1,201 +1,33 @@
-import { modernComponentTemplates } from './modernComponentTemplates';
 
-interface SidebarCategory {
+import { ComponentTemplate } from '../types/funnel';
+import { componentTemplates } from './componentTemplates';
+
+export interface SidebarCategory {
   id: string;
   name: string;
   icon: string;
   color: string;
   description: string;
-  templates: string[];
+  templates: ComponentTemplate[];
 }
 
+// Helper function to get templates by type
+const getTemplatesByTypes = (types: string[]): ComponentTemplate[] => {
+  return types.map(type => 
+    componentTemplates.find(template => template.type === type)
+  ).filter(Boolean) as ComponentTemplate[];
+};
+
 export const modernSidebarCategories: SidebarCategory[] = [
-  {
-    id: 'general',
-    name: 'Geral',
-    icon: '⚙️',
-    color: '#64748B',
-    description: 'Componentes gerais',
-    templates: [
-      'landing-page',
-      'form',
-      'quiz',
-      'email-sequence',
-      'checkout',
-      'automation',
-      'analytics',
-      'segmentation',
-      'conversion',
-      'custom'
-    ]
-  },
-  {
-    id: 'target-audience',
-    name: 'Público Alvo',
-    icon: '👤',
-    color: '#F472B6',
-    description: 'Definição do público alvo',
-    templates: [
-      'target-audience',
-      'offer'
-    ]
-  },
-  {
-    id: 'traffic',
-    name: 'Tráfego',
-    icon: '🚗',
-    color: '#3B82F6',
-    description: 'Estratégias de tráfego',
-    templates: [
-      'traffic-organic',
-      'traffic-paid'
-    ]
-  },
-  {
-    id: 'lead-capture',
-    name: 'Captura de Leads',
-    icon: '📧',
-    color: '#10B981',
-    description: 'Estratégias de captura de leads',
-    templates: [
-      'lead-capture'
-    ]
-  },
-  {
-    id: 'nurturing',
-    name: 'Nutrição',
-    icon: '💬',
-    color: '#8B5CF6',
-    description: 'Estratégias de nutrição de leads',
-    templates: [
-      'nurturing'
-    ]
-  },
-  {
-    id: 'webinar-vsl',
-    name: 'Webinar/VSL',
-    icon: '📺',
-    color: '#F59E0B',
-    description: 'Webinar ou VSL',
-    templates: [
-      'webinar-vsl'
-    ]
-  },
-  {
-    id: 'sales-page',
-    name: 'Página de Vendas',
-    icon: '💰',
-    color: '#EF4444',
-    description: 'Página de vendas',
-    templates: [
-      'sales-page'
-    ]
-  },
-  {
-    id: 'checkout-upsell',
-    name: 'Checkout/Upsell',
-    icon: '🛒',
-    color: '#6366F1',
-    description: 'Checkout e Upsell',
-    templates: [
-      'checkout-upsell'
-    ]
-  },
-  {
-    id: 'post-sales',
-    name: 'Pós-Venda',
-    icon: '🎁',
-    color: '#14B8A6',
-    description: 'Estratégias de pós-venda',
-    templates: [
-      'post-sales'
-    ]
-  },
-  {
-    id: 'analysis',
-    name: 'Análise',
-    icon: '📈',
-    color: '#A855F7',
-    description: 'Análise de dados',
-    templates: [
-      'analysis'
-    ]
-  },
-  {
-    id: 'instagram',
-    name: 'Instagram',
-    icon: '📸',
-    color: '#E4405F',
-    description: 'Conteúdo para Instagram',
-    templates: [
-      'instagram-post',
-      'instagram-story',
-      'instagram-reels',
-      'instagram-carousel'
-    ]
-  },
-  {
-    id: 'tiktok',
-    name: 'TikTok',
-    icon: '🎵',
-    color: '#000000',
-    description: 'Conteúdo para TikTok',
-    templates: [
-      'tiktok-video'
-    ]
-  },
-  {
-    id: 'youtube',
-    name: 'YouTube',
-    icon: '▶️',
-    color: '#FF0000',
-    description: 'Conteúdo para YouTube',
-    templates: [
-      'youtube-short',
-      'youtube-video',
-      'youtube-thumbnail'
-    ]
-  },
-  {
-    id: 'facebook',
-    name: 'Facebook',
-    icon: 'f',
-    color: '#1877F2',
-    description: 'Conteúdo para Facebook',
-    templates: [
-      'facebook-post',
-      'facebook-ad'
-    ]
-  },
-  {
-    id: 'linkedin',
-    name: 'LinkedIn',
-    icon: 'in',
-    color: '#0A66C2',
-    description: 'Conteúdo para LinkedIn',
-    templates: [
-      'linkedin-post'
-    ]
-  },
-  {
-    id: 'twitter',
-    name: 'Twitter',
-    icon: '🐦',
-    color: '#1DA1F2',
-    description: 'Conteúdo para Twitter',
-    templates: [
-      'twitter-post'
-    ]
-  },
   {
     id: 'traffic-organic',
     name: 'Tráfego Orgânico',
     icon: '🌱',
     color: '#22C55E',
     description: 'Estratégias de tráfego orgânico',
-    templates: [
+    templates: getTemplatesByTypes([
       'instagram-post',
-      'instagram-story',
+      'instagram-story', 
       'instagram-reels',
       'instagram-carousel',
       'tiktok-video',
@@ -205,7 +37,7 @@ export const modernSidebarCategories: SidebarCategory[] = [
       'facebook-post',
       'linkedin-post',
       'twitter-post'
-    ]
+    ])
   },
   {
     id: 'traffic-paid',
@@ -213,12 +45,12 @@ export const modernSidebarCategories: SidebarCategory[] = [
     icon: '💰',
     color: '#EF4444',
     description: 'Campanhas de tráfego pago',
-    templates: [
+    templates: getTemplatesByTypes([
       'facebook-ad',
       'instagram-ad',
       'google-ad',
       'youtube-ad'
-    ]
+    ])
   },
   {
     id: 'lead-capture',
@@ -226,12 +58,12 @@ export const modernSidebarCategories: SidebarCategory[] = [
     icon: '🎯',
     color: '#3B82F6',
     description: 'Ferramentas para capturar leads',
-    templates: [
+    templates: getTemplatesByTypes([
       'landing-page',
       'form',
       'quiz',
       'lead-magnet'
-    ]
+    ])
   },
   {
     id: 'nurturing',
@@ -239,11 +71,11 @@ export const modernSidebarCategories: SidebarCategory[] = [
     icon: '🌿',
     color: '#8B5CF6',
     description: 'Sequências de nutrição',
-    templates: [
+    templates: getTemplatesByTypes([
       'email-sequence',
       'automation',
       'segmentation'
-    ]
+    ])
   },
   {
     id: 'conversion',
@@ -251,12 +83,12 @@ export const modernSidebarCategories: SidebarCategory[] = [
     icon: '💎',
     color: '#F59E0B',
     description: 'Páginas de conversão',
-    templates: [
+    templates: getTemplatesByTypes([
       'sales-page',
       'webinar-vsl',
       'checkout',
       'upsell'
-    ]
+    ])
   },
   {
     id: 'post-sales',
@@ -264,11 +96,11 @@ export const modernSidebarCategories: SidebarCategory[] = [
     icon: '🎉',
     color: '#10B981',
     description: 'Estratégias pós-venda',
-    templates: [
+    templates: getTemplatesByTypes([
       'onboarding',
       'support',
       'feedback'
-    ]
+    ])
   },
   {
     id: 'analytics',
@@ -276,11 +108,11 @@ export const modernSidebarCategories: SidebarCategory[] = [
     icon: '📊',
     color: '#6366F1',
     description: 'Análise e métricas',
-    templates: [
+    templates: getTemplatesByTypes([
       'analytics',
       'conversion-tracking',
       'reports'
-    ]
+    ])
   },
   {
     id: 'visual-helpers',
@@ -288,10 +120,20 @@ export const modernSidebarCategories: SidebarCategory[] = [
     icon: '🎨',
     color: '#EC4899',
     description: 'Componentes para organização visual',
-    templates: [
+    templates: getTemplatesByTypes([
       'note',
-      'arrow',
+      'arrow', 
       'frame'
-    ]
+    ])
   }
 ];
+
+// Helper function for searching templates
+export const searchModernTemplates = (query: string): ComponentTemplate[] => {
+  const lowerQuery = query.toLowerCase();
+  return componentTemplates.filter(template => 
+    template.label.toLowerCase().includes(lowerQuery) ||
+    template.type.toLowerCase().includes(lowerQuery) ||
+    template.defaultProps.description?.toLowerCase().includes(lowerQuery)
+  );
+};

@@ -1,13 +1,13 @@
-import React, { useState, useMemo, useCallback } from 'react';
-import { Copy, Link } from 'lucide-react';
+
+import React, { useState, useMemo } from 'react';
 import { FunnelComponent } from '../types/funnel';
 import { useComponentTemplates } from '../hooks/useComponentTemplates';
 import { useComponentDrag } from '../hooks/canvas/useComponentDrag';
+import { useComponentNodeHandlers } from '../hooks/useComponentNodeHandlers';
 import { ComponentEditor } from './ComponentEditor';
 import { ComponentNodeCard } from './ComponentNode/ComponentNodeCard';
-import { NoteComponent } from './VisualHelpers/NoteComponent';
-import { ArrowComponent } from './VisualHelpers/ArrowComponent';
-import { FrameComponent } from './VisualHelpers/FrameComponent';
+import { ComponentNodeSpecialRenderer } from './ComponentNode/ComponentNodeSpecialRenderer';
+import { ComponentNodeActions } from './ComponentNode/ComponentNodeActions';
 
 interface ComponentNodeProps {
   component: FunnelComponent;
@@ -54,9 +54,7 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
   const template = useMemo(() => {
     const foundTemplate = getTemplateByType(component.type);
     
-    // If template not found, create a fallback template
     if (!foundTemplate) {
-      console.warn(`Template not found for component type: ${component.type}, creating fallback`);
       return {
         type: component.type,
         icon: '🔧',
@@ -64,58 +62,23 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
         color: '#6B7280',
         category: 'custom',
         defaultProps: component.data
-      };
+      } as const;
     }
     
     return foundTemplate;
   }, [component.type, component.data, getTemplateByType]);
 
-  const handleDeleteClick = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    onDelete();
-  }, [onDelete]);
-
-  const handleEditClick = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsEditing(true);
-  }, []);
-
-  const handleDuplicateClick = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    onDuplicate?.();
-  }, [onDuplicate]);
-
-  const handleDoubleClick = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsEditing(true);
-  }, []);
-
-  const handleUpdateComponent = useCallback((updates: Partial<FunnelComponent>) => {
-    onUpdate(component.id, updates);
-  }, [component.id, onUpdate]);
-
-  const handleClick = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    
-    // Se pode conectar, conecta em vez de selecionar
-    if (canConnect) {
-      onConnect();
-      return;
-    }
-    
-    // Não seleciona se clicou em botões
-    if ((e.target as Element).closest('button')) {
-      return;
-    }
-    
-    console.log('Componente clicado:', component.id);
-    onSelect();
-  }, [onSelect, onConnect, canConnect, component.id]);
-
-  const handleConnectionClick = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    onStartConnection();
-  }, [onStartConnection]);
+  const handlers = useComponentNodeHandlers({
+    component,
+    canConnect,
+    onSelect,
+    onConnect,
+    onDelete,
+    onStartConnection,
+    onUpdate,
+    onDuplicate,
+    setIsEditing
+  });
 
   const containerStyle = useMemo(() => ({
     left: component.position.x,
@@ -137,103 +100,28 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
     return classes;
   }, [isDragging, isSelected, canConnect]);
 
-  console.log('ComponentNode render:', {
-    id: component.id,
-    position: component.position,
-    title: component.data.title,
-    type: component.type,
-    templateFound: !!template
+  // Render special components (note, arrow, frame)
+  const specialComponent = ComponentNodeSpecialRenderer({
+    component,
+    isSelected,
+    isEditing,
+    containerClassName,
+    containerStyle,
+    nodeRef,
+    onUpdate,
+    onDelete,
+    onSelect,
+    onMouseDown: handleMouseDown,
+    onDoubleClick: handlers.handleDoubleClick,
+    onUpdateComponent: handlers.handleUpdateComponent,
+    onCloseEditor: () => setIsEditing(false)
   });
 
-  // Render different components based on type
-  if (component.type === 'note') {
-    return (
-      <>
-        <div
-          ref={nodeRef}
-          className={containerClassName}
-          style={containerStyle}
-          onMouseDown={handleMouseDown}
-          onDoubleClick={handleDoubleClick}
-        >
-          <NoteComponent
-            component={component}
-            isSelected={isSelected}
-            onUpdate={onUpdate}
-            onDelete={onDelete}
-            onSelect={onSelect}
-          />
-        </div>
-        
-        <ComponentEditor
-          component={component}
-          onUpdate={handleUpdateComponent}
-          onClose={() => setIsEditing(false)}
-          isOpen={isEditing}
-        />
-      </>
-    );
+  if (specialComponent) {
+    return specialComponent;
   }
 
-  if (component.type === 'arrow') {
-    return (
-      <>
-        <div
-          ref={nodeRef}
-          className={containerClassName}
-          style={containerStyle}
-          onMouseDown={handleMouseDown}
-          onDoubleClick={handleDoubleClick}
-        >
-          <ArrowComponent
-            component={component}
-            isSelected={isSelected}
-            onUpdate={onUpdate}
-            onDelete={onDelete}
-            onSelect={onSelect}
-          />
-        </div>
-        
-        <ComponentEditor
-          component={component}
-          onUpdate={handleUpdateComponent}
-          onClose={() => setIsEditing(false)}
-          isOpen={isEditing}
-        />
-      </>
-    );
-  }
-
-  if (component.type === 'frame') {
-    return (
-      <>
-        <div
-          ref={nodeRef}
-          className={containerClassName}
-          style={containerStyle}
-          onMouseDown={handleMouseDown}
-          onDoubleClick={handleDoubleClick}
-        >
-          <FrameComponent
-            component={component}
-            isSelected={isSelected}
-            onUpdate={onUpdate}
-            onDelete={onDelete}
-            onSelect={onSelect}
-          />
-        </div>
-        
-        <ComponentEditor
-          component={component}
-          onUpdate={handleUpdateComponent}
-          onClose={() => setIsEditing(false)}
-          isOpen={isEditing}
-        />
-      </>
-    );
-  }
-
-  // Default component rendering for all other types
+  // Default component rendering
   return (
     <>
       <div
@@ -241,8 +129,8 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
         className={containerClassName}
         style={containerStyle}
         onMouseDown={handleMouseDown}
-        onDoubleClick={handleDoubleClick}
-        onClick={handleClick}
+        onDoubleClick={handlers.handleDoubleClick}
+        onClick={handlers.handleClick}
       >
         <ComponentNodeCard
           component={component}
@@ -250,45 +138,24 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
           isSelected={isSelected}
           isConnecting={isConnecting}
           canConnect={canConnect}
-          onEditClick={handleEditClick}
-          onDeleteClick={handleDeleteClick}
-          onConnectionClick={handleConnectionClick}
-          onDuplicateClick={handleDuplicateClick}
+          onEditClick={handlers.handleEditClick}
+          onDeleteClick={handlers.handleDeleteClick}
+          onConnectionClick={handlers.handleConnectionClick}
+          onDuplicateClick={handlers.handleDuplicateClick}
         />
       </div>
 
-      {/* Botões externos abaixo do componente */}
-      {isSelected && !isConnecting && (
-        <div 
-          className="absolute flex items-center justify-center space-x-3"
-          style={{
-            left: component.position.x + 96 - 40, // Centraliza os botões (96 é metade da largura do card)
-            top: component.position.y + 180, // 20px abaixo do card
-            zIndex: 1001
-          }}
-        >
-          <button
-            onClick={handleDuplicateClick}
-            className="w-8 h-8 bg-green-600 hover:bg-green-700 text-white rounded-full flex items-center justify-center transition-colors shadow-lg"
-            title="Duplicar componente"
-          >
-            <Copy className="w-4 h-4" />
-          </button>
-          
-          <button
-            onClick={handleConnectionClick}
-            className="w-8 h-8 bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center justify-center transition-colors shadow-lg"
-            title="Conectar com outro componente"
-          >
-            <Link className="w-4 h-4" />
-          </button>
-        </div>
-      )}
+      <ComponentNodeActions
+        component={component}
+        isSelected={isSelected}
+        isConnecting={isConnecting}
+        onDuplicateClick={handlers.handleDuplicateClick}
+        onConnectionClick={handlers.handleConnectionClick}
+      />
 
-      {/* Editor Modal */}
       <ComponentEditor
         component={component}
-        onUpdate={handleUpdateComponent}
+        onUpdate={handlers.handleUpdateComponent}
         onClose={() => setIsEditing(false)}
         isOpen={isEditing}
       />

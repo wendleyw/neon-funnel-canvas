@@ -1,6 +1,6 @@
 
 import React, { useState, useCallback } from 'react';
-import { Sticky, Edit3, Trash2 } from 'lucide-react';
+import { StickyNote, Edit3, Trash2 } from 'lucide-react';
 import { FunnelComponent } from '../../types/funnel';
 import { Textarea } from '../ui/textarea';
 
