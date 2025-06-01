@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useCallback } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { Canvas } from '../components/Canvas';
@@ -5,7 +6,7 @@ import { Toolbar } from '../components/Toolbar';
 import { WorkspaceSelector } from '../components/WorkspaceSelector';
 import { ProfileModal } from '../components/Profile/ProfileModal';
 import { useFunnelProject } from '../hooks/useFunnelProject';
-import { useWorkspace } from '../hooks/useWorkspace';
+import { useSupabaseWorkspace } from '../hooks/useSupabaseWorkspace';
 import { useAuth } from '../contexts/AuthContext';
 import { ComponentTemplate, Connection } from '../types/funnel';
 import { toast } from 'sonner';
@@ -37,8 +38,9 @@ const Index = () => {
     currentWorkspace,
     setCurrentWorkspace,
     addProjectToWorkspace,
-    loadProject: loadProjectFromWorkspace
-  } = useWorkspace();
+    loadProject: loadProjectFromWorkspace,
+    loading: workspaceLoading
+  } = useSupabaseWorkspace();
 
   // Register service worker for PWA
   useEffect(() => {
@@ -53,16 +55,17 @@ const Index = () => {
   useEffect(() => {
     console.log('Current workspace state:', currentWorkspace);
     console.log('Current view:', currentView);
-  }, [currentWorkspace, currentView]);
+    console.log('Workspace loading:', workspaceLoading);
+  }, [currentWorkspace, currentView, workspaceLoading]);
 
-  // Ensure workspace is selected when switching to project view
+  // Verificar se workspace está selecionado quando mudando para project view
   useEffect(() => {
-    if (currentView === 'project' && !currentWorkspace && user) {
+    if (currentView === 'project' && !currentWorkspace && user && !workspaceLoading) {
       console.log('No workspace selected, redirecting to workspace selector');
       toast.error('Nenhum workspace selecionado. Selecione um workspace primeiro.');
       setCurrentView('workspace');
     }
-  }, [currentView, currentWorkspace, user]);
+  }, [currentView, currentWorkspace, user, workspaceLoading]);
 
   const handleDragStart = useCallback((template: ComponentTemplate) => {
     console.log('Dragging component:', template.label);
@@ -83,7 +86,7 @@ const Index = () => {
     console.log('Connection updated:', connectionId, updates);
   }, [project, setProjectData]);
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
     console.log('handleSave called - currentWorkspace:', currentWorkspace);
     
     if (!currentWorkspace) {
@@ -94,15 +97,18 @@ const Index = () => {
 
     console.log('Saving project to workspace:', currentWorkspace.name);
     
-    // Salvar projeto no hook useFunnelProject
-    const saved = saveProject(currentWorkspace.id);
-    
-    if (saved) {
-      // Adicionar projeto ao workspace
-      addProjectToWorkspace(project, currentWorkspace.id);
-      toast.success(`Projeto "${project.name}" salvo no workspace "${currentWorkspace.name}"!`);
+    try {
+      // Adicionar projeto ao workspace usando Supabase
+      const success = await addProjectToWorkspace(project, currentWorkspace.id);
+      
+      if (success) {
+        toast.success(`Projeto "${project.name}" salvo no workspace "${currentWorkspace.name}"!`);
+      }
+    } catch (error) {
+      console.error('Erro ao salvar projeto:', error);
+      toast.error('Erro ao salvar projeto');
     }
-  }, [saveProject, currentWorkspace, addProjectToWorkspace, project]);
+  }, [currentWorkspace, addProjectToWorkspace, project]);
 
   const handleLoad = useCallback(() => {
     toast.info('Funcionalidade de carregar abriria um seletor de projeto');
@@ -158,6 +164,18 @@ const Index = () => {
     setCurrentView('workspace');
     setCurrentProjectId(null);
   }, []);
+
+  // Mostrar loading se ainda estiver carregando workspaces
+  if (workspaceLoading && user) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4"></div>
+          <p>Carregando workspaces...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (currentView === 'workspace') {
     return (

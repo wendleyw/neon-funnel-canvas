@@ -45,6 +45,77 @@ export type Database = {
         }
         Relationships: []
       }
+      workspace_projects: {
+        Row: {
+          components_count: number | null
+          connections_count: number | null
+          created_at: string
+          id: string
+          name: string
+          project_data: Json
+          updated_at: string
+          user_id: string
+          workspace_id: string
+        }
+        Insert: {
+          components_count?: number | null
+          connections_count?: number | null
+          created_at?: string
+          id?: string
+          name: string
+          project_data: Json
+          updated_at?: string
+          user_id: string
+          workspace_id: string
+        }
+        Update: {
+          components_count?: number | null
+          connections_count?: number | null
+          created_at?: string
+          id?: string
+          name?: string
+          project_data?: Json
+          updated_at?: string
+          user_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_projects_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workspaces: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

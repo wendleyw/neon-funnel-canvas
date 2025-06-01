@@ -1,7 +1,9 @@
 
 import React from 'react';
 import { Trash2 } from 'lucide-react';
-import { Workspace } from '../../types/workspace';
+import { Database } from '../../integrations/supabase/types';
+
+type Workspace = Database['public']['Tables']['workspaces']['Row'];
 
 interface WorkspaceCardProps {
   workspace: Workspace;
@@ -25,7 +27,7 @@ export const WorkspaceCard: React.FC<WorkspaceCardProps> = ({
           <p className="text-sm text-gray-400">{workspace.description}</p>
         )}
         <p className="text-xs text-gray-500 mt-1">
-          {workspace.projects.length} projeto(s)
+          Criado em: {new Date(workspace.created_at).toLocaleDateString('pt-BR')}
         </p>
       </div>
       <button

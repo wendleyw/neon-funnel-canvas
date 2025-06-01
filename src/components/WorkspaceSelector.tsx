@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useWorkspace } from '../hooks/useWorkspace';
+import { useSupabaseWorkspace } from '../hooks/useSupabaseWorkspace';
 import { useAuth } from '../contexts/AuthContext';
 import { Plus, FolderOpen, User, LogIn } from 'lucide-react';
 import { WorkspaceCard } from './Workspace/WorkspaceCard';
@@ -26,8 +27,9 @@ export const WorkspaceSelector = React.memo<WorkspaceSelectorProps>(({
     createWorkspace,
     deleteWorkspace,
     loadWorkspaces,
-    getWorkspaceProjects
-  } = useWorkspace();
+    getWorkspaceProjects,
+    loading: workspaceLoading
+  } = useSupabaseWorkspace();
 
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -66,7 +68,7 @@ export const WorkspaceSelector = React.memo<WorkspaceSelectorProps>(({
     return currentWorkspace ? getWorkspaceProjects(currentWorkspace.id) : [];
   }, [currentWorkspace, getWorkspaceProjects]);
 
-  if (authLoading) {
+  if (authLoading || workspaceLoading) {
     return (
       <div className="flex-1 flex items-center justify-center bg-black text-white">
         <div className="text-center">
