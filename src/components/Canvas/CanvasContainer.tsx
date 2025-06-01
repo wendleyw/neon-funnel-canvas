@@ -1,4 +1,3 @@
-
 import React, { useMemo, useCallback } from 'react';
 import { FunnelComponent, Connection } from '../../types/funnel';
 import { ComponentNode } from '../ComponentNode';
@@ -178,6 +177,7 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
                 isSelected={selectedComponent === component.id}
                 isConnecting={connectingFrom !== null}
                 canConnect={connectingFrom !== null && connectingFrom !== component.id}
+                connectingFrom={connectingFrom}
                 onSelect={() => onComponentSelect(component.id)}
                 onStartConnection={() => startConnection(component.id)}
                 onConnect={() => handleComponentConnect(component.id)}

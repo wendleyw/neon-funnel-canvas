@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useCallback } from 'react';
 import { Copy, Link } from 'lucide-react';
 import { FunnelComponent } from '../types/funnel';
@@ -11,6 +12,7 @@ interface ComponentNodeProps {
   isSelected: boolean;
   isConnecting?: boolean;
   canConnect?: boolean;
+  connectingFrom?: string | null;
   onSelect: () => void;
   onStartConnection: () => void;
   onConnect: () => void;
@@ -26,6 +28,7 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
   isSelected,
   isConnecting = false,
   canConnect = false,
+  connectingFrom = null,
   onSelect,
   onStartConnection,
   onConnect,
