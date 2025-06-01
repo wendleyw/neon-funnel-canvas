@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Connection } from '../types/funnel';
 import { ConnectionEditor } from './ConnectionEditor';
@@ -180,26 +179,15 @@ export const ConnectionLine: React.FC<ConnectionLineProps> = ({
         </>
       )}
       
-      {/* Editor de conexão quando selecionado - agora em portal para z-index correto */}
+      {/* Editor de conexão quando selecionado - renderizado como portal no DOM */}
       {isSelected && (
-        <foreignObject
-          x={0}
-          y={0}
-          width="100%"
-          height="100%"
-          className="pointer-events-none overflow-visible"
-          style={{ zIndex: 9999 }}
-        >
-          <div className="pointer-events-auto">
-            <ConnectionEditor
-              connection={connection}
-              position={editorPosition}
-              onUpdate={onUpdate || (() => {})}
-              onDelete={onDelete || (() => {})}
-              onClose={() => onSelect?.()}
-            />
-          </div>
-        </foreignObject>
+        <ConnectionEditor
+          connection={connection}
+          position={editorPosition}
+          onUpdate={onUpdate || (() => {})}
+          onDelete={onDelete || (() => {})}
+          onClose={() => onSelect?.()}
+        />
       )}
     </g>
   );

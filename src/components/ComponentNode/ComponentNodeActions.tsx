@@ -1,14 +1,16 @@
 
 import React from 'react';
-import { Copy, Link } from 'lucide-react';
 import { FunnelComponent } from '../../types/funnel';
+import { Button } from '../ui/button';
+import { Edit3, Link2, Copy } from 'lucide-react';
 
 interface ComponentNodeActionsProps {
   component: FunnelComponent;
   isSelected: boolean;
   isConnecting: boolean;
-  onDuplicateClick: (e: React.MouseEvent) => void;
-  onConnectionClick: (e: React.MouseEvent) => void;
+  onDuplicateClick: () => void;
+  onConnectionClick: () => void;
+  onEditClick?: () => void;
 }
 
 export const ComponentNodeActions: React.FC<ComponentNodeActionsProps> = ({
@@ -16,36 +18,48 @@ export const ComponentNodeActions: React.FC<ComponentNodeActionsProps> = ({
   isSelected,
   isConnecting,
   onDuplicateClick,
-  onConnectionClick
+  onConnectionClick,
+  onEditClick
 }) => {
-  if (!isSelected || isConnecting) {
-    return null;
-  }
+  if (!isSelected || isConnecting) return null;
 
   return (
-    <div 
-      className="absolute flex items-center justify-center space-x-3"
+    <div
+      className="absolute flex gap-2 z-[1001]"
       style={{
-        left: component.position.x + 96 - 40, // Centraliza os botões (96 é metade da largura do card)
-        top: component.position.y + 180, // 20px abaixo do card
-        zIndex: 1001
+        left: component.position.x + 20,
+        top: component.position.y + 120, // Posicionar abaixo do componente
       }}
     >
-      <button
-        onClick={onDuplicateClick}
-        className="w-8 h-8 bg-green-600 hover:bg-green-700 text-white rounded-full flex items-center justify-center transition-colors shadow-lg"
-        title="Duplicar componente"
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={onEditClick}
+        className="bg-white/90 hover:bg-white border-gray-300 text-gray-700 shadow-lg backdrop-blur-sm transition-all duration-200 hover:scale-105"
       >
-        <Copy className="w-4 h-4" />
-      </button>
+        <Edit3 size={14} className="mr-1" />
+        Editar
+      </Button>
       
-      <button
+      <Button
+        size="sm"
+        variant="outline"
         onClick={onConnectionClick}
-        className="w-8 h-8 bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center justify-center transition-colors shadow-lg"
-        title="Conectar com outro componente"
+        className="bg-blue-50/90 hover:bg-blue-100 border-blue-300 text-blue-700 shadow-lg backdrop-blur-sm transition-all duration-200 hover:scale-105"
       >
-        <Link className="w-4 h-4" />
-      </button>
+        <Link2 size={14} className="mr-1" />
+        Conectar
+      </Button>
+      
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={onDuplicateClick}
+        className="bg-green-50/90 hover:bg-green-100 border-green-300 text-green-700 shadow-lg backdrop-blur-sm transition-all duration-200 hover:scale-105"
+      >
+        <Copy size={14} className="mr-1" />
+        Duplicar
+      </Button>
     </div>
   );
 };
