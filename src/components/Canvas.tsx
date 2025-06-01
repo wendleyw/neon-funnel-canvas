@@ -21,6 +21,7 @@ interface CanvasProps {
   onComponentDelete: (id: string) => void;
   onConnectionAdd: (connection: Connection) => void;
   onConnectionDelete: (connectionId: string) => void;
+  onConnectionUpdate?: (connectionId: string, updates: Partial<Connection>) => void;
 }
 
 export const Canvas = React.memo<CanvasProps>(({
@@ -30,7 +31,8 @@ export const Canvas = React.memo<CanvasProps>(({
   onComponentUpdate,
   onComponentDelete,
   onConnectionAdd,
-  onConnectionDelete
+  onConnectionDelete,
+  onConnectionUpdate
 }) => {
   const canvasRef = useRef<HTMLDivElement>(null);
 
@@ -43,8 +45,9 @@ export const Canvas = React.memo<CanvasProps>(({
   // Canvas selection and connection functionality
   const selectionProps = useMemo(() => ({ 
     onConnectionAdd, 
-    onConnectionDelete 
-  }), [onConnectionAdd, onConnectionDelete]);
+    onConnectionDelete,
+    onConnectionUpdate
+  }), [onConnectionAdd, onConnectionDelete, onConnectionUpdate]);
   
   const {
     selectedComponent,
@@ -55,6 +58,7 @@ export const Canvas = React.memo<CanvasProps>(({
     startConnection,
     handleComponentConnect,
     handleConnectionSelect,
+    handleConnectionColorChange,
     clearSelection
   } = useCanvasSelection(selectionProps);
 
@@ -87,6 +91,27 @@ export const Canvas = React.memo<CanvasProps>(({
       setSelectedComponent(componentId);
     }
   }, [components, setSelectedComponent]);
+
+  // Função para duplicar componente
+  const handleComponentDuplicate = useCallback((componentId: string) => {
+    const originalComponent = components.find(c => c.id === componentId);
+    if (originalComponent) {
+      const newComponent: FunnelComponent = {
+        ...originalComponent,
+        id: `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        position: {
+          x: originalComponent.position.x + 50,
+          y: originalComponent.position.y + 50
+        },
+        data: {
+          ...originalComponent.data,
+          title: `${originalComponent.data.title} (Cópia)`
+        },
+        connections: []
+      };
+      onComponentAdd(newComponent);
+    }
+  }, [components, onComponentAdd]);
 
   const transformStyle = useMemo(() => ({
     transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
@@ -139,6 +164,7 @@ export const Canvas = React.memo<CanvasProps>(({
                 connectingFrom={connectingFrom}
                 selectedConnection={selectedConnection}
                 onConnectionSelect={handleConnectionSelect}
+                onConnectionColorChange={handleConnectionColorChange}
               />
             </ErrorBoundary>
 
@@ -163,6 +189,7 @@ export const Canvas = React.memo<CanvasProps>(({
                   onDrag={handleComponentDrag}
                   onDelete={() => onComponentDelete(component.id)}
                   onUpdate={onComponentUpdate}
+                  onDuplicate={() => handleComponentDuplicate(component.id)}
                 />
               </ErrorBoundary>
             ))}

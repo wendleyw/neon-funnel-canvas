@@ -8,6 +8,7 @@ interface ConnectionLineProps {
   toPosition: { x: number; y: number };
   isSelected?: boolean;
   onSelect?: () => void;
+  onColorChange?: (connectionId: string, newType: string) => void;
 }
 
 export const ConnectionLine: React.FC<ConnectionLineProps> = ({
@@ -15,7 +16,8 @@ export const ConnectionLine: React.FC<ConnectionLineProps> = ({
   fromPosition,
   toPosition,
   isSelected = false,
-  onSelect
+  onSelect,
+  onColorChange
 }) => {
   const startX = fromPosition.x + 192; // Component width
   const startY = fromPosition.y + 40;  // Component center
@@ -34,6 +36,12 @@ export const ConnectionLine: React.FC<ConnectionLineProps> = ({
   const pathData = `M ${startX} ${startY} L ${endX} ${endY}`;
   const color = getConnectionColor();
   const gradientId = `gradient-${connection.id}`;
+
+  const handleColorChange = (newType: string) => {
+    if (onColorChange) {
+      onColorChange(connection.id, newType);
+    }
+  };
 
   return (
     <g>
@@ -82,53 +90,89 @@ export const ConnectionLine: React.FC<ConnectionLineProps> = ({
             className="pointer-events-none animate-pulse"
           />
           
-          {/* Controles de cor quando selecionado */}
+          {/* Controles de cor quando selecionado - UI melhorada */}
           <g>
             <foreignObject
-              x={(startX + endX) / 2 - 60}
-              y={(startY + endY) / 2 - 50}
-              width="120"
-              height="100"
+              x={(startX + endX) / 2 - 80}
+              y={(startY + endY) / 2 - 60}
+              width="160"
+              height="120"
               className="pointer-events-auto"
             >
-              <div className="flex flex-col items-center gap-2 bg-gray-900 p-3 rounded-lg shadow-lg border border-gray-700">
-                <div className="text-white text-xs font-medium">Cor da Conexão</div>
-                <div className="flex gap-2">
+              <div className="flex flex-col items-center gap-3 bg-gray-800 p-4 rounded-xl shadow-2xl border border-gray-600 backdrop-blur-sm">
+                <div className="text-white text-sm font-semibold">Tipo de Conexão</div>
+                
+                {/* Seletor de cores melhorado */}
+                <div className="grid grid-cols-3 gap-3">
                   <button
-                    className="w-6 h-6 rounded-full bg-green-500 border-2 border-white hover:scale-110 transition-transform"
+                    className={`group relative w-10 h-10 rounded-lg border-2 transition-all duration-200 hover:scale-110 ${
+                      connection.type === 'success' ? 'border-white shadow-lg' : 'border-gray-500'
+                    }`}
+                    style={{ backgroundColor: '#10B981' }}
                     onClick={(e) => {
                       e.stopPropagation();
-                      // Aqui você pode adicionar a lógica para mudar a cor para success
-                      console.log('Mudando cor para success');
+                      handleColorChange('success');
                     }}
-                  />
+                    title="Sucesso"
+                  >
+                    <div className="absolute inset-0 rounded-lg bg-white opacity-0 group-hover:opacity-20 transition-opacity" />
+                    {connection.type === 'success' && (
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full" />
+                    )}
+                  </button>
+                  
                   <button
-                    className="w-6 h-6 rounded-full bg-red-500 border-2 border-white hover:scale-110 transition-transform"
+                    className={`group relative w-10 h-10 rounded-lg border-2 transition-all duration-200 hover:scale-110 ${
+                      connection.type === 'failure' ? 'border-white shadow-lg' : 'border-gray-500'
+                    }`}
+                    style={{ backgroundColor: '#EF4444' }}
                     onClick={(e) => {
                       e.stopPropagation();
-                      // Aqui você pode adicionar a lógica para mudar a cor para failure
-                      console.log('Mudando cor para failure');
+                      handleColorChange('failure');
                     }}
-                  />
+                    title="Falha"
+                  >
+                    <div className="absolute inset-0 rounded-lg bg-white opacity-0 group-hover:opacity-20 transition-opacity" />
+                    {connection.type === 'failure' && (
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full" />
+                    )}
+                  </button>
+                  
                   <button
-                    className="w-6 h-6 rounded-full bg-yellow-500 border-2 border-white hover:scale-110 transition-transform"
+                    className={`group relative w-10 h-10 rounded-lg border-2 transition-all duration-200 hover:scale-110 ${
+                      connection.type === 'conditional' ? 'border-white shadow-lg' : 'border-gray-500'
+                    }`}
+                    style={{ backgroundColor: '#F59E0B' }}
                     onClick={(e) => {
                       e.stopPropagation();
-                      // Aqui você pode adicionar a lógica para mudar a cor para conditional
-                      console.log('Mudando cor para conditional');
+                      handleColorChange('conditional');
                     }}
-                  />
+                    title="Condicional"
+                  >
+                    <div className="absolute inset-0 rounded-lg bg-white opacity-0 group-hover:opacity-20 transition-opacity" />
+                    {connection.type === 'conditional' && (
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full" />
+                    )}
+                  </button>
                 </div>
                 
-                {/* Botão de delete */}
+                {/* Labels das cores */}
+                <div className="grid grid-cols-3 gap-3 text-xs text-gray-300">
+                  <span className="text-center">Sucesso</span>
+                  <span className="text-center">Falha</span>
+                  <span className="text-center">Condicional</span>
+                </div>
+                
+                {/* Botão de delete melhorado */}
                 <button
-                  className="w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center hover:bg-red-700 transition-colors"
+                  className="w-10 h-10 bg-red-600 hover:bg-red-700 text-white rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 shadow-lg"
                   onClick={(e) => {
                     e.stopPropagation();
                     onSelect?.();
                   }}
+                  title="Deletar conexão"
                 >
-                  ×
+                  <span className="text-lg font-bold">×</span>
                 </button>
               </div>
             </foreignObject>

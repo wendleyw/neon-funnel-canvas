@@ -9,13 +9,15 @@ interface ConnectionManagerProps {
   connectingFrom: string | null;
   selectedConnection: string | null;
   onConnectionSelect: (connectionId: string) => void;
+  onConnectionColorChange?: (connectionId: string, newType: string) => void;
 }
 
 export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
   components,
   connections,
   selectedConnection,
-  onConnectionSelect
+  onConnectionSelect,
+  onConnectionColorChange
 }) => {
   return (
     <svg
@@ -36,6 +38,7 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
             toPosition={toComponent.position}
             isSelected={selectedConnection === connection.id}
             onSelect={() => onConnectionSelect(connection.id)}
+            onColorChange={onConnectionColorChange}
           />
         );
       })}

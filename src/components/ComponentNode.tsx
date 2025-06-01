@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { FunnelComponent } from '../types/funnel';
 import { componentTemplates } from '../data/componentTemplates';
 import { useComponentDrag } from '../hooks/canvas/useComponentDrag';
 import { ComponentEditor } from './ComponentEditor';
 import { StatusBadge } from './StatusBadge';
-import { Plus, Settings, Eye, ArrowRight, Link } from 'lucide-react';
+import { Plus, Settings, Eye, ArrowRight, Link, Copy } from 'lucide-react';
 
 interface ComponentNodeProps {
   component: FunnelComponent;
@@ -18,6 +17,7 @@ interface ComponentNodeProps {
   onDrag: (id: string, position: { x: number; y: number }) => void;
   onDelete: () => void;
   onUpdate: (id: string, updates: Partial<FunnelComponent>) => void;
+  onDuplicate?: () => void;
 }
 
 export const ComponentNode = React.memo<ComponentNodeProps>(({
@@ -30,7 +30,8 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
   onConnect,
   onDrag,
   onDelete,
-  onUpdate
+  onUpdate,
+  onDuplicate
 }) => {
   const [isEditing, setIsEditing] = useState(false);
 
@@ -60,6 +61,11 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
     e.stopPropagation();
     setIsEditing(true);
   }, []);
+
+  const handleDuplicateClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDuplicate?.();
+  }, [onDuplicate]);
 
   const handleDoubleClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -134,6 +140,17 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
             title="Conectar com outro componente"
           >
             <Link className="w-4 h-4" />
+          </button>
+        )}
+        
+        {/* Duplicate Button - aparece quando selecionado */}
+        {isSelected && !isConnecting && onDuplicate && (
+          <button
+            onClick={handleDuplicateClick}
+            className="absolute -top-3 right-16 bg-green-500 hover:bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 z-10"
+            title="Duplicar componente"
+          >
+            <Copy className="w-4 h-4" />
           </button>
         )}
         
