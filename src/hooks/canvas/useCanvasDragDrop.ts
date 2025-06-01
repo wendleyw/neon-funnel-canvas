@@ -75,7 +75,7 @@ export const useCanvasDragDrop = ({
       const x = Math.max(0, (e.clientX - canvasRect.left - panOffset.x) / scale);
       const y = Math.max(0, (e.clientY - canvasRect.top - panOffset.y) / scale);
 
-      console.log('Calculated drop position:', { x, y });
+      console.log('Calculated drop position:', { x, y, scale, panOffset });
 
       const newComponent: FunnelComponent = {
         id: `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -88,7 +88,7 @@ export const useCanvasDragDrop = ({
           image: template.defaultProps.image || '',
           url: template.defaultProps.url || '',
           status: template.defaultProps.status || 'draft',
-          properties: { ...template.defaultProps.properties } || {}
+          properties: template.defaultProps.properties || {}
         }
       };
 
