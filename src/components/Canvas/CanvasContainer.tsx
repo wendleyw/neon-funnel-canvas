@@ -65,11 +65,12 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
   handleMouseDown,
   isDragOver = false
 }) => {
-  const handleComponentDrag = React.useCallback((id: string, position: { x: number; y: number }) => {
+  const handleComponentDrag = useCallback((id: string, position: { x: number; y: number }) => {
+    console.log('Component dragged to position:', position);
     onComponentUpdate(id, { position });
   }, [onComponentUpdate]);
 
-  const handleComponentDuplicate = React.useCallback((componentId: string) => {
+  const handleComponentDuplicate = useCallback((componentId: string) => {
     const originalComponent = components.find(c => c.id === componentId);
     if (originalComponent) {
       const newComponent: FunnelComponent = {
@@ -89,7 +90,7 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
     }
   }, [components, onComponentAdd]);
 
-  const handleCanvasMouseDown = React.useCallback((e: React.MouseEvent) => {
+  const handleCanvasMouseDown = useCallback((e: React.MouseEvent) => {
     // Call the canvas mouse down handler
     onCanvasMouseDown(e);
     // Call the pan mouse down handler
@@ -110,10 +111,18 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
     onConnectionSelect(connectionId);
   }, [onConnectionSelect]);
 
+  console.log('CanvasContainer render:', {
+    componentsCount: components.length,
+    connectionsCount: connections.length,
+    pan,
+    zoom,
+    isDragOver
+  });
+
   return (
     <div
       ref={canvasRef}
-      className={`w-full h-full relative overflow-hidden ${
+      className={`canvas-container w-full h-full relative overflow-hidden ${
         isDragOver ? 'bg-blue-900/10 border-2 border-blue-500 border-dashed' : ''
       }`}
       onDrop={onDrop}
@@ -150,23 +159,26 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
         </ErrorBoundary>
 
         {/* Components */}
-        {components.map((component) => (
-          <ErrorBoundary key={component.id}>
-            <ComponentNode
-              component={component}
-              isSelected={selectedComponent === component.id}
-              isConnecting={connectingFrom !== null}
-              canConnect={connectingFrom !== null && connectingFrom !== component.id}
-              onSelect={() => onComponentSelect(component.id)}
-              onStartConnection={() => startConnection(component.id)}
-              onConnect={() => handleComponentConnect(component.id)}
-              onDrag={handleComponentDrag}
-              onDelete={() => onComponentDelete(component.id)}
-              onUpdate={onComponentUpdate}
-              onDuplicate={() => handleComponentDuplicate(component.id)}
-            />
-          </ErrorBoundary>
-        ))}
+        {components.map((component) => {
+          console.log('Rendering component:', component.id, component.position);
+          return (
+            <ErrorBoundary key={component.id}>
+              <ComponentNode
+                component={component}
+                isSelected={selectedComponent === component.id}
+                isConnecting={connectingFrom !== null}
+                canConnect={connectingFrom !== null && connectingFrom !== component.id}
+                onSelect={() => onComponentSelect(component.id)}
+                onStartConnection={() => startConnection(component.id)}
+                onConnect={() => handleComponentConnect(component.id)}
+                onDrag={handleComponentDrag}
+                onDelete={() => onComponentDelete(component.id)}
+                onUpdate={onComponentUpdate}
+                onDuplicate={() => handleComponentDuplicate(component.id)}
+              />
+            </ErrorBoundary>
+          );
+        })}
       </div>
     </div>
   );

@@ -135,6 +135,14 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
     return classes;
   }, [isDragging, isSelected, canConnect]);
 
+  console.log('ComponentNode render:', {
+    id: component.id,
+    position: component.position,
+    title: component.data.title,
+    type: component.type,
+    templateFound: !!template
+  });
+
   return (
     <>
       <div

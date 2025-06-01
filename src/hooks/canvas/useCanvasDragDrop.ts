@@ -56,7 +56,7 @@ export const useCanvasDragDrop = ({
       const template: ComponentTemplate = JSON.parse(templateData);
       console.log('Parsed template:', template);
       
-      // Get the main canvas container element
+      // Get the canvas container element
       const canvasContainer = canvasRef.current;
       
       if (!canvasContainer) {
@@ -66,30 +66,35 @@ export const useCanvasDragDrop = ({
       
       const canvasRect = canvasContainer.getBoundingClientRect();
       console.log('Canvas rect:', canvasRect);
+      console.log('Mouse position:', { clientX: e.clientX, clientY: e.clientY });
+      console.log('Pan offset:', panOffset);
+      console.log('Scale:', scale);
       
       // Calculate position with proper scaling and panning
+      // Subtract pan offset and divide by scale to get the correct canvas position
       const x = Math.max(0, (e.clientX - canvasRect.left - panOffset.x) / scale);
       const y = Math.max(0, (e.clientY - canvasRect.top - panOffset.y) / scale);
 
-      console.log('Calculated drop position:', { x, y, scale, panOffset });
+      console.log('Calculated drop position:', { x, y });
 
       const newComponent: FunnelComponent = {
         id: `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        type: template.type,
+        type: template.type as FunnelComponent['type'],
         position: { x, y },
         connections: [],
         data: {
-          title: template.defaultProps.title,
+          title: template.defaultProps.title || template.label,
           description: template.defaultProps.description || '',
           image: template.defaultProps.image || '',
           url: template.defaultProps.url || '',
-          status: template.defaultProps.status,
-          properties: { ...template.defaultProps.properties }
+          status: template.defaultProps.status || 'draft',
+          properties: { ...template.defaultProps.properties } || {}
         }
       };
 
       console.log('Creating new component:', newComponent);
       onAddComponent(newComponent);
+      console.log('Component added successfully');
     } catch (error) {
       console.error('Error adding component:', error);
     }

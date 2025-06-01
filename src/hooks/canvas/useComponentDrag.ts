@@ -48,15 +48,39 @@ export const useComponentDrag = ({ componentId, onDrag, onSelect }: UseComponent
         if (distance > 5) {
           setHasDragged(true);
           
-          const canvas = nodeRef.current?.closest('.canvas-container');
+          // Find the canvas container with the specific class
+          const canvas = document.querySelector('.canvas-container');
           const canvasRect = canvas?.getBoundingClientRect();
           
           if (canvasRect) {
+            // Get current transform values to calculate proper position
+            const canvasContent = canvas.querySelector('div[style*="transform"]') as HTMLElement;
+            const transform = canvasContent?.style.transform || '';
+            
+            // Extract translate and scale values
+            const translateMatch = transform.match(/translate\(([^,]+),\s*([^)]+)\)/);
+            const scaleMatch = transform.match(/scale\(([^)]+)\)/);
+            
+            const panX = translateMatch ? parseFloat(translateMatch[1].replace('px', '')) : 0;
+            const panY = translateMatch ? parseFloat(translateMatch[2].replace('px', '')) : 0;
+            const scale = scaleMatch ? parseFloat(scaleMatch[1]) : 1;
+            
             const newPosition = {
-              x: Math.max(0, event.clientX - canvasRect.left - dragOffset.x),
-              y: Math.max(0, event.clientY - canvasRect.top - dragOffset.y)
+              x: Math.max(0, (event.clientX - canvasRect.left - panX - dragOffset.x) / scale),
+              y: Math.max(0, (event.clientY - canvasRect.top - panY - dragOffset.y) / scale)
             };
-            console.log('Dragging component to position:', newPosition);
+            
+            console.log('Dragging component to position:', newPosition, {
+              mouseX: event.clientX,
+              mouseY: event.clientY,
+              canvasLeft: canvasRect.left,
+              canvasTop: canvasRect.top,
+              panX,
+              panY,
+              scale,
+              dragOffset
+            });
+            
             onDrag(componentId, newPosition);
           }
         }
