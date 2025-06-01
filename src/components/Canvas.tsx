@@ -96,6 +96,7 @@ export const Canvas = React.memo<CanvasProps>(({
           onDragEnter={eventHandlers.handleDragEnter}
           onDragLeave={eventHandlers.handleDragLeave}
           handleMouseDown={eventHandlers.handleMouseDown}
+          isDragOver={eventHandlers.isDragOver}
         />
 
         <CanvasControls

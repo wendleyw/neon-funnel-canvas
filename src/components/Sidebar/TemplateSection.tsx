@@ -31,8 +31,6 @@ export const TemplateSection = React.memo<TemplateSectionProps>(({
           key={template.type}
           template={template}
           onDragStart={onDragStart}
-          isCustom={isCustomSection}
-          onRemove={isCustomSection && onRemoveTemplate ? () => onRemoveTemplate(template.type) : undefined}
         />
       ))}
     </div>
