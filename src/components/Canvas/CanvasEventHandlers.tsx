@@ -1,5 +1,5 @@
 
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo, useRef, useEffect } from 'react';
 import { FunnelComponent } from '../../types/funnel';
 import { useCanvasDragDrop } from '../../hooks/canvas/useCanvasDragDrop';
 import { useCanvasZoom } from '../../hooks/canvas/useCanvasZoom';
@@ -53,6 +53,32 @@ export const useCanvasEventHandlers = ({
   
   const dragDropHooks = useCanvasDragDrop(dragDropProps);
 
+  // Add wheel event listener with passive: false to allow preventDefault
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const wheelHandler = (e: WheelEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Create a synthetic React wheel event
+      const syntheticEvent = {
+        deltaY: e.deltaY,
+        preventDefault: () => e.preventDefault(),
+        stopPropagation: () => e.stopPropagation()
+      } as React.WheelEvent;
+      
+      handleWheel(syntheticEvent);
+    };
+
+    canvas.addEventListener('wheel', wheelHandler, { passive: false });
+    
+    return () => {
+      canvas.removeEventListener('wheel', wheelHandler);
+    };
+  }, [handleWheel]);
+
   // Enhanced mouse down handler that combines pan and selection
   const handleCanvasMouseDown = useCallback((e: React.MouseEvent) => {
     // Primeiro tentar o pan
@@ -81,13 +107,18 @@ export const useCanvasEventHandlers = ({
     }
   }, [isPanning]);
 
+  // Wheel handler that doesn't use preventDefault in React event
+  const handleWheelEvent = useCallback((e: React.WheelEvent) => {
+    // Don't call preventDefault here since we handle it in the native event listener
+  }, []);
+
   return {
     // Canvas ref
     canvasRef,
     
     // Zoom
     zoom,
-    handleWheel,
+    handleWheel: handleWheelEvent,
     handleZoomIn,
     handleZoomOut,
     
