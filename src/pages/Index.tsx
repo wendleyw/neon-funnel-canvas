@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { Canvas } from '../components/Canvas';
 import { Toolbar } from '../components/Toolbar';
@@ -40,48 +40,48 @@ const Index = () => {
     }
   }, []);
 
-  const handleDragStart = (template: ComponentTemplate) => {
+  const handleDragStart = useCallback((template: ComponentTemplate) => {
     console.log('Dragging component:', template.label);
-  };
+  }, []);
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     saveProject();
     if (currentWorkspace) {
       addProjectToWorkspace(project, currentWorkspace.id);
     }
     toast.success('Projeto salvo com sucesso!');
-  };
+  }, [saveProject, currentWorkspace, addProjectToWorkspace, project]);
 
-  const handleLoad = () => {
+  const handleLoad = useCallback(() => {
     toast.info('Funcionalidade de carregar abriria um seletor de projeto');
-  };
+  }, []);
 
-  const handleExport = () => {
+  const handleExport = useCallback(() => {
     exportProject();
     toast.success('Projeto exportado com sucesso!');
-  };
+  }, [exportProject]);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     clearProject();
     toast.success('Canvas limpo!');
-  };
+  }, [clearProject]);
 
-  const handleProjectSelect = (projectId: string) => {
+  const handleProjectSelect = useCallback((projectId: string) => {
     setCurrentProjectId(projectId);
     loadProject(projectId);
     setCurrentView('project');
-  };
+  }, [loadProject]);
 
-  const handleNewProject = () => {
+  const handleNewProject = useCallback(() => {
     clearProject();
     setCurrentProjectId(null);
     setCurrentView('project');
-  };
+  }, [clearProject]);
 
-  const handleBackToWorkspace = () => {
+  const handleBackToWorkspace = useCallback(() => {
     setCurrentView('workspace');
     setCurrentProjectId(null);
-  };
+  }, []);
 
   if (currentView === 'workspace') {
     return (

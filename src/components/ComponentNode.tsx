@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { FunnelComponent } from '../types/funnel';
 import { componentTemplates } from '../data/componentTemplates';
 import { useComponentDrag } from '../hooks/canvas/useComponentDrag';
@@ -15,7 +15,7 @@ interface ComponentNodeProps {
   isConnecting?: boolean;
 }
 
-export const ComponentNode: React.FC<ComponentNodeProps> = ({
+export const ComponentNode = React.memo<ComponentNodeProps>(({
   component,
   isSelected,
   onSelect,
@@ -27,19 +27,24 @@ export const ComponentNode: React.FC<ComponentNodeProps> = ({
 }) => {
   const [showConnectionPoints, setShowConnectionPoints] = useState(false);
 
+  const dragHandlers = useMemo(() => ({
+    componentId: component.id,
+    onDrag,
+    onSelect
+  }), [component.id, onDrag, onSelect]);
+
   const {
     isDragging,
     nodeRef,
     handleMouseDown,
     handleMouseMove,
     handleMouseUp
-  } = useComponentDrag({
-    componentId: component.id,
-    onDrag,
-    onSelect
-  });
+  } = useComponentDrag(dragHandlers);
 
-  const template = componentTemplates.find(t => t.type === component.type);
+  const template = useMemo(() => 
+    componentTemplates.find(t => t.type === component.type), 
+    [component.type]
+  );
 
   useEffect(() => {
     if (isDragging) {
@@ -52,7 +57,7 @@ export const ComponentNode: React.FC<ComponentNodeProps> = ({
     }
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
-  const handleConnectionPointClick = (e: React.MouseEvent, isOutput: boolean) => {
+  const handleConnectionPointClick = useCallback((e: React.MouseEvent, isOutput: boolean) => {
     e.stopPropagation();
     
     if (isOutput && onConnectionStart) {
@@ -60,24 +65,51 @@ export const ComponentNode: React.FC<ComponentNodeProps> = ({
     } else if (!isOutput && onConnectionEnd && isConnecting) {
       onConnectionEnd(component.id);
     }
-  };
+  }, [component.id, onConnectionStart, onConnectionEnd, isConnecting]);
+
+  const handleDeleteClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDelete();
+  }, [onDelete]);
+
+  const handleMouseEnter = useCallback(() => {
+    setShowConnectionPoints(true);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setShowConnectionPoints(false);
+  }, []);
+
+  const containerStyle = useMemo(() => ({
+    left: component.position.x,
+    top: component.position.y,
+    zIndex: isSelected ? 1000 : isDragging ? 999 : 1
+  }), [component.position.x, component.position.y, isSelected, isDragging]);
+
+  const containerClassName = useMemo(() => 
+    `absolute select-none transition-all duration-200 ${
+      isDragging ? 'cursor-grabbing scale-105' : 'cursor-grab'
+    } ${isSelected ? 'ring-2 ring-white ring-opacity-50' : ''}`,
+    [isDragging, isSelected]
+  );
+
+  const connectionPointClassName = useMemo(() => 
+    `w-4 h-4 rounded-full border-2 border-white transition-colors cursor-pointer shadow-lg ${
+      isConnecting ? 'bg-blue-500 hover:bg-blue-400' : 'bg-gray-500 hover:bg-gray-400'
+    }`,
+    [isConnecting]
+  );
 
   if (!template) return null;
 
   return (
     <div
       ref={nodeRef}
-      className={`absolute select-none transition-all duration-200 ${
-        isDragging ? 'cursor-grabbing scale-105' : 'cursor-grab'
-      } ${isSelected ? 'ring-2 ring-white ring-opacity-50' : ''}`}
-      style={{
-        left: component.position.x,
-        top: component.position.y,
-        zIndex: isSelected ? 1000 : isDragging ? 999 : 1
-      }}
+      className={containerClassName}
+      style={containerStyle}
       onMouseDown={handleMouseDown}
-      onMouseEnter={() => setShowConnectionPoints(true)}
-      onMouseLeave={() => setShowConnectionPoints(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {/* Main Component Card */}
       <div className="w-40 bg-gray-900 rounded-lg border border-gray-700 shadow-xl hover:shadow-2xl transition-all duration-300 hover:border-gray-600">
@@ -89,10 +121,7 @@ export const ComponentNode: React.FC<ComponentNodeProps> = ({
           </div>
           {isSelected && (
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete();
-              }}
+              onClick={handleDeleteClick}
               className="text-white hover:text-red-400 transition-colors text-lg font-bold leading-none"
             >
               ×
@@ -122,13 +151,13 @@ export const ComponentNode: React.FC<ComponentNodeProps> = ({
               className="absolute -left-2 top-1/2 transform -translate-y-1/2 connection-point"
               onClick={(e) => handleConnectionPointClick(e, false)}
             >
-              <div className={`w-4 h-4 rounded-full border-2 border-white transition-colors cursor-pointer shadow-lg ${
-                isConnecting ? 'bg-blue-500 hover:bg-blue-400' : 'bg-gray-500 hover:bg-gray-400'
-              }`} />
+              <div className={connectionPointClassName} />
             </div>
           </>
         )}
       </div>
     </div>
   );
-};
+});
+
+ComponentNode.displayName = 'ComponentNode';

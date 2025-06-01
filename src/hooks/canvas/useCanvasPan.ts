@@ -1,10 +1,11 @@
 
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useMemo } from 'react';
+import { CanvasPosition } from '../../types/canvas';
 
 export const useCanvasPan = () => {
-  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [pan, setPan] = useState<CanvasPosition>({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
-  const [lastPanPosition, setLastPanPosition] = useState({ x: 0, y: 0 });
+  const [lastPanPosition, setLastPanPosition] = useState<CanvasPosition>({ x: 0, y: 0 });
 
   const handleMouseDown = useCallback((e: React.MouseEvent, canvasRef: React.RefObject<HTMLDivElement>) => {
     if (e.target === canvasRef.current || (e.target as Element).closest('.canvas-background')) {
@@ -25,17 +26,21 @@ export const useCanvasPan = () => {
       
       setLastPanPosition({ x: e.clientX, y: e.clientY });
     }
-  }, [isPanning, lastPanPosition]);
+  }, [isPanning, lastPanPosition.x, lastPanPosition.y]);
 
   const handleMouseUp = useCallback(() => {
     setIsPanning(false);
   }, []);
 
-  return {
-    pan,
-    isPanning,
+  const panHandlers = useMemo(() => ({
     handleMouseDown,
     handleMouseMove,
     handleMouseUp
+  }), [handleMouseDown, handleMouseMove, handleMouseUp]);
+
+  return {
+    pan,
+    isPanning,
+    ...panHandlers
   };
 };
