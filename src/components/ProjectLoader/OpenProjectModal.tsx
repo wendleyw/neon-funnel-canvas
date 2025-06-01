@@ -8,6 +8,8 @@ import {
 } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { FunnelProject } from '../../types/funnel';
+import { useSupabaseWorkspace } from '../../hooks/useSupabaseWorkspace';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface OpenProjectModalProps {
   isOpen: boolean;
@@ -20,30 +22,32 @@ export const OpenProjectModal: React.FC<OpenProjectModalProps> = ({
   onClose,
   onProjectOpen
 }) => {
-  const [savedProjects, setSavedProjects] = useState<FunnelProject[]>([]);
+  const { user } = useAuth();
+  const { workspaceProjects, currentWorkspace, loadWorkspaces } = useSupabaseWorkspace();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (isOpen) {
-      // Carregar projetos salvos do localStorage
-      const projects: FunnelProject[] = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key?.startsWith('funnel-project')) {
-          try {
-            const project = JSON.parse(localStorage.getItem(key) || '');
-            projects.push(project);
-          } catch (error) {
-            console.error('Erro ao carregar projeto:', error);
-          }
-        }
-      }
-      setSavedProjects(projects);
+    if (isOpen && user) {
+      setLoading(true);
+      loadWorkspaces().finally(() => setLoading(false));
     }
-  }, [isOpen]);
+  }, [isOpen, user, loadWorkspaces]);
 
-  const handleProjectSelect = (project: FunnelProject) => {
-    onProjectOpen(project);
+  const handleProjectSelect = (projectData: any) => {
+    try {
+      // Converter os dados do Supabase para FunnelProject
+      const project: FunnelProject = projectData.project_data;
+      onProjectOpen(project);
+      onClose();
+    } catch (error) {
+      console.error('Erro ao carregar projeto:', error);
+    }
   };
+
+  // Filtrar projetos do workspace atual ou todos se não houver workspace selecionado
+  const availableProjects = currentWorkspace 
+    ? workspaceProjects.filter(p => p.workspace_id === currentWorkspace.id)
+    : workspaceProjects;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -53,12 +57,17 @@ export const OpenProjectModal: React.FC<OpenProjectModalProps> = ({
         </DialogHeader>
         
         <div className="space-y-2 max-h-60 overflow-y-auto">
-          {savedProjects.length === 0 ? (
+          {loading ? (
+            <div className="text-center py-4">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto mb-2"></div>
+              <p className="text-gray-500">Carregando projetos...</p>
+            </div>
+          ) : availableProjects.length === 0 ? (
             <p className="text-gray-500 text-center py-4">
               Nenhum projeto salvo encontrado
             </p>
           ) : (
-            savedProjects.map((project) => (
+            availableProjects.map((project) => (
               <div
                 key={project.id}
                 className="p-3 border rounded hover:bg-gray-50 cursor-pointer"
@@ -66,10 +75,10 @@ export const OpenProjectModal: React.FC<OpenProjectModalProps> = ({
               >
                 <h3 className="font-medium">{project.name}</h3>
                 <p className="text-sm text-gray-500">
-                  {project.components.length} componentes • {project.connections.length} conexões
+                  {project.components_count || 0} componentes • {project.connections_count || 0} conexões
                 </p>
                 <p className="text-xs text-gray-400">
-                  Atualizado em: {new Date(project.updatedAt).toLocaleDateString()}
+                  Atualizado em: {new Date(project.updated_at).toLocaleDateString('pt-BR')}
                 </p>
               </div>
             ))

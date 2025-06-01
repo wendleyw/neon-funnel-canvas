@@ -1,11 +1,9 @@
 
 import { useState, useCallback } from 'react';
 import { FunnelProject, FunnelComponent, Connection } from '../types/funnel';
-import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'sonner';
 
 export const useFunnelProject = () => {
-  const { user } = useAuth();
   const [project, setProject] = useState<FunnelProject>({
     id: 'project-' + Date.now(),
     name: 'Untitled Funnel',
@@ -58,69 +56,6 @@ export const useFunnelProject = () => {
     }));
   }, []);
 
-  const saveProject = useCallback((workspaceId?: string) => {
-    if (!user) {
-      toast.error('Usuário não autenticado');
-      return false;
-    }
-
-    try {
-      // Salvar projeto completo com ID do usuário
-      localStorage.setItem(`funnel-project-${project.id}-${user.id}`, JSON.stringify(project));
-      
-      // Se um workspace foi fornecido, salvar referência do projeto nele
-      if (workspaceId) {
-        const savedProjects = JSON.parse(localStorage.getItem(`funnel-projects-${user.id}`) || '[]');
-        const workspaceProject = {
-          id: project.id,
-          name: project.name,
-          workspaceId,
-          componentsCount: project.components.length,
-          connectionsCount: project.connections.length,
-          createdAt: project.createdAt,
-          updatedAt: project.updatedAt
-        };
-        
-        const updatedProjects = savedProjects.filter((p: any) => p.id !== project.id);
-        updatedProjects.push(workspaceProject);
-        localStorage.setItem(`funnel-projects-${user.id}`, JSON.stringify(updatedProjects));
-      }
-      
-      toast.success('Projeto salvo com sucesso!');
-      return true;
-    } catch (error) {
-      console.error('Erro ao salvar projeto:', error);
-      toast.error('Erro ao salvar projeto');
-      return false;
-    }
-  }, [project, user]);
-
-  const loadProject = useCallback((projectId: string) => {
-    if (!user) {
-      toast.error('Usuário não autenticado');
-      return false;
-    }
-
-    try {
-      // Tentar carregar com ID do usuário primeiro
-      let projectData = localStorage.getItem(`funnel-project-${projectId}-${user.id}`);
-      
-      if (projectData) {
-        const loadedProject = JSON.parse(projectData);
-        setProject(loadedProject);
-        toast.success('Projeto carregado com sucesso!');
-        return true;
-      } else {
-        toast.error('Projeto não encontrado');
-        return false;
-      }
-    } catch (error) {
-      console.error('Erro ao carregar projeto:', error);
-      toast.error('Erro ao carregar projeto');
-      return false;
-    }
-  }, [user]);
-
   const exportProject = useCallback(() => {
     try {
       const dataStr = JSON.stringify(project, null, 2);
@@ -170,8 +105,6 @@ export const useFunnelProject = () => {
     deleteComponent,
     addConnection,
     deleteConnection,
-    saveProject,
-    loadProject,
     exportProject,
     clearProject,
     updateProjectName,

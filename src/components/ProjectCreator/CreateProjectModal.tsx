@@ -29,7 +29,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
 
     const newProject: FunnelProject = {
       id: 'project-' + Date.now(),
-      name: projectName,
+      name: projectName.trim(),
       components: [],
       connections: [],
       createdAt: new Date().toISOString(),
@@ -38,6 +38,13 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
 
     onCreate(newProject);
     setProjectName('');
+    onClose();
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && projectName.trim()) {
+      handleCreate();
+    }
   };
 
   return (
@@ -54,7 +61,9 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
               id="projectName"
               value={projectName}
               onChange={(e) => setProjectName(e.target.value)}
+              onKeyPress={handleKeyPress}
               placeholder="Digite o nome do projeto"
+              autoFocus
             />
           </div>
           
