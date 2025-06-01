@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from 'react';
 import { supabase } from '../integrations/supabase/client';
 import { useAuth } from '../contexts/AuthContext';
@@ -96,30 +95,70 @@ export const useSupabaseWorkspace = () => {
 
     setLoading(true);
     try {
-      const workspaceProject: WorkspaceProjectInsert = {
-        name: project.name,
-        workspace_id: workspaceId,
-        project_data: project,
-        components_count: project.components.length,
-        connections_count: project.connections.length,
-        user_id: user.id
-      };
-
-      const { data, error } = await supabase
+      // Primeiro, verificar se já existe um projeto com este ID para evitar duplicação
+      const { data: existingProject } = await supabase
         .from('workspace_projects')
-        .upsert(workspaceProject, { onConflict: 'id' })
-        .select()
+        .select('id')
+        .eq('workspace_id', workspaceId)
+        .eq('user_id', user.id)
+        .eq('name', project.name)
         .single();
 
-      if (error) {
-        console.error('Erro ao salvar projeto:', error);
-        toast.error('Erro ao salvar projeto');
-        return false;
+      let result;
+      
+      if (existingProject) {
+        // Atualizar projeto existente
+        const { data, error } = await supabase
+          .from('workspace_projects')
+          .update({
+            project_data: project,
+            components_count: project.components.length,
+            connections_count: project.connections.length,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existingProject.id)
+          .select()
+          .single();
+
+        if (error) {
+          console.error('Erro ao atualizar projeto:', error);
+          toast.error('Erro ao salvar projeto');
+          return false;
+        }
+
+        result = data;
+        console.log('Projeto atualizado:', project.name);
+      } else {
+        // Criar novo projeto
+        const workspaceProject: WorkspaceProjectInsert = {
+          name: project.name,
+          workspace_id: workspaceId,
+          project_data: project,
+          components_count: project.components.length,
+          connections_count: project.connections.length,
+          user_id: user.id
+        };
+
+        const { data, error } = await supabase
+          .from('workspace_projects')
+          .insert(workspaceProject)
+          .select()
+          .single();
+
+        if (error) {
+          console.error('Erro ao criar projeto:', error);
+          toast.error('Erro ao salvar projeto');
+          return false;
+        }
+
+        result = data;
+        console.log('Novo projeto criado:', project.name);
       }
 
+      // Atualizar o estado local
       setWorkspaceProjects(prev => {
-        const filtered = prev.filter(p => p.id !== data.id);
-        return [...filtered, data];
+        const filtered = prev.filter(p => p.id !== result.id);
+        return [...filtered, result];
       });
 
       return true;
@@ -203,7 +242,6 @@ export const useSupabaseWorkspace = () => {
       const savedCurrentWorkspace = localStorage.getItem(`current-workspace-${user.id}`);
       if (savedCurrentWorkspace) {
         const workspace = JSON.parse(savedCurrentWorkspace);
-        // Se o workspace tem ID no formato antigo (não UUID), remover
         if (workspace.id && !workspace.id.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)) {
           console.log('Removing old workspace format from localStorage');
           localStorage.removeItem(`current-workspace-${user.id}`);
@@ -234,7 +272,6 @@ export const useSupabaseWorkspace = () => {
         const savedCurrentWorkspace = localStorage.getItem(`current-workspace-${user.id}`);
         if (savedCurrentWorkspace) {
           const workspace = JSON.parse(savedCurrentWorkspace);
-          // Verificar se o workspace ainda existe no Supabase
           const existingWorkspace = workspaces.find(w => w.id === workspace.id);
           if (existingWorkspace) {
             console.log('Loading saved current workspace:', existingWorkspace.name);

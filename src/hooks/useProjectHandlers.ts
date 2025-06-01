@@ -1,4 +1,3 @@
-
 import { useCallback } from 'react';
 import { FunnelComponent, Connection, FunnelProject } from '../types/funnel';
 import { useWorkspace } from './useWorkspace';
@@ -28,7 +27,8 @@ export const useProjectHandlers = ({
   const handleComponentAdd = useCallback((component: FunnelComponent) => {
     setProject(prev => ({
       ...prev,
-      components: [...prev.components, component]
+      components: [...prev.components, component],
+      updatedAt: new Date().toISOString()
     }));
   }, [setProject]);
 
@@ -37,7 +37,8 @@ export const useProjectHandlers = ({
       ...prev,
       components: prev.components.map(component =>
         component.id === id ? { ...component, ...updates } : component
-      )
+      ),
+      updatedAt: new Date().toISOString()
     }));
   }, [setProject]);
 
@@ -51,7 +52,8 @@ export const useProjectHandlers = ({
       return {
         ...prev,
         components: updatedComponents,
-        connections: updatedConnections
+        connections: updatedConnections,
+        updatedAt: new Date().toISOString()
       };
     });
   }, [setProject]);
@@ -59,14 +61,16 @@ export const useProjectHandlers = ({
   const handleConnectionAdd = useCallback((connection: Connection) => {
     setProject(prev => ({
       ...prev,
-      connections: [...prev.connections, connection]
+      connections: [...prev.connections, connection],
+      updatedAt: new Date().toISOString()
     }));
   }, [setProject]);
 
   const handleConnectionDelete = useCallback((connectionId: string) => {
     setProject(prev => ({
       ...prev,
-      connections: prev.connections.filter(connection => connection.id !== connectionId)
+      connections: prev.connections.filter(connection => connection.id !== connectionId),
+      updatedAt: new Date().toISOString()
     }));
   }, [setProject]);
 
@@ -75,7 +79,8 @@ export const useProjectHandlers = ({
       ...prev,
       connections: prev.connections.map(connection =>
         connection.id === connectionId ? { ...connection, ...updates } : connection
-      )
+      ),
+      updatedAt: new Date().toISOString()
     }));
   }, [setProject]);
 
@@ -112,7 +117,8 @@ export const useProjectHandlers = ({
     setProject(prev => ({
       ...prev,
       components: [...prev.components, ...newComponents],
-      connections: [...prev.connections, ...newConnections]
+      connections: [...prev.connections, ...newConnections],
+      updatedAt: new Date().toISOString()
     }));
   }, [setProject]);
 
@@ -122,14 +128,25 @@ export const useProjectHandlers = ({
       return;
     }
 
-    const success = await addProjectToWorkspace(project, currentWorkspace.id);
+    // Atualizar o timestamp antes de salvar
+    const projectToSave = {
+      ...project,
+      updatedAt: new Date().toISOString()
+    };
+
+    console.log('Salvando projeto:', projectToSave.name, 'no workspace:', currentWorkspace.name);
+
+    const success = await addProjectToWorkspace(projectToSave, currentWorkspace.id);
     if (success) {
+      // Atualizar o estado local com o timestamp atualizado
+      setProject(projectToSave);
+      
       toast.success('Projeto salvo com sucesso!');
       if (!currentProjectId) {
         setCurrentProjectId(`project-${Date.now()}`);
       }
     }
-  }, [project, currentWorkspace, addProjectToWorkspace, currentProjectId, setCurrentProjectId]);
+  }, [project, currentWorkspace, addProjectToWorkspace, currentProjectId, setCurrentProjectId, setProject]);
 
   const handleExport = useCallback(() => {
     const dataStr = JSON.stringify(project, null, 2);
