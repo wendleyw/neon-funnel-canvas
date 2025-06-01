@@ -80,16 +80,16 @@ export const ConnectionEditor: React.FC<ConnectionEditorProps> = ({
 
   return (
     <>
-      {/* Overlay de fundo */}
+      {/* Overlay de fundo com blur */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+        className="fixed inset-0 bg-black/20 backdrop-blur-sm"
         style={{ zIndex: 9999 }}
         onClick={onClose}
       />
       
       {/* Modal */}
       <div
-        className="fixed bg-gray-900 border border-gray-700 rounded-xl shadow-2xl p-6 min-w-[320px]"
+        className="fixed bg-white/95 backdrop-blur-md border border-gray-200 rounded-xl shadow-2xl p-6 min-w-[320px] pointer-events-auto"
         style={{
           left: position.x - 160,
           top: position.y - 100,
@@ -99,10 +99,10 @@ export const ConnectionEditor: React.FC<ConnectionEditorProps> = ({
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-white font-semibold text-lg">Editar Conexão</h3>
+          <h3 className="text-gray-900 font-semibold text-lg">Editar Conexão</h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors p-1"
+            className="text-gray-500 hover:text-gray-700 transition-colors p-1 hover:bg-gray-100 rounded"
           >
             ×
           </button>
@@ -110,13 +110,13 @@ export const ConnectionEditor: React.FC<ConnectionEditorProps> = ({
 
         {/* Preview da cor atual */}
         <div className="mb-6">
-          <label className="text-sm text-gray-300 mb-2 block">Preview</label>
+          <label className="text-sm text-gray-700 mb-2 block font-medium">Preview</label>
           <div className="flex items-center gap-3">
             <div
               className={`w-20 h-3 rounded-full ${animated ? 'animate-pulse' : ''}`}
               style={{ backgroundColor: getCurrentColor() }}
             />
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-gray-500">
               {animated ? 'Animado' : 'Estático'}
             </span>
           </div>
@@ -124,13 +124,13 @@ export const ConnectionEditor: React.FC<ConnectionEditorProps> = ({
 
         {/* Cores predefinidas */}
         <div className="mb-4">
-          <label className="text-sm text-gray-300 mb-3 block">Cores Predefinidas</label>
+          <label className="text-sm text-gray-700 mb-3 block font-medium">Cores Predefinidas</label>
           <div className="grid grid-cols-4 gap-2">
             {predefinedColors.map((color) => (
               <button
                 key={color.value}
                 className={`group relative w-full h-10 rounded-lg border-2 transition-all duration-200 hover:scale-105 ${
-                  getCurrentColor() === color.value ? 'border-white shadow-lg' : 'border-gray-600'
+                  getCurrentColor() === color.value ? 'border-gray-800 shadow-lg' : 'border-gray-300'
                 }`}
                 style={{ backgroundColor: color.value }}
                 onClick={() => handleColorSelect(color.value, color.type)}
@@ -138,7 +138,7 @@ export const ConnectionEditor: React.FC<ConnectionEditorProps> = ({
               >
                 <div className="absolute inset-0 rounded-lg bg-white opacity-0 group-hover:opacity-20 transition-opacity" />
                 {getCurrentColor() === color.value && (
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full" />
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-gray-800 rounded-full" />
                 )}
               </button>
             ))}
@@ -147,24 +147,24 @@ export const ConnectionEditor: React.FC<ConnectionEditorProps> = ({
 
         {/* Seletor de cor customizada */}
         <div className="mb-4">
-          <label className="text-sm text-gray-300 mb-2 block">Cor Personalizada</label>
+          <label className="text-sm text-gray-700 mb-2 block font-medium">Cor Personalizada</label>
           <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                className="w-full h-10 border-gray-600 bg-gray-800 hover:bg-gray-700"
+                className="w-full h-10 border-gray-300 bg-white hover:bg-gray-50"
               >
                 <div className="flex items-center gap-2">
                   <Palette size={16} />
                   <div
-                    className="w-4 h-4 rounded border border-gray-500"
+                    className="w-4 h-4 rounded border border-gray-300"
                     style={{ backgroundColor: customColor }}
                   />
                   <span className="text-sm">{customColor}</span>
                 </div>
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-64 p-4 bg-gray-800 border-gray-700">
+            <PopoverContent className="w-64 p-4 bg-white border-gray-200">
               <div className="space-y-3">
                 <input
                   type="color"
@@ -176,7 +176,7 @@ export const ConnectionEditor: React.FC<ConnectionEditorProps> = ({
                   type="text"
                   value={customColor}
                   onChange={(e) => handleCustomColorChange(e.target.value)}
-                  className="w-full px-3 py-2 text-sm bg-gray-700 border border-gray-600 rounded text-white"
+                  className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded text-gray-900"
                   placeholder="#000000"
                 />
               </div>
@@ -187,7 +187,7 @@ export const ConnectionEditor: React.FC<ConnectionEditorProps> = ({
         {/* Controle de animação */}
         <div className="mb-6">
           <div className="flex items-center justify-between">
-            <label className="text-sm text-gray-300">Animação</label>
+            <label className="text-sm text-gray-700 font-medium">Animação</label>
             <Switch
               checked={animated}
               onCheckedChange={handleAnimationToggle}
