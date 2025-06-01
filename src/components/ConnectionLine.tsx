@@ -31,12 +31,22 @@ export const ConnectionLine: React.FC<ConnectionLineProps> = ({
     }
   };
 
-  // Área invisível clicável ao longo da conexão
   const pathData = `M ${startX} ${startY} L ${endX} ${endY}`;
+  const color = getConnectionColor();
+  const gradientId = `gradient-${connection.id}`;
 
   return (
     <g>
-      {/* Área clicável invisível */}
+      {/* Definição do degradê */}
+      <defs>
+        <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor={color} stopOpacity="0.1" />
+          <stop offset="50%" stopColor={color} stopOpacity="0.8" />
+          <stop offset="100%" stopColor={color} stopOpacity="0.1" />
+        </linearGradient>
+      </defs>
+
+      {/* Área clicável invisível mais ampla */}
       <path
         d={pathData}
         stroke="transparent"
@@ -49,16 +59,26 @@ export const ConnectionLine: React.FC<ConnectionLineProps> = ({
         }}
       />
       
+      {/* Linha principal com degradê */}
+      <path
+        d={pathData}
+        stroke={`url(#${gradientId})`}
+        strokeWidth="2"
+        fill="none"
+        className="pointer-events-none"
+      />
+      
       {/* Indicador visual quando selecionado */}
       {isSelected && (
         <>
+          {/* Linha pulsante para indicar seleção */}
           <path
             d={pathData}
-            stroke={getConnectionColor()}
-            strokeWidth="2"
+            stroke={color}
+            strokeWidth="3"
             fill="none"
-            strokeDasharray="5,5"
-            opacity="0.6"
+            strokeDasharray="8,4"
+            opacity="0.8"
             className="pointer-events-none animate-pulse"
           />
           
@@ -67,9 +87,15 @@ export const ConnectionLine: React.FC<ConnectionLineProps> = ({
             <circle
               cx={(startX + endX) / 2}
               cy={(startY + endY) / 2}
-              r="12"
+              r="14"
               fill="#EF4444"
-              className="pointer-events-auto cursor-pointer"
+              stroke="white"
+              strokeWidth="2"
+              className="pointer-events-auto cursor-pointer drop-shadow-lg"
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelect?.();
+              }}
             />
             <text
               x={(startX + endX) / 2}
@@ -77,7 +103,7 @@ export const ConnectionLine: React.FC<ConnectionLineProps> = ({
               textAnchor="middle"
               dominantBaseline="middle"
               fill="white"
-              fontSize="12"
+              fontSize="14"
               fontWeight="bold"
               className="pointer-events-none select-none"
             >

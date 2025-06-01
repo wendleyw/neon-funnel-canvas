@@ -45,10 +45,12 @@ export const useCanvasSelection = ({ onConnectionAdd, onConnectionDelete }: UseC
     
     if (selectedConnection === connectionId) {
       // Se já estava selecionada, delete a conexão
+      console.log('Deletando conexão:', connectionId);
       onConnectionDelete(connectionId);
       setSelectedConnection(null);
     } else {
       // Seleciona a conexão
+      console.log('Selecionando conexão:', connectionId);
       setSelectedConnection(connectionId);
     }
   }, [selectedConnection, onConnectionDelete]);

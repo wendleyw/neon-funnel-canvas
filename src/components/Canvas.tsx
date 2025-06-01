@@ -68,8 +68,11 @@ export const Canvas = React.memo<CanvasProps>(({
 
   // Enhanced mouse down handler that combines pan and selection
   const handleCanvasMouseDown = useCallback((e: React.MouseEvent) => {
+    // Só limpa a seleção se o clique foi diretamente no canvas (não em componentes ou conexões)
+    if (e.target === e.currentTarget) {
+      clearSelection();
+    }
     handleMouseDown(e, canvasRef);
-    clearSelection();
   }, [handleMouseDown, clearSelection]);
 
   const handleComponentDrag = useCallback((id: string, position: { x: number; y: number }) => {
@@ -106,7 +109,7 @@ export const Canvas = React.memo<CanvasProps>(({
         
         {selectedConnection && (
           <div className="absolute top-16 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse">
-            Clique no X para deletar a conexão
+            Clique novamente na conexão ou no X para deletar
           </div>
         )}
         
