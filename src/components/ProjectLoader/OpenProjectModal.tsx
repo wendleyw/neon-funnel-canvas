@@ -33,11 +33,20 @@ export const OpenProjectModal: React.FC<OpenProjectModalProps> = ({
     }
   }, [isOpen, user, loadWorkspaces]);
 
-  const handleProjectSelect = (projectData: any) => {
+  const handleProjectSelect = (projectRecord: any) => {
     try {
-      // Converter os dados do Supabase para FunnelProject
-      const project: FunnelProject = projectData.project_data;
-      onProjectOpen(project);
+      console.log('Project record selected:', projectRecord);
+      
+      // Extrair os dados do projeto
+      const projectData = projectRecord.project_data as FunnelProject;
+      
+      if (!projectData || typeof projectData !== 'object') {
+        console.error('Invalid project data:', projectData);
+        return;
+      }
+
+      console.log('Loading project data:', projectData);
+      onProjectOpen(projectData);
       onClose();
     } catch (error) {
       console.error('Erro ao carregar projeto:', error);

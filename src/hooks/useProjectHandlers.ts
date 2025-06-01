@@ -22,7 +22,7 @@ export const useProjectHandlers = ({
   resetProject,
   enterEditor
 }: UseProjectHandlersProps) => {
-  const { currentWorkspace, addProjectToWorkspace, loadProject } = useWorkspace();
+  const { currentWorkspace, addProjectToWorkspace, workspaceProjects } = useWorkspace();
 
   const handleComponentAdd = useCallback((component: FunnelComponent) => {
     setProject(prev => ({
@@ -86,30 +86,43 @@ export const useProjectHandlers = ({
 
   const handleProjectSelect = useCallback((projectId: string) => {
     try {
-      const projectData = loadProject(projectId);
-      if (projectData && typeof projectData === 'object' && 'project_data' in projectData) {
-        // Safely convert the JSON data to FunnelProject
-        const rawProjectData = projectData.project_data as unknown;
-        
-        // Validate that the data has the required FunnelProject structure
-        if (rawProjectData && typeof rawProjectData === 'object' && 
-            'id' in rawProjectData && 'name' in rawProjectData && 
-            'components' in rawProjectData && 'connections' in rawProjectData) {
-          
-          const typedProject = rawProjectData as FunnelProject;
-          console.log('Project loaded:', typedProject.name);
-          loadProjectData(typedProject, projectId);
-        } else {
-          toast.error('Dados do projeto inválidos');
-        }
-      } else {
+      console.log('Loading project with ID:', projectId);
+      
+      // Encontrar o projeto nos workspaceProjects
+      const projectRecord = workspaceProjects.find(p => p.id === projectId);
+      
+      if (!projectRecord) {
+        console.error('Project not found in workspaceProjects:', projectId);
         toast.error('Projeto não encontrado');
+        return;
       }
+
+      console.log('Found project record:', projectRecord);
+      
+      // Extrair os dados do projeto
+      const projectData = projectRecord.project_data as FunnelProject;
+      
+      if (!projectData || typeof projectData !== 'object') {
+        console.error('Invalid project data:', projectData);
+        toast.error('Dados do projeto inválidos');
+        return;
+      }
+
+      // Validar estrutura do projeto
+      if (!projectData.id || !projectData.name || !Array.isArray(projectData.components) || !Array.isArray(projectData.connections)) {
+        console.error('Project data missing required fields:', projectData);
+        toast.error('Estrutura do projeto inválida');
+        return;
+      }
+
+      console.log('Loading project:', projectData.name);
+      loadProjectData(projectData, projectId);
+      toast.success(`Projeto "${projectData.name}" carregado com sucesso!`);
     } catch (error) {
       console.error('Erro ao carregar projeto:', error);
       toast.error('Erro ao carregar projeto');
     }
-  }, [loadProject, loadProjectData]);
+  }, [workspaceProjects, loadProjectData]);
 
   const handleNewProject = useCallback(() => {
     resetProject();
