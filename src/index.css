@@ -54,27 +54,35 @@
     background: #000000;
   }
 
-  /* Remove scrollbars desnecessárias */
+  /* Scrollbar customizada */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
 
   ::-webkit-scrollbar-track {
-    background: #1a1a1a;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: #404040;
+    background: rgba(30, 41, 59, 0.3);
     border-radius: 3px;
   }
 
+  ::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.5);
+    border-radius: 3px;
+    transition: background 0.2s ease;
+  }
+
   ::-webkit-scrollbar-thumb:hover {
-    background: #555555;
+    background: rgba(100, 116, 139, 0.8);
+  }
+
+  /* Scrollbar para navegadores Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 116, 139, 0.5) rgba(30, 41, 59, 0.3);
   }
 }
 
-/* Remover barras brancas e garantir layout responsivo */
+/* Utilitários de scrollbar */
 @layer utilities {
   .no-scrollbar {
     -ms-overflow-style: none;
@@ -83,5 +91,21 @@
   
   .no-scrollbar::-webkit-scrollbar {
     display: none;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+
+  .scrollbar-track-slate-800\/50 {
+    scrollbar-color: rgba(100, 116, 139, 0.5) rgba(30, 41, 59, 0.5);
+  }
+
+  .scrollbar-thumb-slate-600\/50::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.5);
+  }
+
+  .scrollbar-track-slate-800\/50::-webkit-scrollbar-track {
+    background: rgba(30, 41, 59, 0.5);
   }
 }
