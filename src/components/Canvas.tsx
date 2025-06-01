@@ -8,7 +8,6 @@ import { CanvasContainer } from './Canvas/CanvasContainer';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useCanvasEventHandlers } from './Canvas/CanvasEventHandlers';
 import { MiniMap } from './MiniMap';
-import { MobilePreviewButton } from './Canvas/MobilePreviewButton';
 import { InstagramMockupModal } from './Instagram/InstagramMockupModal';
 
 interface CanvasProps {
@@ -60,7 +59,7 @@ export const Canvas = React.memo<CanvasProps>(({
     });
   }, [onComponentAdd, onConnectionAdd]);
 
-  const handleMobilePreviewClick = useCallback(() => {
+  const handleInstagramMockupOpen = useCallback(() => {
     setIsInstagramModalOpen(true);
   }, []);
 
@@ -108,6 +107,7 @@ export const Canvas = React.memo<CanvasProps>(({
           handleMouseDown={eventHandlers.handleMouseDown}
           onContextMenu={eventHandlers.handleContextMenu}
           isDragOver={eventHandlers.isDragOver}
+          onInstagramMockupOpen={handleInstagramMockupOpen}
         />
 
         <CanvasControls
@@ -122,8 +122,6 @@ export const Canvas = React.memo<CanvasProps>(({
           canvasTransform={{ pan: eventHandlers.pan, zoom: eventHandlers.zoom }}
           onComponentClick={handleMiniMapComponentClick}
         />
-
-        <MobilePreviewButton onClick={handleMobilePreviewClick} />
 
         <InstagramMockupModal
           isOpen={isInstagramModalOpen}
