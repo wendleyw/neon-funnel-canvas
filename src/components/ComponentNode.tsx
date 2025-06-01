@@ -5,13 +5,16 @@ import { componentTemplates } from '../data/componentTemplates';
 import { useComponentDrag } from '../hooks/canvas/useComponentDrag';
 import { ComponentEditor } from './ComponentEditor';
 import { StatusBadge } from './StatusBadge';
-import { Plus, Settings, Eye } from 'lucide-react';
+import { Plus, Settings, Eye, ArrowRight, Link } from 'lucide-react';
 
 interface ComponentNodeProps {
   component: FunnelComponent;
   isSelected: boolean;
-  isFirstSelected?: boolean;
+  isConnecting?: boolean;
+  canConnect?: boolean;
   onSelect: () => void;
+  onStartConnection: () => void;
+  onConnect: () => void;
   onDrag: (id: string, position: { x: number; y: number }) => void;
   onDelete: () => void;
   onUpdate: (id: string, updates: Partial<FunnelComponent>) => void;
@@ -20,8 +23,11 @@ interface ComponentNodeProps {
 export const ComponentNode = React.memo<ComponentNodeProps>(({
   component,
   isSelected,
-  isFirstSelected = false,
+  isConnecting = false,
+  canConnect = false,
   onSelect,
+  onStartConnection,
+  onConnect,
   onDrag,
   onDelete,
   onUpdate
@@ -77,9 +83,14 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
     onUpdate(component.id, updates);
   }, [component.id, onUpdate]);
 
-  // Manipulador específico para clicks de seleção
   const handleClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
+    
+    // Se pode conectar, conecta em vez de selecionar
+    if (canConnect) {
+      onConnect();
+      return;
+    }
     
     // Não seleciona se clicou em botões
     if ((e.target as Element).closest('button')) {
@@ -88,7 +99,12 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
     
     console.log('Componente clicado:', component.id);
     onSelect();
-  }, [onSelect, component.id]);
+  }, [onSelect, onConnect, canConnect, component.id]);
+
+  const handleConnectionClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onStartConnection();
+  }, [onStartConnection]);
 
   const containerStyle = useMemo(() => ({
     left: component.position.x,
@@ -101,14 +117,14 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
       isDragging ? 'cursor-grabbing scale-105' : 'cursor-grab'
     }`;
     
-    if (isFirstSelected) {
-      classes += ' ring-4 ring-blue-500 ring-opacity-70 animate-pulse';
+    if (canConnect) {
+      classes += ' ring-4 ring-green-500 ring-opacity-70 animate-pulse cursor-pointer';
     } else if (isSelected) {
       classes += ' ring-2 ring-blue-400 ring-opacity-50';
     }
     
     return classes;
-  }, [isDragging, isSelected, isFirstSelected]);
+  }, [isDragging, isSelected, canConnect]);
 
   if (!template) return null;
 
@@ -123,10 +139,21 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
     >
       {/* Main Component Card */}
       <div className="w-48 bg-gray-900 rounded-lg border border-gray-700 shadow-xl hover:shadow-2xl transition-all duration-300 hover:border-gray-600 relative group">
-        {/* Indicator para primeiro selecionado */}
-        {isFirstSelected && (
-          <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold animate-bounce">
-            1
+        {/* Connection Button (appears when selected) */}
+        {isSelected && !isConnecting && (
+          <button
+            onClick={handleConnectionClick}
+            className="absolute -top-3 right-4 bg-blue-500 hover:bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 z-10"
+            title="Conectar com outro componente"
+          >
+            <Link className="w-4 h-4" />
+          </button>
+        )}
+        
+        {/* Indicator para modo de conexão */}
+        {canConnect && (
+          <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold animate-bounce">
+            <ArrowRight className="w-3 h-3" />
           </div>
         )}
         

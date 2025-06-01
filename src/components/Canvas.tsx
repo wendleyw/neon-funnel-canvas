@@ -48,10 +48,12 @@ export const Canvas = React.memo<CanvasProps>(({
   
   const {
     selectedComponent,
-    firstSelected,
+    connectingFrom,
     selectedConnection,
     setSelectedComponent,
     handleComponentSelect,
+    startConnection,
+    handleComponentConnect,
     handleConnectionSelect,
     clearSelection
   } = useCanvasSelection(selectionProps);
@@ -101,7 +103,7 @@ export const Canvas = React.memo<CanvasProps>(({
         <CanvasGrid zoom={zoom} pan={pan} isDragOver={isDragOver} />
         
         {/* Helper text */}
-        {firstSelected && (
+        {connectingFrom && (
           <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse">
             Clique em outro componente para conectar
           </div>
@@ -134,7 +136,7 @@ export const Canvas = React.memo<CanvasProps>(({
               <ConnectionManager
                 components={components}
                 connections={connections}
-                connectingFrom={null}
+                connectingFrom={connectingFrom}
                 selectedConnection={selectedConnection}
                 onConnectionSelect={handleConnectionSelect}
               />
@@ -153,8 +155,11 @@ export const Canvas = React.memo<CanvasProps>(({
                 <ComponentNode
                   component={component}
                   isSelected={selectedComponent === component.id}
-                  isFirstSelected={firstSelected === component.id}
+                  isConnecting={connectingFrom !== null}
+                  canConnect={connectingFrom !== null && connectingFrom !== component.id}
                   onSelect={() => handleComponentSelect(component.id)}
+                  onStartConnection={() => startConnection(component.id)}
+                  onConnect={() => handleComponentConnect(component.id)}
                   onDrag={handleComponentDrag}
                   onDelete={() => onComponentDelete(component.id)}
                   onUpdate={onComponentUpdate}
