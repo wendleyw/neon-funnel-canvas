@@ -42,7 +42,7 @@ export const useCanvasDragDrop = ({
     e.preventDefault();
     setIsDragOver(false);
     
-    console.log('Drop event triggered');
+    console.log('Drop event triggered on canvas');
     
     try {
       const templateData = e.dataTransfer.getData('application/json');
@@ -56,41 +56,27 @@ export const useCanvasDragDrop = ({
       const template: ComponentTemplate = JSON.parse(templateData);
       console.log('Parsed template:', template);
       
-      const canvasRect = canvasRef.current?.getBoundingClientRect();
+      // Encontrar o canvas container (o elemento com a classe canvas-container)
+      const canvasContainer = canvasRef.current?.querySelector('.canvas-container') as HTMLElement;
+      const canvasRect = canvasContainer?.getBoundingClientRect() || canvasRef.current?.getBoundingClientRect();
       
-      if (!canvasRect) {
-        console.warn('Canvas rect not found, canvas ref:', canvasRef.current);
-        // Fallback: use relative position
-        const x = Math.max(0, (e.clientX - panOffset.x) / scale);
-        const y = Math.max(0, (e.clientY - panOffset.y) / scale);
-        
-        console.log('Using fallback position:', { x, y });
-        
-        const newComponent: FunnelComponent = {
-          id: `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          type: template.type,
-          position: { x, y },
-          connections: [],
-          data: {
-            title: template.defaultProps.title,
-            description: template.defaultProps.description || '',
-            image: template.defaultProps.image || '',
-            url: template.defaultProps.url || '',
-            status: template.defaultProps.status,
-            properties: { ...template.defaultProps.properties }
-          }
-        };
-
-        console.log('Creating new component with fallback:', newComponent);
-        onAddComponent(newComponent);
-        return;
+      console.log('Canvas container:', canvasContainer);
+      console.log('Canvas rect:', canvasRect);
+      
+      let x, y;
+      
+      if (canvasRect) {
+        // Calcular posição considerando zoom e pan
+        x = Math.max(0, (e.clientX - canvasRect.left - panOffset.x) / scale);
+        y = Math.max(0, (e.clientY - canvasRect.top - panOffset.y) / scale);
+      } else {
+        // Fallback: usar posição relativa básica
+        x = Math.max(0, (e.clientX - panOffset.x) / scale);
+        y = Math.max(0, (e.clientY - panOffset.y) / scale);
+        console.warn('Using fallback position calculation');
       }
 
-      // Calcular posição considerando zoom e pan
-      const x = Math.max(0, (e.clientX - canvasRect.left - panOffset.x) / scale);
-      const y = Math.max(0, (e.clientY - canvasRect.top - panOffset.y) / scale);
-
-      console.log('Drop position:', { x, y });
+      console.log('Calculated drop position:', { x, y });
 
       const newComponent: FunnelComponent = {
         id: `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,

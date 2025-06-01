@@ -20,8 +20,19 @@ export const ComponentTemplateItem: React.FC<ComponentTemplateItemProps> = ({
 }) => {
   const handleDragStart = (e: React.DragEvent) => {
     console.log('ComponentTemplateItem drag start:', template);
-    e.dataTransfer.setData('application/json', JSON.stringify(template));
+    
+    // Preparar dados para o drag
+    const dragData = JSON.stringify(template);
+    e.dataTransfer.setData('application/json', dragData);
+    e.dataTransfer.setData('text/plain', template.label);
     e.dataTransfer.effectAllowed = 'copy';
+    
+    // Criar uma imagem de drag personalizada
+    const dragImage = e.currentTarget.cloneNode(true) as HTMLElement;
+    dragImage.style.transform = 'rotate(5deg)';
+    dragImage.style.opacity = '0.8';
+    
+    // Chamar o handler pai
     onDragStart(e, template);
   };
 
@@ -36,14 +47,15 @@ export const ComponentTemplateItem: React.FC<ComponentTemplateItemProps> = ({
       draggable
       onDragStart={handleDragStart}
       className={`
-        flex items-center gap-3 p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 
+        flex items-center gap-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 
         border border-gray-700/50 hover:border-gray-600/50 transition-all duration-200 
         cursor-grab active:cursor-grabbing group relative
         ${isCompact ? 'p-2' : 'p-3'}
+        hover:shadow-lg hover:scale-[1.02]
       `}
     >
       <div 
-        className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-medium text-sm"
+        className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-medium text-sm shrink-0"
         style={{ backgroundColor: template.color }}
       >
         {template.icon}
@@ -63,7 +75,7 @@ export const ComponentTemplateItem: React.FC<ComponentTemplateItemProps> = ({
       {onToggleFavorite && (
         <button
           onClick={handleToggleFavorite}
-          className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-gray-600/50 rounded"
+          className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-gray-600/50 rounded shrink-0"
           title={isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
         >
           <Star 
