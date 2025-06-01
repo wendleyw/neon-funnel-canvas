@@ -1,7 +1,7 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { ComponentTemplate } from '../types/funnel';
-import { componentTemplates as defaultTemplates } from '../data/componentTemplates';
+import { defaultTemplates } from '../data/componentTemplates';
 
 export const useComponentTemplates = () => {
   const [customTemplates, setCustomTemplates] = useState<ComponentTemplate[]>([]);
