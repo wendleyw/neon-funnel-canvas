@@ -1,162 +1,118 @@
 
-import { useCallback } from 'react';
-import { FunnelComponent, Connection } from '../../../types/funnel';
 import { digitalLaunchTemplates } from '../data/templates';
+import { FunnelComponent, Connection } from '../../../types/funnel';
 
 export const useDigitalLaunchTemplates = () => {
-  
-  const createCompleteDigitalLaunchFunnel = useCallback((): { components: FunnelComponent[], connections: Connection[] } => {
-    const baseY = 100;
-    const spacingX = 300;
-    const spacingY = 200;
-    
-    // Criar componentes em sequência lógica
-    const components: FunnelComponent[] = digitalLaunchTemplates.map((template, index) => {
-      const row = Math.floor(index / 3);
-      const col = index % 3;
-      
-      return {
-        id: `launch-${template.type}-${Date.now()}-${index}`,
-        type: template.type,
-        position: {
-          x: 50 + (col * spacingX),
-          y: baseY + (row * spacingY)
-        },
-        data: {
-          ...template.defaultData,
-          title: template.label
-        },
-        connections: []
-      };
-    });
+  const createComponentFromTemplate = (template: any, position: { x: number; y: number }) => {
+    return {
+      id: `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      type: template.type,
+      position,
+      data: {
+        ...template.defaultProps,
+        title: template.defaultProps.title,
+        description: template.defaultProps.description,
+        status: template.defaultProps.status,
+        properties: { ...template.defaultProps.properties }
+      }
+    };
+  };
 
-    // Criar conexões lógicas do funil
+  const createCompleteDigitalLaunchFunnel = (): { components: FunnelComponent[], connections: Connection[] } => {
+    const components: FunnelComponent[] = [];
     const connections: Connection[] = [];
     
-    // Fluxo principal do lançamento digital
-    const flowOrder = [
-      'target-audience', // 1. Definir público
-      'offer', // 2. Criar oferta
-      'traffic-organic', // 3. Tráfego orgânico
-      'traffic-paid', // 4. Tráfego pago (paralelo)
-      'lead-capture', // 5. Captura
-      'nurturing', // 6. Nutrição
-      'webinar-vsl', // 7. Apresentação
-      'sales-page', // 8. Página de vendas
-      'checkout-upsell', // 9. Checkout
-      'post-sale', // 10. Pós-venda
-      'analytics-optimization' // 11. Análise
+    // Posições dos componentes em fluxo
+    const positions = [
+      { x: 100, y: 100 },   // Público-alvo
+      { x: 300, y: 100 },   // Oferta
+      { x: 500, y: 100 },   // Tráfego Orgânico
+      { x: 700, y: 100 },   // Captura de Leads
+      { x: 900, y: 100 },   // Nutrição
+      { x: 1100, y: 100 },  // Webinar/VSL
+      { x: 1300, y: 100 },  // Página de Vendas
+      { x: 1500, y: 100 },  // Checkout
+      { x: 1700, y: 100 },  // Pós-venda
+      { x: 1900, y: 100 },  // Análise
+      { x: 500, y: 300 },   // Tráfego Pago
     ];
 
-    // Criar conexões sequenciais
-    for (let i = 0; i < flowOrder.length - 1; i++) {
-      const fromComponent = components.find(c => c.type === flowOrder[i]);
-      const toComponent = components.find(c => c.type === flowOrder[i + 1]);
-      
-      if (fromComponent && toComponent) {
+    // Criar componentes
+    digitalLaunchTemplates.forEach((template, index) => {
+      if (index < positions.length) {
+        const component = createComponentFromTemplate(template, positions[index]);
+        components.push(component);
+      }
+    });
+
+    // Criar conexões em sequência
+    for (let i = 0; i < components.length - 2; i++) {
+      if (i !== 10) { // Pula o tráfego pago na sequência principal
         connections.push({
           id: `connection-${Date.now()}-${i}`,
-          from: fromComponent.id,
-          to: toComponent.id,
-          type: 'success',
-          animated: true
+          from: components[i].id,
+          to: components[i + 1].id,
+          style: { strokeColor: '#3B82F6' }
         });
       }
     }
 
-    // Conexões especiais
-    // Público-alvo para ambos os tráfegos
-    const targetAudience = components.find(c => c.type === 'target-audience');
-    const trafficPaid = components.find(c => c.type === 'traffic-paid');
-    if (targetAudience && trafficPaid) {
+    // Conectar tráfego pago à captura de leads
+    if (components.length > 10) {
       connections.push({
-        id: `connection-target-paid-${Date.now()}`,
-        from: targetAudience.id,
-        to: trafficPaid.id,
-        type: 'conditional',
-        color: '#F59E0B',
-        animated: true
-      });
-    }
-
-    // Ambos os tráfegos para captura
-    const trafficOrganic = components.find(c => c.type === 'traffic-organic');
-    const leadCapture = components.find(c => c.type === 'lead-capture');
-    if (trafficPaid && leadCapture) {
-      connections.push({
-        id: `connection-paid-capture-${Date.now()}`,
-        from: trafficPaid.id,
-        to: leadCapture.id,
-        type: 'success',
-        color: '#10B981',
-        animated: true
-      });
-    }
-
-    // Analytics conectado a vários pontos para monitoramento
-    const analytics = components.find(c => c.type === 'analytics-optimization');
-    const checkoutUpsell = components.find(c => c.type === 'checkout-upsell');
-    if (analytics && checkoutUpsell) {
-      connections.push({
-        id: `connection-checkout-analytics-${Date.now()}`,
-        from: checkoutUpsell.id,
-        to: analytics.id,
-        type: 'success',
-        color: '#0891B2',
-        animated: false
+        id: `connection-paid-traffic`,
+        from: components[10].id, // Tráfego Pago
+        to: components[3].id,    // Captura de Leads
+        style: { strokeColor: '#EA580C' }
       });
     }
 
     return { components, connections };
-  }, []);
+  };
 
-  const createQuickLaunchTemplate = useCallback((templateType: 'mvp' | 'complete' | 'advanced'): { components: FunnelComponent[], connections: Connection[] } => {
-    const baseTemplates = {
-      mvp: ['target-audience', 'lead-capture', 'sales-page', 'checkout-upsell'],
-      complete: ['target-audience', 'traffic-organic', 'lead-capture', 'nurturing', 'sales-page', 'checkout-upsell', 'post-sale'],
-      advanced: digitalLaunchTemplates.map(t => t.type)
-    };
-
-    const selectedTypes = baseTemplates[templateType];
-    const spacingX = 280;
-    const spacingY = 180;
-
-    const components: FunnelComponent[] = selectedTypes.map((type, index) => {
-      const template = digitalLaunchTemplates.find(t => t.type === type);
-      if (!template) return null;
-
-      const col = index % 4;
-      const row = Math.floor(index / 4);
-
-      return {
-        id: `${templateType}-${type}-${Date.now()}-${index}`,
-        type: template.type,
-        position: {
-          x: 50 + (col * spacingX),
-          y: 100 + (row * spacingY)
-        },
-        data: {
-          ...template.defaultData,
-          title: `${template.label} (${templateType.toUpperCase()})`
-        },
-        connections: []
-      };
-    }).filter(Boolean) as FunnelComponent[];
-
-    // Criar conexões simples em sequência
+  const createQuickLaunchTemplate = (type: 'mvp' | 'complete' | 'advanced'): { components: FunnelComponent[], connections: Connection[] } => {
+    const components: FunnelComponent[] = [];
     const connections: Connection[] = [];
+
+    let selectedTemplates: any[] = [];
+    
+    switch (type) {
+      case 'mvp':
+        selectedTemplates = digitalLaunchTemplates.filter(t => 
+          ['target-audience', 'offer', 'lead-capture', 'sales-page'].includes(t.type)
+        );
+        break;
+      case 'complete':
+        selectedTemplates = digitalLaunchTemplates.filter(t => 
+          ['target-audience', 'offer', 'traffic-organic', 'lead-capture', 'nurturing', 'sales-page', 'checkout-upsell'].includes(t.type)
+        );
+        break;
+      case 'advanced':
+        selectedTemplates = digitalLaunchTemplates;
+        break;
+    }
+
+    // Posições horizontais
+    selectedTemplates.forEach((template, index) => {
+      const component = createComponentFromTemplate(template, {
+        x: 100 + (index * 250),
+        y: 150
+      });
+      components.push(component);
+    });
+
+    // Conectar em sequência
     for (let i = 0; i < components.length - 1; i++) {
       connections.push({
-        id: `${templateType}-connection-${Date.now()}-${i}`,
+        id: `connection-${Date.now()}-${i}`,
         from: components[i].id,
         to: components[i + 1].id,
-        type: 'success',
-        animated: true
+        style: { strokeColor: '#10B981' }
       });
     }
 
     return { components, connections };
-  }, []);
+  };
 
   return {
     digitalLaunchTemplates,

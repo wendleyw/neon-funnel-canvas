@@ -43,10 +43,17 @@ export const Sidebar = React.memo<SidebarProps>(({ onDragStart, onAddCompleteTem
   return (
     <ErrorBoundary>
       <div className="w-64 bg-black border-r border-gray-800 flex flex-col">
-        <SidebarHeader 
-          onCreateNewComponent={() => setIsCreateModalOpen(true)}
-          onOpenReadyTemplates={() => setIsReadyTemplatesOpen(true)}
-        />
+        <div className="p-4 border-b border-gray-800">
+          <h2 className="text-white font-semibold text-lg">Componentes</h2>
+          <div className="flex gap-2 mt-3">
+            <button
+              onClick={() => setIsReadyTemplatesOpen(true)}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs py-2 px-3 rounded transition-colors"
+            >
+              Templates Prontos
+            </button>
+          </div>
+        </div>
         
         <div className="flex-1 p-3 overflow-y-auto">
           <div className="space-y-6">

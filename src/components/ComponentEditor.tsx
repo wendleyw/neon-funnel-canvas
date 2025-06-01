@@ -1,19 +1,19 @@
 
 import React, { useState, useCallback } from 'react';
-import { FunnelComponent } from '../types/funnel';
-import { Input } from './ui/input';
-import { Textarea } from './ui/textarea';
-import { Button } from './ui/button';
-import { Upload, Link, Settings, X, Check } from 'lucide-react';
-import { StatusBadge } from './StatusBadge';
-import { DigitalLaunchFields } from '../features/digital-launch/components/DigitalLaunchFields';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from './ui/dialog';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Textarea } from './ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Badge } from './ui/badge';
+import { X, Upload, Image as ImageIcon } from 'lucide-react';
+import { FunnelComponent } from '../types/funnel';
 
 interface ComponentEditorProps {
   component: FunnelComponent;
@@ -31,192 +31,188 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
   const [formData, setFormData] = useState({
     title: component.data.title,
     description: component.data.description || '',
-    image: component.data.image || '',
     url: component.data.url || '',
     status: component.data.status,
-    properties: component.data.properties || {}
+    image: component.data.image || ''
   });
 
   const handleInputChange = useCallback((field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   }, []);
 
-  const handlePropertyChange = useCallback((key: string, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      properties: { ...prev.properties, [key]: value }
-    }));
-  }, []);
-
   const handleImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        handleInputChange('image', result);
+      reader.onload = (event) => {
+        const imageUrl = event.target?.result as string;
+        setFormData(prev => ({ ...prev, image: imageUrl }));
       };
       reader.readAsDataURL(file);
     }
-  }, [handleInputChange]);
+  }, []);
 
-  const handleSave = useCallback(() => {
+  const handleRemoveImage = useCallback(() => {
+    setFormData(prev => ({ ...prev, image: '' }));
+  }, []);
+
+  const handleSubmit = useCallback((e: React.FormEvent) => {
+    e.preventDefault();
+    
     onUpdate({
       data: {
         ...component.data,
-        ...formData
+        title: formData.title,
+        description: formData.description,
+        url: formData.url,
+        status: formData.status,
+        image: formData.image
       }
     });
+    
     onClose();
-  }, [component.data, formData, onUpdate, onClose]);
+  }, [formData, component.data, onUpdate, onClose]);
 
-  // Verificar se é um template de lançamento digital
-  const digitalLaunchTypes = [
-    'offer', 'target-audience', 'traffic-organic', 'traffic-paid', 
-    'lead-capture', 'nurturing', 'webinar-vsl', 'sales-page', 
-    'checkout-upsell', 'post-sale', 'analytics-optimization'
-  ];
-  
-  const isDigitalLaunchComponent = digitalLaunchTypes.includes(component.type);
-
-  const getComponentFeatures = useCallback(() => {
-    // Para componentes de lançamento digital, usar campos específicos
-    if (isDigitalLaunchComponent) {
-      return (
-        <DigitalLaunchFields
-          componentType={component.type}
-          properties={formData.properties}
-          onPropertyChange={handlePropertyChange}
-        />
-      );
-    }
-
-    // Manter lógica existente para componentes básicos
-    switch (component.type) {
-      case 'landing-page':
-        return (
-          <>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Página de Destino</label>
-              <Input
-                placeholder="URL da página"
-                value={formData.url}
-                onChange={(e) => handleInputChange('url', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Call-to-Action</label>
-              <Input
-                placeholder="Texto do botão principal"
-              />
-            </div>
-          </>
-        );
-      case 'form':
-        return (
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Campos do Formulário</label>
-            <Textarea
-              placeholder="Nome, Email, Telefone..."
-              rows={3}
-            />
-          </div>
-        );
-      case 'quiz':
-        return (
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Número de Perguntas</label>
-            <Input
-              type="number"
-              placeholder="5"
-            />
-          </div>
-        );
-      default:
-        return null;
-    }
-  }, [component.type, formData.url, formData.properties, handleInputChange, handlePropertyChange, isDigitalLaunchComponent]);
+  if (!isOpen) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
-            {isDigitalLaunchComponent ? 'Configurar Lançamento' : 'Editar Componente'}
+          <DialogTitle className="flex items-center gap-2">
+            Editar Componente
+            <Badge variant="outline">{component.type}</Badge>
           </DialogTitle>
-          <DialogDescription>
-            Configure as propriedades do componente
-          </DialogDescription>
         </DialogHeader>
-        
-        <div className="space-y-4">
-          {/* Título */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Título</label>
-            <Input
-              value={formData.title}
-              onChange={(e) => handleInputChange('title', e.target.value)}
-            />
-          </div>
 
-          {/* Descrição */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Descrição</label>
-            <Textarea
-              value={formData.description}
-              onChange={(e) => handleInputChange('description', e.target.value)}
-              rows={2}
-            />
-          </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Basic Info */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Informações Básicas</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Título</label>
+                <Input
+                  value={formData.title}
+                  onChange={(e) => handleInputChange('title', e.target.value)}
+                  placeholder="Digite o título do componente..."
+                  required
+                />
+              </div>
 
-          {/* Status */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
-            <select
-              value={formData.status}
-              onChange={(e) => handleInputChange('status', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-            >
-              <option value="draft">Rascunho</option>
-              <option value="active">Ativo</option>
-              <option value="test">Teste</option>
-              <option value="published">Publicado</option>
-              <option value="inactive">Inativo</option>
-            </select>
-          </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Descrição</label>
+                <Textarea
+                  value={formData.description}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  placeholder="Descreva a funcionalidade do componente..."
+                  rows={3}
+                />
+              </div>
 
-          {/* Funcionalidades específicas do componente */}
-          {getComponentFeatures()}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">URL/Link</label>
+                <Input
+                  value={formData.url}
+                  onChange={(e) => handleInputChange('url', e.target.value)}
+                  placeholder="https://exemplo.com"
+                  type="url"
+                />
+              </div>
 
-          {/* Botões de ação */}
-          <div className="flex justify-between pt-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-gray-600 dark:text-gray-400"
-            >
-              <Settings className="w-4 h-4 mr-1" />
-              Avançado
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Status</label>
+                <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="draft">Rascunho</SelectItem>
+                    <SelectItem value="active">Ativo</SelectItem>
+                    <SelectItem value="test">Teste</SelectItem>
+                    <SelectItem value="published">Publicado</SelectItem>
+                    <SelectItem value="inactive">Inativo</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Image Upload */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <ImageIcon className="w-5 h-5" />
+                Imagem do Componente
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {formData.image ? (
+                <div className="space-y-3">
+                  <div className="relative">
+                    <img
+                      src={formData.image}
+                      alt="Preview"
+                      className="w-full h-48 object-cover rounded-lg border"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={handleRemoveImage}
+                      className="absolute top-2 right-2"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                  <ImageIcon className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                  <p className="text-sm text-gray-600 mb-4">
+                    Adicione uma imagem para representar este componente
+                  </p>
+                  <label className="cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                    <Button type="button" variant="outline" className="inline-flex items-center gap-2">
+                      <Upload className="w-4 h-4" />
+                      Escolher Imagem
+                    </Button>
+                  </label>
+                </div>
+              )}
+              
+              {!formData.image && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Ou cole uma URL de imagem</label>
+                  <Input
+                    value={formData.image}
+                    onChange={(e) => handleInputChange('image', e.target.value)}
+                    placeholder="https://exemplo.com/imagem.jpg"
+                    type="url"
+                  />
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Actions */}
+          <div className="flex justify-end space-x-3 pt-4">
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancelar
             </Button>
-            
-            <div className="flex space-x-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onClose}
-              >
-                Cancelar
-              </Button>
-              <Button
-                size="sm"
-                onClick={handleSave}
-              >
-                <Check className="w-4 h-4 mr-1" />
-                Salvar
-              </Button>
-            </div>
+            <Button type="submit">
+              Salvar Alterações
+            </Button>
           </div>
-        </div>
+        </form>
       </DialogContent>
     </Dialog>
   );
