@@ -6,9 +6,13 @@ export interface FunnelComponent {
   data: {
     title: string;
     description?: string;
+    image?: string;
+    url?: string;
+    status: 'draft' | 'active' | 'test' | 'published' | 'inactive';
     properties: Record<string, any>;
   };
   connections: string[];
+  isExpanded?: boolean;
 }
 
 export interface Connection {
@@ -33,4 +37,13 @@ export interface ComponentTemplate {
   label: string;
   color: string;
   defaultData: FunnelComponent['data'];
+}
+
+export interface ComponentFormData {
+  title: string;
+  description: string;
+  image: string;
+  url: string;
+  status: FunnelComponent['data']['status'];
+  properties: Record<string, any>;
 }

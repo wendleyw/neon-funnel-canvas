@@ -1,4 +1,3 @@
-
 import React, { useRef, useCallback, useMemo } from 'react';
 import { FunnelComponent, ComponentTemplate, Connection } from '../types/funnel';
 import { ComponentNode } from './ComponentNode';
@@ -10,6 +9,7 @@ import { useCanvasDragDrop } from '../hooks/canvas/useCanvasDragDrop';
 import { useCanvasZoom } from '../hooks/canvas/useCanvasZoom';
 import { useCanvasSelection } from '../hooks/canvas/useCanvasSelection';
 import { useCanvasPan } from '../hooks/canvas/useCanvasPan';
+import { MiniMap } from './MiniMap';
 
 interface CanvasProps {
   components: FunnelComponent[];
@@ -69,6 +69,19 @@ export const Canvas = React.memo<CanvasProps>(({
     onComponentUpdate(id, { position });
   }, [onComponentUpdate]);
 
+  const handleMiniMapComponentClick = useCallback((componentId: string) => {
+    const component = components.find(c => c.id === componentId);
+    if (component) {
+      // Centralizar o componente na tela
+      const newPan = {
+        x: -component.position.x * zoom + window.innerWidth / 2,
+        y: -component.position.y * zoom + window.innerHeight / 2
+      };
+      // TODO: Implementar setPan no hook useCanvasPan
+      setSelectedComponent(componentId);
+    }
+  }, [components, zoom, setSelectedComponent]);
+
   const transformStyle = useMemo(() => ({
     transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
     transformOrigin: '0 0'
@@ -117,6 +130,7 @@ export const Canvas = React.memo<CanvasProps>(({
                   onSelect={() => setSelectedComponent(component.id)}
                   onDrag={handleComponentDrag}
                   onDelete={() => onComponentDelete(component.id)}
+                  onUpdate={onComponentUpdate}
                   onConnectionStart={handleConnectionStart}
                   onConnectionEnd={handleConnectionEnd}
                   isConnecting={connectingFrom !== null}
@@ -130,6 +144,13 @@ export const Canvas = React.memo<CanvasProps>(({
           zoom={zoom}
           onZoomIn={handleZoomIn}
           onZoomOut={handleZoomOut}
+        />
+
+        <MiniMap
+          components={components}
+          connections={connections}
+          canvasTransform={{ pan, zoom }}
+          onComponentClick={handleMiniMapComponentClick}
         />
       </div>
     </ErrorBoundary>

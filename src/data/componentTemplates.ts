@@ -4,133 +4,110 @@ import { ComponentTemplate } from '../types/funnel';
 export const componentTemplates: ComponentTemplate[] = [
   {
     type: 'landing-page',
-    icon: '🏠',
+    icon: '🎯',
     label: 'Landing Page',
-    color: 'bg-blue-500',
+    color: '#3B82F6',
     defaultData: {
-      title: 'Landing Page',
-      description: 'Capture leads with compelling offers',
-      properties: {
-        headline: 'Your Amazing Offer',
-        cta: 'Get Started Now',
-        conversionRate: 15
-      }
+      title: 'Nova Landing Page',
+      description: 'Página de captura de leads com alta conversão',
+      status: 'draft',
+      properties: {}
     }
   },
   {
     type: 'quiz',
     icon: '❓',
-    label: 'Interactive Quiz',
-    color: 'bg-purple-500',
+    label: 'Quiz',
+    color: '#8B5CF6',
     defaultData: {
-      title: 'Quiz',
-      description: 'Engage users with interactive questions',
-      properties: {
-        questions: 5,
-        completionRate: 75,
-        segmentation: true
-      }
+      title: 'Novo Quiz',
+      description: 'Quiz interativo para segmentação de leads',
+      status: 'draft',
+      properties: {}
     }
   },
   {
     type: 'form',
     icon: '📝',
-    label: 'Contact Form',
-    color: 'bg-green-500',
+    label: 'Formulário',
+    color: '#10B981',
     defaultData: {
-      title: 'Contact Form',
-      description: 'Collect user information',
-      properties: {
-        fields: ['name', 'email', 'phone'],
-        conversionRate: 25
-      }
+      title: 'Novo Formulário',
+      description: 'Formulário de captura de dados',
+      status: 'draft',
+      properties: {}
     }
   },
   {
     type: 'email-sequence',
     icon: '📧',
-    label: 'Email Sequence',
-    color: 'bg-yellow-500',
+    label: 'Sequência Email',
+    color: '#F59E0B',
     defaultData: {
-      title: 'Email Sequence',
-      description: 'Nurture leads with automated emails',
-      properties: {
-        emails: 7,
-        openRate: 22,
-        clickRate: 3.5
-      }
+      title: 'Nova Sequência',
+      description: 'Automação de email marketing',
+      status: 'draft',
+      properties: {}
     }
   },
   {
     type: 'checkout',
     icon: '💳',
-    label: 'Checkout Page',
-    color: 'bg-red-500',
+    label: 'Checkout',
+    color: '#EF4444',
     defaultData: {
-      title: 'Checkout',
-      description: 'Complete the sale',
-      properties: {
-        price: 97,
-        conversionRate: 8,
-        upsells: true
-      }
+      title: 'Nova Página de Checkout',
+      description: 'Página de finalização de compra',
+      status: 'draft',
+      properties: {}
     }
   },
   {
     type: 'automation',
     icon: '⚡',
-    label: 'Marketing Automation',
-    color: 'bg-indigo-500',
+    label: 'Automação',
+    color: '#6366F1',
     defaultData: {
-      title: 'Automation',
-      description: 'Trigger-based actions',
-      properties: {
-        triggers: ['email_open', 'page_visit', 'form_submit'],
-        actions: ['send_email', 'add_tag', 'move_stage']
-      }
+      title: 'Nova Automação',
+      description: 'Fluxo automatizado de ações',
+      status: 'draft',
+      properties: {}
     }
   },
   {
     type: 'analytics',
     icon: '📊',
     label: 'Analytics',
-    color: 'bg-pink-500',
+    color: '#06B6D4',
     defaultData: {
-      title: 'Analytics',
-      description: 'Track performance metrics',
-      properties: {
-        metrics: ['conversion_rate', 'traffic', 'revenue'],
-        dashboard: true
-      }
+      title: 'Novo Dashboard',
+      description: 'Métricas e análise de performance',
+      status: 'draft',
+      properties: {}
     }
   },
   {
     type: 'segmentation',
     icon: '🎯',
-    label: 'Audience Segmentation',
-    color: 'bg-cyan-500',
+    label: 'Segmentação',
+    color: '#84CC16',
     defaultData: {
-      title: 'Segmentation',
-      description: 'Target specific audiences',
-      properties: {
-        segments: ['new_visitors', 'returning_customers', 'high_value'],
-        criteria: 'behavior'
-      }
+      title: 'Nova Segmentação',
+      description: 'Divisão inteligente de audiência',
+      status: 'draft',
+      properties: {}
     }
   },
   {
     type: 'conversion',
-    icon: '🎉',
-    label: 'Conversion Page',
-    color: 'bg-emerald-500',
+    icon: '🚀',
+    label: 'Conversão',
+    color: '#F97316',
     defaultData: {
-      title: 'Conversion',
-      description: 'Success page and next steps',
-      properties: {
-        thankYouMessage: 'Thank you for your purchase!',
-        nextSteps: 'Check your email for next steps',
-        retention: true
-      }
+      title: 'Nova Página de Conversão',
+      description: 'Otimização para máxima conversão',
+      status: 'draft',
+      properties: {}
     }
   }
 ];
