@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useMemo } from 'react';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { CategorySection } from './CategorySection';
@@ -6,7 +7,7 @@ import { ProfileModal } from '../Profile/ProfileModal';
 import { ComponentTemplate } from '../../types/funnel';
 import { FunnelComponent, Connection } from '../../types/funnel';
 import { modernSidebarCategories, searchModernTemplates } from '../../data/modernSidebarCategories';
-import { Layers, Library, Search, Compass, Bell } from 'lucide-react';
+import { Layers, Library, Search, Compass, Bell, Sparkles, Crown } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
 
 interface ModernSidebarProps {
@@ -20,7 +21,7 @@ const menuItems = [
   { icon: Layers, label: 'Create', id: 'create' },
   { icon: Library, label: 'Library', id: 'library' },
   { icon: Compass, label: 'Explore', id: 'explore' },
-  { icon: Search, label: 'Search', id: 'search' },
+  { icon: Sparkles, label: 'Create Custom Funnel', id: 'custom' },
   { icon: Bell, label: 'Notifications', id: 'notifications' },
 ];
 
@@ -35,6 +36,14 @@ export const ModernSidebar: React.FC<ModernSidebarProps> = ({
   const [isReadyTemplatesOpen, setIsReadyTemplatesOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [activeItem, setActiveItem] = useState('create');
+
+  // Função para obter saudação baseada no horário
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Bom dia';
+    if (hour < 18) return 'Boa tarde';
+    return 'Boa noite';
+  };
 
   const handleDragStart = useCallback((e: React.DragEvent, template: ComponentTemplate) => {
     console.log('Starting drag for template:', template);
@@ -82,7 +91,6 @@ export const ModernSidebar: React.FC<ModernSidebarProps> = ({
     return filteredCats;
   }, [searchQuery]);
 
-  // Templates favoritos
   const favoriteTemplates = useMemo(() => {
     const allTemplates = Object.values(modernSidebarCategories).flatMap(cat => cat.templates);
     return allTemplates.filter(template => favorites.includes(template.type));
@@ -185,24 +193,47 @@ export const ModernSidebar: React.FC<ModernSidebarProps> = ({
           </ScrollArea>
         );
 
-      case 'search':
+      case 'custom':
         return (
           <ScrollArea className="flex-1">
             <div className="p-4">
               <div className="text-center py-8">
-                <Search className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-                <h3 className="text-white text-lg font-medium mb-2">Busca Global</h3>
-                <p className="text-gray-400 text-sm mb-4">
-                  Encontre qualquer componente ou template
-                </p>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
-                  <input
-                    type="text"
-                    placeholder="Buscar em toda a plataforma..."
-                    className="w-full bg-gray-900 text-white pl-10 pr-4 py-2 rounded-lg text-sm border border-gray-700 focus:border-gray-500 focus:outline-none"
-                  />
+                <div className="relative mb-6">
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <Crown className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="absolute -top-1 -right-1 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
+                    <Sparkles className="w-3 h-3 text-black" />
+                  </div>
                 </div>
+                
+                <h3 className="text-white text-xl font-bold mb-2">Crie Funnels Personalizados</h3>
+                <p className="text-gray-400 text-sm mb-6 leading-relaxed">
+                  Desbloqueie o poder da IA para criar funnels únicos e otimizados para o seu negócio
+                </p>
+                
+                <div className="space-y-3 mb-6">
+                  <div className="flex items-center gap-3 text-sm text-gray-300">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span>IA avançada para criação de funnels</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-gray-300">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span>Templates ilimitados</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-gray-300">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span>Análise e otimização automática</span>
+                  </div>
+                </div>
+                
+                <button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-lg font-semibold text-sm hover:from-purple-600 hover:to-pink-600 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                  Começar Agora - Pro
+                </button>
+                
+                <p className="text-xs text-gray-500 mt-3">
+                  7 dias grátis • Cancele quando quiser
+                </p>
               </div>
             </div>
           </ScrollArea>
@@ -241,15 +272,21 @@ export const ModernSidebar: React.FC<ModernSidebarProps> = ({
   return (
     <ErrorBoundary>
       <div className="w-80 h-full bg-black flex flex-col">
-        {/* Header com logo e email */}
+        {/* Header com logo e saudação personalizada */}
         <div className="p-6 border-b border-gray-800">
           <h1 className="text-white text-2xl font-bold tracking-wider">Funnel Board</h1>
           <button 
             onClick={() => setIsProfileOpen(true)}
-            className="flex items-center gap-3 mt-4 text-left w-full hover:bg-gray-900/50 p-2 rounded-lg transition-colors"
+            className="flex items-center gap-3 mt-4 text-left w-full hover:bg-gray-900/50 p-2 rounded-lg transition-colors group"
           >
-            <div className="w-8 h-8 bg-gradient-to-r from-orange-400 to-yellow-500 rounded-full"></div>
-            <span className="text-gray-300 text-sm">wendleywilson@email.com</span>
+            <div className="w-8 h-8 bg-gradient-to-r from-orange-400 to-yellow-500 rounded-full flex items-center justify-center">
+              <span className="text-white text-sm font-semibold">W</span>
+            </div>
+            <div className="flex-1">
+              <span className="text-gray-300 text-sm font-medium block">{getGreeting()}, Wendley!</span>
+              <span className="text-gray-500 text-xs">Ver perfil e configurações</span>
+            </div>
+            <div className="w-2 h-2 bg-green-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
           </button>
         </div>
 
@@ -260,14 +297,21 @@ export const ModernSidebar: React.FC<ModernSidebarProps> = ({
               <button
                 key={item.id}
                 onClick={() => setActiveItem(item.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors relative ${
                   activeItem === item.id
                     ? 'bg-gray-900 text-white'
                     : 'text-gray-400 hover:text-gray-300 hover:bg-gray-900/50'
-                }`}
+                } ${item.id === 'custom' ? 'border border-purple-500/30 bg-gradient-to-r from-purple-900/20 to-pink-900/20' : ''}`}
               >
-                <item.icon className="w-5 h-5" />
-                <span className="font-medium">{item.label}</span>
+                <item.icon className={`w-5 h-5 ${item.id === 'custom' ? 'text-purple-400' : ''}`} />
+                <span className={`font-medium ${item.id === 'custom' ? 'text-purple-200' : ''}`}>
+                  {item.label}
+                </span>
+                {item.id === 'custom' && (
+                  <div className="ml-auto">
+                    <Crown className="w-4 h-4 text-yellow-400" />
+                  </div>
+                )}
               </button>
             ))}
           </nav>
@@ -276,7 +320,7 @@ export const ModernSidebar: React.FC<ModernSidebarProps> = ({
         {/* Conteúdo dinâmico baseado no item ativo */}
         {renderContent()}
 
-        {/* Footer simplificado */}
+        {/* Footer com convites e novidades */}
         <div className="p-4 border-t border-gray-800 space-y-2">
           <button className="w-full flex items-center gap-3 px-4 py-2 text-gray-400 hover:text-gray-300 transition-colors">
             <span className="text-sm">Invite friends</span>
