@@ -128,7 +128,7 @@ export const modernSidebarCategories: SidebarCategory[] = [
   }
 ];
 
-// Helper function for searching templates
+// Helper function for searching templates - EXPORTADA AQUI
 export const searchModernTemplates = (query: string): ComponentTemplate[] => {
   const lowerQuery = query.toLowerCase();
   return componentTemplates.filter(template => 

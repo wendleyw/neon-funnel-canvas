@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useMemo } from 'react';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { CategorySection } from './CategorySection';
@@ -73,26 +72,25 @@ export const ModernSidebar: React.FC<ModernSidebarProps> = ({
     }
 
     const searchResults = searchModernTemplates(searchQuery);
-    const filteredCats: typeof modernSidebarCategories = {} as typeof modernSidebarCategories;
-
-    Object.entries(modernSidebarCategories).forEach(([key, category]) => {
+    const filteredCats = modernSidebarCategories.map(category => {
       const categoryTemplates = category.templates.filter(template =>
         searchResults.some(result => result.type === template.type)
       );
       
       if (categoryTemplates.length > 0) {
-        (filteredCats as any)[key] = {
+        return {
           ...category,
           templates: categoryTemplates
         };
       }
-    });
+      return null;
+    }).filter(Boolean) as typeof modernSidebarCategories;
 
     return filteredCats;
   }, [searchQuery]);
 
   const favoriteTemplates = useMemo(() => {
-    const allTemplates = Object.values(modernSidebarCategories).flatMap(cat => cat.templates);
+    const allTemplates = modernSidebarCategories.flatMap(cat => cat.templates);
     return allTemplates.filter(template => favorites.includes(template.type));
   }, [favorites]);
 
@@ -128,10 +126,10 @@ export const ModernSidebar: React.FC<ModernSidebarProps> = ({
               )}
 
               {/* Categorias */}
-              {Object.values(filteredCategories).map((category) => (
+              {filteredCategories.map((category) => (
                 <CategorySection
                   key={category.id}
-                  title={category.title}
+                  title={category.name}
                   icon={category.icon}
                   templates={category.templates}
                   onDragStart={handleDragStart}
@@ -142,7 +140,7 @@ export const ModernSidebar: React.FC<ModernSidebarProps> = ({
               ))}
 
               {/* Estado vazio */}
-              {Object.keys(filteredCategories).length === 0 && searchQuery && (
+              {filteredCategories.length === 0 && searchQuery && (
                 <div className="p-8 text-center">
                   <div className="text-4xl mb-3">🔍</div>
                   <p className="text-gray-400 text-sm">
