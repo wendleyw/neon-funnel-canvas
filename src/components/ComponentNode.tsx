@@ -149,9 +149,8 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
         component={component}
         isSelected={isSelected}
         isConnecting={isConnecting}
-        onEditClick={handlers.handleEditClick}
         onDuplicateClick={handlers.handleDuplicateClick}
-        onDeleteClick={handlers.handleDeleteClick}
+        onConnectionClick={handlers.handleConnectionClick}
       />
 
       <ComponentEditor
