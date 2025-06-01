@@ -26,9 +26,10 @@ export const Canvas: React.FC<CanvasProps> = ({
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setIsDragOver(false);
     
-    console.log('Drop event triggered');
+    console.log('Drop event triggered on canvas');
     
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) {
@@ -37,46 +38,64 @@ export const Canvas: React.FC<CanvasProps> = ({
     }
 
     const templateData = e.dataTransfer.getData('application/json');
-    console.log('Template data:', templateData);
+    console.log('Template data from dataTransfer:', templateData);
     
     if (!templateData) {
-      console.log('No template data found');
+      console.log('No template data found in dataTransfer');
       return;
     }
 
     try {
       const template: ComponentTemplate = JSON.parse(templateData);
-      console.log('Parsed template:', template);
+      console.log('Parsed template successfully:', template);
       
-      // Calculate position relative to canvas with zoom and pan
-      const x = (e.clientX - rect.left - pan.x) / zoom;
-      const y = (e.clientY - rect.top - pan.y) / zoom;
+      // Calculate position relative to canvas viewport (not accounting for zoom/pan for simplicity)
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      console.log('Calculated position:', { x, y });
       
       const newComponent: FunnelComponent = {
         id: `${template.type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         type: template.type,
-        position: { x, y },
+        position: { x: Math.max(0, x - 80), y: Math.max(0, y - 40) }, // Center component on cursor
         data: { ...template.defaultData },
         connections: []
       };
 
-      console.log('Adding new component:', newComponent);
+      console.log('Creating new component:', newComponent);
       onComponentAdd(newComponent);
     } catch (error) {
       console.error('Error parsing template data:', error);
     }
-  }, [onComponentAdd, zoom, pan]);
+  }, [onComponentAdd]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     e.dataTransfer.dropEffect = 'copy';
     setIsDragOver(true);
   }, []);
 
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  }, []);
+
   const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Only set drag over to false if we're leaving the canvas completely
     const rect = canvasRef.current?.getBoundingClientRect();
-    if (rect && (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom)) {
-      setIsDragOver(false);
+    if (rect) {
+      const isInsideCanvas = e.clientX >= rect.left && 
+                           e.clientX <= rect.right && 
+                           e.clientY >= rect.top && 
+                           e.clientY <= rect.bottom;
+      if (!isInsideCanvas) {
+        setIsDragOver(false);
+      }
     }
   }, []);
 
@@ -137,15 +156,16 @@ export const Canvas: React.FC<CanvasProps> = ({
       
       {/* Drop indicator */}
       {isDragOver && (
-        <div className="absolute inset-0 border-2 border-dashed border-white opacity-30 pointer-events-none" />
+        <div className="absolute inset-0 border-2 border-dashed border-white opacity-30 pointer-events-none z-50" />
       )}
       
       {/* Canvas */}
       <div
         ref={canvasRef}
-        className="w-full h-full"
+        className="w-full h-full relative"
         onDrop={handleDrop}
         onDragOver={handleDragOver}
+        onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -153,8 +173,9 @@ export const Canvas: React.FC<CanvasProps> = ({
         onWheel={handleWheel}
         style={{ cursor: isPanning ? 'grabbing' : 'grab' }}
       >
-        {/* Components */}
+        {/* Components Container */}
         <div 
+          className="absolute inset-0"
           style={{
             transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
             transformOrigin: '0 0'
@@ -174,7 +195,7 @@ export const Canvas: React.FC<CanvasProps> = ({
       </div>
 
       {/* Zoom Controls */}
-      <div className="absolute bottom-4 right-4 flex flex-col gap-1">
+      <div className="absolute bottom-4 right-4 flex flex-col gap-1 z-10">
         <button
           onClick={() => setZoom(prev => Math.min(2, prev + 0.1))}
           className="w-8 h-8 bg-gray-900 hover:bg-gray-700 border border-gray-600 rounded flex items-center justify-center text-white text-sm transition-colors"
@@ -186,7 +207,7 @@ export const Canvas: React.FC<CanvasProps> = ({
         </div>
         <button
           onClick={() => setZoom(prev => Math.max(0.5, prev - 0.1))}
-          className="w-8 h-8 bg-gray-900 hover:bg-gray-700 border border-gray-600 rounded flex items-center justify-center text-white text-sm transition-colors"
+          className="w-8 h-8 bg-gray-900 hover:bg-gray-700 border border-gray-600 rounded flex items-center justify-center text-xs text-white transition-colors"
         >
           -
         </button>
