@@ -13,7 +13,7 @@ interface SidebarProps {
 
 export const Sidebar = React.memo<SidebarProps>(({ onDragStart }) => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const { allTemplates, customTemplates, addCustomTemplate, removeCustomTemplate } = useComponentTemplates();
+  const { defaultTemplates, customTemplates, addCustomTemplate, removeCustomTemplate } = useComponentTemplates();
 
   const handleDragStart = useCallback((e: React.DragEvent, template: ComponentTemplate) => {
     console.log('Starting drag for template:', template);
@@ -23,10 +23,12 @@ export const Sidebar = React.memo<SidebarProps>(({ onDragStart }) => {
   }, [onDragStart]);
 
   const handleCreateTemplate = useCallback((template: ComponentTemplate) => {
+    console.log('Creating new template:', template);
     addCustomTemplate(template);
   }, [addCustomTemplate]);
 
-  const defaultTemplates = allTemplates.filter(template => !customTemplates.includes(template));
+  console.log('Default templates count:', defaultTemplates.length);
+  console.log('Custom templates count:', customTemplates.length);
 
   return (
     <ErrorBoundary>
@@ -41,13 +43,15 @@ export const Sidebar = React.memo<SidebarProps>(({ onDragStart }) => {
               onDragStart={handleDragStart}
             />
 
-            <TemplateSection
-              title="Componentes Personalizados"
-              templates={customTemplates}
-              onDragStart={handleDragStart}
-              isCustomSection
-              onRemoveTemplate={removeCustomTemplate}
-            />
+            {customTemplates.length > 0 && (
+              <TemplateSection
+                title="Componentes Personalizados"
+                templates={customTemplates}
+                onDragStart={handleDragStart}
+                isCustomSection
+                onRemoveTemplate={removeCustomTemplate}
+              />
+            )}
           </div>
         </div>
       </div>

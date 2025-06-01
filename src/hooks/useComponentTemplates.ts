@@ -14,17 +14,17 @@ export const useComponentTemplates = () => {
       type: customType as any
     };
     
+    console.log('Adding custom template:', newTemplate);
     setCustomTemplates(prev => [...prev, newTemplate]);
   }, []);
 
   const removeCustomTemplate = useCallback((type: string) => {
+    console.log('Removing custom template:', type);
     setCustomTemplates(prev => prev.filter(template => template.type !== type));
   }, []);
 
-  const allTemplates = [...defaultTemplates, ...customTemplates];
-
   return {
-    allTemplates,
+    defaultTemplates,
     customTemplates,
     addCustomTemplate,
     removeCustomTemplate

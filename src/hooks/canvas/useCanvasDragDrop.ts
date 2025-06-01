@@ -20,10 +20,14 @@ export const useCanvasDragDrop = ({ onComponentAdd, pan, zoom }: UseCanvasDragDr
     if (!rect) return;
 
     const templateData = e.dataTransfer.getData('application/json');
-    if (!templateData) return;
+    if (!templateData) {
+      console.error('No template data found in drop event');
+      return;
+    }
 
     try {
       const template: ComponentTemplate = JSON.parse(templateData);
+      console.log('Dropping template on canvas:', template);
       
       const x = (e.clientX - rect.left - pan.x) / zoom;
       const y = (e.clientY - rect.top - pan.y) / zoom;
@@ -36,6 +40,7 @@ export const useCanvasDragDrop = ({ onComponentAdd, pan, zoom }: UseCanvasDragDr
         connections: []
       };
 
+      console.log('Creating new component:', newComponent);
       onComponentAdd(newComponent);
     } catch (error) {
       console.error('Error parsing template data:', error);
