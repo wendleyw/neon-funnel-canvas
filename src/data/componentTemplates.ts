@@ -1,463 +1,343 @@
 
 import { ComponentTemplate } from '../types/funnel';
 
+export const defaultTemplates: ComponentTemplate[] = [
+  // Categoria 1: Produto / Oferta
+  {
+    type: 'product-showcase',
+    label: 'Vitrine do Produto',
+    icon: '🛍️',
+    color: 'bg-blue-500',
+    category: 'product-offer',
+    defaultProps: {
+      title: 'Produto Principal',
+      description: 'Apresente seu produto digital, físico ou serviço'
+    }
+  },
+  {
+    type: 'bonus-section',
+    label: 'Seção de Bônus',
+    icon: '🎁',
+    color: 'bg-blue-500',
+    category: 'product-offer',
+    defaultProps: {
+      title: 'Bônus Exclusivos',
+      description: 'Complementos e vantagens adicionais'
+    }
+  },
+  {
+    type: 'guarantee-badge',
+    label: 'Garantia',
+    icon: '🛡️',
+    color: 'bg-blue-500',
+    category: 'product-offer',
+    defaultProps: {
+      title: 'Garantia de 30 dias',
+      description: 'Reembolso garantido'
+    }
+  },
+  {
+    type: 'pricing-table',
+    label: 'Tabela de Preços',
+    icon: '💰',
+    color: 'bg-blue-500',
+    category: 'product-offer',
+    defaultProps: {
+      title: 'Preços e Condições',
+      description: 'Parcelamento e descontos disponíveis'
+    }
+  },
+
+  // Categoria 2: Público-Alvo e Posicionamento
+  {
+    type: 'persona-card',
+    label: 'Persona/Avatar',
+    icon: '👤',
+    color: 'bg-purple-500',
+    category: 'target-audience',
+    defaultProps: {
+      title: 'Seu Avatar',
+      description: 'Perfil detalhado do cliente ideal'
+    }
+  },
+  {
+    type: 'brand-positioning',
+    label: 'Posicionamento',
+    icon: '🎯',
+    color: 'bg-purple-500',
+    category: 'target-audience',
+    defaultProps: {
+      title: 'Nossa Posição',
+      description: 'Mensagem-chave e diferencial'
+    }
+  },
+
+  // Categoria 3: Tráfego (Aquisição)
+  {
+    type: 'social-media-feed',
+    label: 'Feed Redes Sociais',
+    icon: '📱',
+    color: 'bg-green-500',
+    category: 'traffic-acquisition',
+    defaultProps: {
+      title: 'Conteúdo Orgânico',
+      description: 'Posts para Instagram, YouTube, Blog'
+    }
+  },
+  {
+    type: 'ad-campaign',
+    label: 'Campanha de Anúncios',
+    icon: '🎪',
+    color: 'bg-green-500',
+    category: 'traffic-acquisition',
+    defaultProps: {
+      title: 'Tráfego Pago',
+      description: 'Facebook Ads, Google Ads, TikTok'
+    }
+  },
+  {
+    type: 'affiliate-program',
+    label: 'Programa de Afiliados',
+    icon: '🤝',
+    color: 'bg-green-500',
+    category: 'traffic-acquisition',
+    defaultProps: {
+      title: 'Parcerias',
+      description: 'Rede de afiliados e influenciadores'
+    }
+  },
+
+  // Categoria 4: Captura de Leads
+  {
+    type: 'landing-page',
+    label: 'Landing Page',
+    icon: '📄',
+    color: 'bg-yellow-500',
+    category: 'lead-capture',
+    defaultProps: {
+      title: 'Página de Captura',
+      description: 'Formulário para capturar leads'
+    }
+  },
+  {
+    type: 'lead-magnet',
+    label: 'Lead Magnet',
+    icon: '🧲',
+    color: 'bg-yellow-500',
+    category: 'lead-capture',
+    defaultProps: {
+      title: 'Isca Digital',
+      description: 'eBook, minicurso, checklist gratuito'
+    }
+  },
+  {
+    type: 'contact-form',
+    label: 'Formulário de Contato',
+    icon: '📝',
+    color: 'bg-yellow-500',
+    category: 'lead-capture',
+    defaultProps: {
+      title: 'Formulário',
+      description: 'Captura dados e integração CRM'
+    }
+  },
+
+  // Categoria 5: Nutrição e Relacionamento
+  {
+    type: 'email-sequence',
+    label: 'Sequência de E-mails',
+    icon: '📧',
+    color: 'bg-indigo-500',
+    category: 'nurturing-relationship',
+    defaultProps: {
+      title: 'Automação de E-mail',
+      description: 'Sequência educativa automática'
+    }
+  },
+  {
+    type: 'content-library',
+    label: 'Biblioteca de Conteúdo',
+    icon: '📚',
+    color: 'bg-indigo-500',
+    category: 'nurturing-relationship',
+    defaultProps: {
+      title: 'Conteúdo de Valor',
+      description: 'Vídeos, artigos, lives educativas'
+    }
+  },
+  {
+    type: 'testimonials',
+    label: 'Depoimentos',
+    icon: '⭐',
+    color: 'bg-indigo-500',
+    category: 'nurturing-relationship',
+    defaultProps: {
+      title: 'Prova Social',
+      description: 'Reviews, cases de sucesso'
+    }
+  },
+
+  // Categoria 6: Engajamento e Conversão
+  {
+    type: 'webinar',
+    label: 'Webinar',
+    icon: '🎥',
+    color: 'bg-red-500',
+    category: 'engagement-conversion',
+    defaultProps: {
+      title: 'Webinar ao Vivo',
+      description: 'Apresentação educativa e vendas'
+    }
+  },
+  {
+    type: 'sales-video',
+    label: 'Vídeo de Vendas',
+    icon: '🎬',
+    color: 'bg-red-500',
+    category: 'engagement-conversion',
+    defaultProps: {
+      title: 'VSL - Video Sales Letter',
+      description: 'Vídeo persuasivo de vendas'
+    }
+  },
+  {
+    type: 'sales-call',
+    label: 'Call de Vendas',
+    icon: '☎️',
+    color: 'bg-red-500',
+    category: 'engagement-conversion',
+    defaultProps: {
+      title: 'Consulta de Vendas',
+      description: 'Agendamento para produtos complexos'
+    }
+  },
+
+  // Categoria 7: Venda e Checkout
+  {
+    type: 'sales-page',
+    label: 'Página de Vendas',
+    icon: '💳',
+    color: 'bg-orange-500',
+    category: 'sales-checkout',
+    defaultProps: {
+      title: 'Página de Vendas',
+      description: 'Copy persuasiva com CTA'
+    }
+  },
+  {
+    type: 'checkout-form',
+    label: 'Checkout',
+    icon: '🛒',
+    color: 'bg-orange-500',
+    category: 'sales-checkout',
+    defaultProps: {
+      title: 'Finalização',
+      description: 'Integração Stripe, PayPal, Hotmart'
+    }
+  },
+  {
+    type: 'upsell-offer',
+    label: 'Oferta Upsell',
+    icon: '⬆️',
+    color: 'bg-orange-500',
+    category: 'sales-checkout',
+    defaultProps: {
+      title: 'Upsell/Downsell',
+      description: 'Ofertas complementares'
+    }
+  },
+
+  // Categoria 8: Análise e Otimização
+  {
+    type: 'analytics-dashboard',
+    label: 'Dashboard Analytics',
+    icon: '📊',
+    color: 'bg-teal-500',
+    category: 'analytics-optimization',
+    defaultProps: {
+      title: 'Métricas e KPIs',
+      description: 'CPL, CTR, conversão, ROI'
+    }
+  },
+  {
+    type: 'tracking-pixels',
+    label: 'Pixels de Tracking',
+    icon: '📍',
+    color: 'bg-teal-500',
+    category: 'analytics-optimization',
+    defaultProps: {
+      title: 'Tracking Avançado',
+      description: 'Facebook Pixel, Google Analytics'
+    }
+  },
+  {
+    type: 'ab-testing',
+    label: 'Teste A/B',
+    icon: '🧪',
+    color: 'bg-teal-500',
+    category: 'analytics-optimization',
+    defaultProps: {
+      title: 'Testes A/B',
+      description: 'Otimização baseada em dados'
+    }
+  },
+
+  // Categoria 9: Pós-venda e Retenção
+  {
+    type: 'product-delivery',
+    label: 'Entrega do Produto',
+    icon: '📦',
+    color: 'bg-pink-500',
+    category: 'post-sale-retention',
+    defaultProps: {
+      title: 'Área de Membros',
+      description: 'Entrega e acesso ao produto'
+    }
+  },
+  {
+    type: 'customer-support',
+    label: 'Suporte ao Cliente',
+    icon: '🎧',
+    color: 'bg-pink-500',
+    category: 'post-sale-retention',
+    defaultProps: {
+      title: 'Central de Ajuda',
+      description: 'FAQ, chat, tickets'
+    }
+  },
+  {
+    type: 'referral-program',
+    label: 'Programa de Indicação',
+    icon: '🔄',
+    color: 'bg-pink-500',
+    category: 'post-sale-retention',
+    defaultProps: {
+      title: 'Indique e Ganhe',
+      description: 'Sistema de recompensas'
+    }
+  }
+];
+
 export const componentTemplatesByCategory = {
-  'produto-oferta': [
-    {
-      type: 'produto-principal',
-      icon: '🎯',
-      label: 'Produto Principal',
-      color: 'bg-blue-600',
-      defaultData: {
-        title: 'Produto Principal',
-        description: 'Defina seu produto digital, físico ou serviço',
-        status: 'draft',
-        properties: {
-          tipo: 'digital',
-          preco: '',
-          categoria: 'produto'
-        }
-      }
-    },
-    {
-      type: 'bonus-complementos',
-      icon: '🎁',
-      label: 'Bônus e Complementos',
-      color: 'bg-green-600',
-      defaultData: {
-        title: 'Bônus e Complementos',
-        description: 'Adicione valor extra à sua oferta',
-        status: 'draft',
-        properties: {
-          categoria: 'produto'
-        }
-      }
-    },
-    {
-      type: 'garantias',
-      icon: '🛡️',
-      label: 'Garantias',
-      color: 'bg-emerald-600',
-      defaultData: {
-        title: 'Garantias',
-        description: 'Configure garantias e política de reembolso',
-        status: 'draft',
-        properties: {
-          tipo: 'reembolso',
-          periodo: '30 dias',
-          categoria: 'produto'
-        }
-      }
-    },
-    {
-      type: 'preco-condicoes',
-      icon: '💰',
-      label: 'Preço e Condições',
-      color: 'bg-yellow-600',
-      defaultData: {
-        title: 'Preço e Condições',
-        description: 'Defina preços, parcelamento e descontos',
-        status: 'draft',
-        properties: {
-          preco: '',
-          parcelamento: '',
-          categoria: 'produto'
-        }
-      }
-    }
-  ],
-  'publico-posicionamento': [
-    {
-      type: 'persona-avatar',
-      icon: '👤',
-      label: 'Persona/Avatar',
-      color: 'bg-purple-600',
-      defaultData: {
-        title: 'Persona/Avatar',
-        description: 'Defina seu público-alvo detalhadamente',
-        status: 'draft',
-        properties: {
-          idade: '',
-          dores: '',
-          desejos: '',
-          categoria: 'publico'
-        }
-      }
-    },
-    {
-      type: 'posicionamento',
-      icon: '📍',
-      label: 'Posicionamento',
-      color: 'bg-indigo-600',
-      defaultData: {
-        title: 'Posicionamento da Marca',
-        description: 'Configure sua mensagem-chave e posicionamento',
-        status: 'draft',
-        properties: {
-          mensagem: '',
-          categoria: 'publico'
-        }
-      }
-    },
-    {
-      type: 'segmentacao',
-      icon: '🎯',
-      label: 'Segmentação',
-      color: 'bg-violet-600',
-      defaultData: {
-        title: 'Segmentação e Nicho',
-        description: 'Defina seu nicho e segmentos',
-        status: 'draft',
-        properties: {
-          nicho: '',
-          categoria: 'publico'
-        }
-      }
-    }
-  ],
-  'trafego-aquisicao': [
-    {
-      type: 'trafego-organico',
-      icon: '🌱',
-      label: 'Tráfego Orgânico',
-      color: 'bg-green-700',
-      defaultData: {
-        title: 'Tráfego Orgânico',
-        description: 'Conteúdo em redes sociais, blog, YouTube',
-        status: 'draft',
-        properties: {
-          plataformas: [],
-          categoria: 'trafego'
-        }
-      }
-    },
-    {
-      type: 'trafego-pago',
-      icon: '💸',
-      label: 'Tráfego Pago',
-      color: 'bg-red-600',
-      defaultData: {
-        title: 'Tráfego Pago',
-        description: 'Facebook Ads, Google Ads, TikTok Ads',
-        status: 'draft',
-        properties: {
-          plataformas: [],
-          orcamento: '',
-          categoria: 'trafego'
-        }
-      }
-    },
-    {
-      type: 'parcerias-afiliados',
-      icon: '🤝',
-      label: 'Parcerias e Afiliados',
-      color: 'bg-orange-600',
-      defaultData: {
-        title: 'Parcerias e Afiliados',
-        description: 'Configure programa de afiliados e parcerias',
-        status: 'draft',
-        properties: {
-          comissao: '',
-          categoria: 'trafego'
-        }
-      }
-    }
-  ],
-  'captura-leads': [
-    {
-      type: 'landing-page',
-      icon: '📄',
-      label: 'Landing Page',
-      color: 'bg-blue-700',
-      defaultData: {
-        title: 'Landing Page',
-        description: 'Página de captura de leads',
-        status: 'draft',
-        properties: {
-          tipo: 'captura',
-          categoria: 'captura'
-        }
-      }
-    },
-    {
-      type: 'lead-magnet',
-      icon: '🧲',
-      label: 'Lead Magnet',
-      color: 'bg-pink-600',
-      defaultData: {
-        title: 'Lead Magnet',
-        description: 'eBooks, minicursos, checklists',
-        status: 'draft',
-        properties: {
-          tipo: 'ebook',
-          categoria: 'captura'
-        }
-      }
-    },
-    {
-      type: 'formularios-crm',
-      icon: '📝',
-      label: 'Formulários CRM',
-      color: 'bg-cyan-600',
-      defaultData: {
-        title: 'Formulários e CRM',
-        description: 'Integração com ferramentas de CRM',
-        status: 'draft',
-        properties: {
-          campos: [],
-          categoria: 'captura'
-        }
-      }
-    }
-  ],
-  'nutricao-relacionamento': [
-    {
-      type: 'email-sequence',
-      icon: '📧',
-      label: 'Sequência de E-mails',
-      color: 'bg-blue-800',
-      defaultData: {
-        title: 'Sequência de E-mails',
-        description: 'Automação de e-mail marketing',
-        status: 'draft',
-        properties: {
-          sequencias: [],
-          categoria: 'nutricao'
-        }
-      }
-    },
-    {
-      type: 'conteudo-valor',
-      icon: '💎',
-      label: 'Conteúdo de Valor',
-      color: 'bg-amber-600',
-      defaultData: {
-        title: 'Conteúdo de Valor',
-        description: 'Vídeos, textos, lives educacionais',
-        status: 'draft',
-        properties: {
-          tipos: [],
-          categoria: 'nutricao'
-        }
-      }
-    },
-    {
-      type: 'prova-social',
-      icon: '⭐',
-      label: 'Prova Social',
-      color: 'bg-yellow-500',
-      defaultData: {
-        title: 'Prova Social',
-        description: 'Depoimentos, reviews, cases de sucesso',
-        status: 'draft',
-        properties: {
-          tipos: [],
-          categoria: 'nutricao'
-        }
-      }
-    }
-  ],
-  'engajamento-conversao': [
-    {
-      type: 'webinar',
-      icon: '🎥',
-      label: 'Webinar',
-      color: 'bg-red-700',
-      defaultData: {
-        title: 'Webinar',
-        description: 'Webinar ao vivo ou gravado (VSL)',
-        status: 'draft',
-        properties: {
-          tipo: 'ao_vivo',
-          categoria: 'engajamento'
-        }
-      }
-    },
-    {
-      type: 'video-vendas',
-      icon: '📹',
-      label: 'Vídeo de Vendas',
-      color: 'bg-purple-700',
-      defaultData: {
-        title: 'Vídeo de Vendas',
-        description: 'VSL para conversão',
-        status: 'draft',
-        properties: {
-          duracao: '',
-          categoria: 'engajamento'
-        }
-      }
-    },
-    {
-      type: 'calls-venda',
-      icon: '📞',
-      label: 'Calls de Venda',
-      color: 'bg-green-800',
-      defaultData: {
-        title: 'Calls de Venda',
-        description: 'Consultas e calls para lançamentos complexos',
-        status: 'draft',
-        properties: {
-          duracao: '',
-          categoria: 'engajamento'
-        }
-      }
-    }
-  ],
-  'venda-checkout': [
-    {
-      type: 'pagina-vendas',
-      icon: '💳',
-      label: 'Página de Vendas',
-      color: 'bg-emerald-700',
-      defaultData: {
-        title: 'Página de Vendas',
-        description: 'Sales page detalhada',
-        status: 'draft',
-        properties: {
-          elementos: [],
-          categoria: 'venda'
-        }
-      }
-    },
-    {
-      type: 'checkout',
-      icon: '🛒',
-      label: 'Checkout',
-      color: 'bg-teal-600',
-      defaultData: {
-        title: 'Checkout',
-        description: 'Plataforma de pagamento integrada',
-        status: 'draft',
-        properties: {
-          plataforma: '',
-          categoria: 'venda'
-        }
-      }
-    },
-    {
-      type: 'upsell-downsell',
-      icon: '⬆️',
-      label: 'Upsell/Downsell',
-      color: 'bg-orange-700',
-      defaultData: {
-        title: 'Upsell/Downsell',
-        description: 'Ofertas complementares',
-        status: 'draft',
-        properties: {
-          ofertas: [],
-          categoria: 'venda'
-        }
-      }
-    }
-  ],
-  'analise-otimizacao': [
-    {
-      type: 'metricas-kpis',
-      icon: '📊',
-      label: 'Métricas e KPIs',
-      color: 'bg-slate-600',
-      defaultData: {
-        title: 'Métricas e KPIs',
-        description: 'CPL, CTR, taxa de conversão, ROI',
-        status: 'draft',
-        properties: {
-          metricas: [],
-          categoria: 'analise'
-        }
-      }
-    },
-    {
-      type: 'tracking',
-      icon: '🔍',
-      label: 'Tracking',
-      color: 'bg-gray-600',
-      defaultData: {
-        title: 'Ferramentas de Tracking',
-        description: 'Pixels, UTM, analytics',
-        status: 'draft',
-        properties: {
-          ferramentas: [],
-          categoria: 'analise'
-        }
-      }
-    },
-    {
-      type: 'testes-ab',
-      icon: '🧪',
-      label: 'Testes A/B',
-      color: 'bg-stone-600',
-      defaultData: {
-        title: 'Testes A/B',
-        description: 'Otimização através de testes',
-        status: 'draft',
-        properties: {
-          testes: [],
-          categoria: 'analise'
-        }
-      }
-    }
-  ],
-  'pos-venda-retencao': [
-    {
-      type: 'entrega-produto',
-      icon: '📦',
-      label: 'Entrega do Produto',
-      color: 'bg-lime-600',
-      defaultData: {
-        title: 'Entrega do Produto',
-        description: 'Sistema de entrega e acesso',
-        status: 'draft',
-        properties: {
-          metodo: '',
-          categoria: 'pos_venda'
-        }
-      }
-    },
-    {
-      type: 'suporte-cliente',
-      icon: '🎧',
-      label: 'Suporte ao Cliente',
-      color: 'bg-sky-600',
-      defaultData: {
-        title: 'Suporte ao Cliente',
-        description: 'Atendimento e suporte pós-venda',
-        status: 'draft',
-        properties: {
-          canais: [],
-          categoria: 'pos_venda'
-        }
-      }
-    },
-    {
-      type: 'programa-indicacao',
-      icon: '🎯',
-      label: 'Programa de Indicação',
-      color: 'bg-rose-600',
-      defaultData: {
-        title: 'Programa de Indicação',
-        description: 'Sistema de indicações e recompensas',
-        status: 'draft',
-        properties: {
-          recompensas: [],
-          categoria: 'pos_venda'
-        }
-      }
-    }
-  ]
-} as const;
+  'product-offer': defaultTemplates.filter(t => t.category === 'product-offer'),
+  'target-audience': defaultTemplates.filter(t => t.category === 'target-audience'),
+  'traffic-acquisition': defaultTemplates.filter(t => t.category === 'traffic-acquisition'),
+  'lead-capture': defaultTemplates.filter(t => t.category === 'lead-capture'),
+  'nurturing-relationship': defaultTemplates.filter(t => t.category === 'nurturing-relationship'),
+  'engagement-conversion': defaultTemplates.filter(t => t.category === 'engagement-conversion'),
+  'sales-checkout': defaultTemplates.filter(t => t.category === 'sales-checkout'),
+  'analytics-optimization': defaultTemplates.filter(t => t.category === 'analytics-optimization'),
+  'post-sale-retention': defaultTemplates.filter(t => t.category === 'post-sale-retention')
+};
 
 export const categoryLabels = {
-  'produto-oferta': 'Produto / Oferta',
-  'publico-posicionamento': 'Público-Alvo e Posicionamento',
-  'trafego-aquisicao': 'Tráfego (Aquisição)',
-  'captura-leads': 'Captura de Leads',
-  'nutricao-relacionamento': 'Nutrição e Relacionamento',
-  'engajamento-conversao': 'Engajamento e Conversão',
-  'venda-checkout': 'Venda e Checkout',
-  'analise-otimizacao': 'Análise e Otimização',
-  'pos-venda-retencao': 'Pós-venda e Retenção'
-} as const;
-
-// Para compatibilidade com código existente
-export const defaultTemplates: ComponentTemplate[] = Object.values(componentTemplatesByCategory).flat();
+  'product-offer': '🛍️ Produto / Oferta',
+  'target-audience': '👤 Público-Alvo e Posicionamento',
+  'traffic-acquisition': '📱 Tráfego (Aquisição)',
+  'lead-capture': '🧲 Captura de Leads',
+  'nurturing-relationship': '📧 Nutrição e Relacionamento',
+  'engagement-conversion': '🎥 Engajamento e Conversão',
+  'sales-checkout': '💳 Venda e Checkout',
+  'analytics-optimization': '📊 Análise e Otimização',
+  'post-sale-retention': '📦 Pós-venda e Retenção'
+};
