@@ -85,26 +85,29 @@ export const ConnectionLine: React.FC<ConnectionLineProps> = ({
           }}
         />
         
-        {/* Linha principal com degradê */}
+        {/* Linha principal - com ou sem animação baseado no estado */}
         <path
           d={pathData}
-          stroke={`url(#${gradientId})`}
+          stroke={isAnimated ? `url(#${gradientId})` : color}
           strokeWidth="3"
           fill="none"
           filter={`url(#shadow-${connection.id})`}
           className={`pointer-events-none ${isAnimated ? 'animate-pulse' : ''}`}
+          opacity={isAnimated ? "1" : "0.8"}
         />
         
-        {/* Bola animada no meio da linha */}
-        <circle
-          cx={(startX + endX) / 2}
-          cy={(startY + endY) / 2}
-          r="4"
-          fill={color}
-          className={`pointer-events-none ${isAnimated ? 'animate-bounce' : ''}`}
-          opacity={isAnimated ? "0.8" : "0.6"}
-          filter={`url(#shadow-${connection.id})`}
-        />
+        {/* Bola animada no meio da linha - só aparece quando animado */}
+        {isAnimated && (
+          <circle
+            cx={(startX + endX) / 2}
+            cy={(startY + endY) / 2}
+            r="4"
+            fill={color}
+            className="pointer-events-none animate-bounce"
+            opacity="0.8"
+            filter={`url(#shadow-${connection.id})`}
+          />
+        )}
         
         {/* Indicador visual quando selecionado */}
         {isSelected && (
