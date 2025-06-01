@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useCallback } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { Canvas } from '../components/Canvas';
@@ -50,10 +49,17 @@ const Index = () => {
     }
   }, []);
 
+  // Debug workspace state
+  useEffect(() => {
+    console.log('Current workspace state:', currentWorkspace);
+    console.log('Current view:', currentView);
+  }, [currentWorkspace, currentView]);
+
   // Ensure workspace is selected when switching to project view
   useEffect(() => {
     if (currentView === 'project' && !currentWorkspace && user) {
       console.log('No workspace selected, redirecting to workspace selector');
+      toast.error('Nenhum workspace selecionado. Selecione um workspace primeiro.');
       setCurrentView('workspace');
     }
   }, [currentView, currentWorkspace, user]);
@@ -78,6 +84,8 @@ const Index = () => {
   }, [project, setProjectData]);
 
   const handleSave = useCallback(() => {
+    console.log('handleSave called - currentWorkspace:', currentWorkspace);
+    
     if (!currentWorkspace) {
       toast.error('Nenhum workspace selecionado. Selecione um workspace primeiro.');
       setCurrentView('workspace');
@@ -110,6 +118,14 @@ const Index = () => {
   }, [clearProject]);
 
   const handleProjectSelect = useCallback((projectId: string) => {
+    console.log('handleProjectSelect called with:', projectId, 'currentWorkspace:', currentWorkspace);
+    
+    if (!currentWorkspace) {
+      toast.error('Workspace não encontrado');
+      setCurrentView('workspace');
+      return;
+    }
+    
     setCurrentProjectId(projectId);
     
     // Carregar projeto do workspace
@@ -121,11 +137,14 @@ const Index = () => {
     } else {
       toast.error('Projeto não encontrado');
     }
-  }, [loadProjectFromWorkspace, setProjectData]);
+  }, [loadProjectFromWorkspace, setProjectData, currentWorkspace]);
 
   const handleNewProject = useCallback(() => {
+    console.log('handleNewProject called - currentWorkspace:', currentWorkspace);
+    
     if (!currentWorkspace) {
       toast.error('Selecione um workspace primeiro');
+      setCurrentView('workspace');
       return;
     }
     
@@ -153,11 +172,11 @@ const Index = () => {
 
   // Verificação adicional para garantir que há workspace selecionado
   if (!currentWorkspace) {
-    toast.error('Workspace não encontrado. Retornando à seleção de workspace.');
+    console.log('No current workspace, redirecting...');
     setCurrentView('workspace');
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white">Carregando...</div>
+        <div className="text-white">Redirecionando para seleção de workspace...</div>
       </div>
     );
   }

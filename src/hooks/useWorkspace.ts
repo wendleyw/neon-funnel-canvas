@@ -104,13 +104,21 @@ export const useWorkspace = () => {
       localStorage.setItem(`funnel-workspaces-${user.id}`, JSON.stringify(updatedWorkspaces));
       setWorkspaces(updatedWorkspaces);
       
+      // Atualizar o currentWorkspace se for o mesmo
+      if (currentWorkspace?.id === workspaceId) {
+        const updatedCurrentWorkspace = updatedWorkspaces.find((w: Workspace) => w.id === workspaceId);
+        if (updatedCurrentWorkspace) {
+          setCurrentWorkspace(updatedCurrentWorkspace);
+        }
+      }
+      
       return true;
     } catch (error) {
       console.error('Erro ao salvar projeto:', error);
       toast.error('Erro ao salvar projeto');
       return false;
     }
-  }, [user]);
+  }, [user, currentWorkspace]);
 
   const loadWorkspaces = useCallback(async () => {
     if (!user) {
@@ -151,10 +159,34 @@ export const useWorkspace = () => {
     }
   }, [user]);
 
+  // Salvar o workspace atual no localStorage
+  const setCurrentWorkspaceWithPersistence = useCallback((workspace: Workspace | null) => {
+    console.log('Setting current workspace:', workspace?.name || 'null');
+    setCurrentWorkspace(workspace);
+    
+    if (user && workspace) {
+      localStorage.setItem(`current-workspace-${user.id}`, JSON.stringify(workspace));
+    } else if (user) {
+      localStorage.removeItem(`current-workspace-${user.id}`);
+    }
+  }, [user]);
+
   // Carregar dados quando usuário mudar
   useEffect(() => {
     if (user) {
       loadWorkspaces();
+      
+      // Tentar carregar workspace atual salvo
+      try {
+        const savedCurrentWorkspace = localStorage.getItem(`current-workspace-${user.id}`);
+        if (savedCurrentWorkspace) {
+          const workspace = JSON.parse(savedCurrentWorkspace);
+          console.log('Loading saved current workspace:', workspace.name);
+          setCurrentWorkspace(workspace);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar workspace atual:', error);
+      }
     } else {
       setWorkspaces([]);
       setWorkspaceProjects([]);
@@ -164,7 +196,7 @@ export const useWorkspace = () => {
 
   return {
     currentWorkspace,
-    setCurrentWorkspace,
+    setCurrentWorkspace: setCurrentWorkspaceWithPersistence,
     workspaces,
     workspaceProjects,
     createWorkspace,
