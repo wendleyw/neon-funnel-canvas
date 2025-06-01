@@ -17,7 +17,8 @@ export const modernSidebarCategories = {
         defaultProps: {
           title: 'Definição de Público-alvo',
           description: 'Identifique e defina seu público-alvo ideal',
-          status: 'draft'
+          status: 'draft' as const,
+          properties: {}
         }
       },
       {
@@ -29,10 +30,11 @@ export const modernSidebarCategories = {
         defaultProps: {
           title: 'Estrutura da Oferta',
           description: 'Defina sua proposta de valor e oferta principal',
-          status: 'draft'
+          status: 'draft' as const,
+          properties: {}
         }
       }
-    ]
+    ] as ComponentTemplate[]
   },
   traffic: {
     id: 'traffic',
@@ -48,7 +50,8 @@ export const modernSidebarCategories = {
         defaultProps: {
           title: 'Estratégia de Tráfego Orgânico',
           description: 'SEO, conteúdo e estratégias orgânicas',
-          status: 'draft'
+          status: 'draft' as const,
+          properties: {}
         }
       },
       {
@@ -60,10 +63,11 @@ export const modernSidebarCategories = {
         defaultProps: {
           title: 'Campanhas de Tráfego Pago',
           description: 'Ads, remarketing e campanhas pagas',
-          status: 'draft'
+          status: 'draft' as const,
+          properties: {}
         }
       }
-    ]
+    ] as ComponentTemplate[]
   },
   social: {
     id: 'social',
@@ -79,7 +83,8 @@ export const modernSidebarCategories = {
         defaultProps: {
           title: 'Post do Instagram',
           description: 'Conteúdo para feed do Instagram',
-          status: 'draft'
+          status: 'draft' as const,
+          properties: {}
         }
       },
       {
@@ -91,7 +96,8 @@ export const modernSidebarCategories = {
         defaultProps: {
           title: 'Story do Instagram',
           description: 'Conteúdo temporário para stories',
-          status: 'draft'
+          status: 'draft' as const,
+          properties: {}
         }
       },
       {
@@ -103,7 +109,8 @@ export const modernSidebarCategories = {
         defaultProps: {
           title: 'Vídeo do TikTok',
           description: 'Conteúdo viral para TikTok',
-          status: 'draft'
+          status: 'draft' as const,
+          properties: {}
         }
       },
       {
@@ -115,10 +122,11 @@ export const modernSidebarCategories = {
         defaultProps: {
           title: 'Vídeo do YouTube',
           description: 'Conteúdo longo para YouTube',
-          status: 'draft'
+          status: 'draft' as const,
+          properties: {}
         }
       }
-    ]
+    ] as ComponentTemplate[]
   },
   conversion: {
     id: 'conversion',
@@ -134,7 +142,8 @@ export const modernSidebarCategories = {
         defaultProps: {
           title: 'Formulário de Captura',
           description: 'Capture leads qualificados',
-          status: 'draft'
+          status: 'draft' as const,
+          properties: {}
         }
       },
       {
@@ -146,7 +155,8 @@ export const modernSidebarCategories = {
         defaultProps: {
           title: 'Webinar ou VSL',
           description: 'Apresentação para conversão',
-          status: 'draft'
+          status: 'draft' as const,
+          properties: {}
         }
       },
       {
@@ -158,10 +168,11 @@ export const modernSidebarCategories = {
         defaultProps: {
           title: 'Página de Vendas',
           description: 'Landing page para conversão',
-          status: 'draft'
+          status: 'draft' as const,
+          properties: {}
         }
       }
-    ]
+    ] as ComponentTemplate[]
   },
   relationship: {
     id: 'relationship',
@@ -177,10 +188,11 @@ export const modernSidebarCategories = {
         defaultProps: {
           title: 'Sequência de Nutrição',
           description: 'Eduque e relacione-se com leads',
-          status: 'draft'
+          status: 'draft' as const,
+          properties: {}
         }
       }
-    ]
+    ] as ComponentTemplate[]
   },
   sales: {
     id: 'sales',
@@ -196,7 +208,8 @@ export const modernSidebarCategories = {
         defaultProps: {
           title: 'Processo de Checkout',
           description: 'Finalização e upsells',
-          status: 'draft'
+          status: 'draft' as const,
+          properties: {}
         }
       },
       {
@@ -208,10 +221,11 @@ export const modernSidebarCategories = {
         defaultProps: {
           title: 'Acompanhamento Pós-venda',
           description: 'Entrega e suporte ao cliente',
-          status: 'draft'
+          status: 'draft' as const,
+          properties: {}
         }
       }
-    ]
+    ] as ComponentTemplate[]
   },
   analytics: {
     id: 'analytics',
@@ -227,12 +241,13 @@ export const modernSidebarCategories = {
         defaultProps: {
           title: 'Métricas e Otimização',
           description: 'Análise de performance e melhorias',
-          status: 'draft'
+          status: 'draft' as const,
+          properties: {}
         }
       }
-    ]
+    ] as ComponentTemplate[]
   }
-};
+} as const;
 
 export const getAllModernTemplates = (): ComponentTemplate[] => {
   return Object.values(modernSidebarCategories).flatMap(category => category.templates);

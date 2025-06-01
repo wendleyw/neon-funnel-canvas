@@ -55,7 +55,7 @@ export const ModernSidebar: React.FC<ModernSidebarProps> = ({
     }
 
     const searchResults = searchModernTemplates(searchQuery);
-    const filteredCats: typeof modernSidebarCategories = {};
+    const filteredCats: typeof modernSidebarCategories = {} as typeof modernSidebarCategories;
 
     Object.entries(modernSidebarCategories).forEach(([key, category]) => {
       const categoryTemplates = category.templates.filter(template =>
@@ -63,7 +63,7 @@ export const ModernSidebar: React.FC<ModernSidebarProps> = ({
       );
       
       if (categoryTemplates.length > 0) {
-        filteredCats[key as keyof typeof modernSidebarCategories] = {
+        (filteredCats as any)[key] = {
           ...category,
           templates: categoryTemplates
         };
