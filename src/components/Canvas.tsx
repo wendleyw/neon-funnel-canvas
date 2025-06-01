@@ -1,5 +1,5 @@
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { FunnelComponent, Connection } from '../types/funnel';
 import { CanvasGrid } from './Canvas/CanvasGrid';
 import { CanvasControls } from './Canvas/CanvasControls';
@@ -8,6 +8,8 @@ import { CanvasContainer } from './Canvas/CanvasContainer';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useCanvasEventHandlers } from './Canvas/CanvasEventHandlers';
 import { MiniMap } from './MiniMap';
+import { MobilePreviewButton } from './Canvas/MobilePreviewButton';
+import { InstagramMockupModal } from './Instagram/InstagramMockupModal';
 
 interface CanvasProps {
   components: FunnelComponent[];
@@ -30,6 +32,8 @@ export const Canvas = React.memo<CanvasProps>(({
   onConnectionDelete,
   onConnectionUpdate
 }) => {
+  const [isInstagramModalOpen, setIsInstagramModalOpen] = useState(false);
+
   const eventHandlers = useCanvasEventHandlers({
     onComponentAdd,
     onConnectionAdd,
@@ -55,6 +59,10 @@ export const Canvas = React.memo<CanvasProps>(({
       onConnectionAdd(connection);
     });
   }, [onComponentAdd, onConnectionAdd]);
+
+  const handleMobilePreviewClick = useCallback(() => {
+    setIsInstagramModalOpen(true);
+  }, []);
 
   return (
     <ErrorBoundary>
@@ -113,6 +121,13 @@ export const Canvas = React.memo<CanvasProps>(({
           connections={connections}
           canvasTransform={{ pan: eventHandlers.pan, zoom: eventHandlers.zoom }}
           onComponentClick={handleMiniMapComponentClick}
+        />
+
+        <MobilePreviewButton onClick={handleMobilePreviewClick} />
+
+        <InstagramMockupModal
+          isOpen={isInstagramModalOpen}
+          onClose={() => setIsInstagramModalOpen(false)}
         />
       </div>
     </ErrorBoundary>
