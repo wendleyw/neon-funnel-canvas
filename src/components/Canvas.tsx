@@ -41,12 +41,18 @@ export const Canvas = React.memo<CanvasProps>(({
   const { pan, isPanning, handleMouseDown, handleMouseMove, handleMouseUp } = useCanvasPan();
 
   // Canvas selection and connection functionality
-  const selectionProps = useMemo(() => ({ onConnectionAdd }), [onConnectionAdd]);
+  const selectionProps = useMemo(() => ({ 
+    onConnectionAdd, 
+    onConnectionDelete 
+  }), [onConnectionAdd, onConnectionDelete]);
+  
   const {
     selectedComponent,
     firstSelected,
+    selectedConnection,
     setSelectedComponent,
     handleComponentSelect,
+    handleConnectionSelect,
     clearSelection
   } = useCanvasSelection(selectionProps);
 
@@ -98,6 +104,12 @@ export const Canvas = React.memo<CanvasProps>(({
           </div>
         )}
         
+        {selectedConnection && (
+          <div className="absolute top-16 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse">
+            Clique no X para deletar a conexão
+          </div>
+        )}
+        
         <div
           ref={canvasRef}
           className="w-full h-full relative canvas-container"
@@ -120,6 +132,8 @@ export const Canvas = React.memo<CanvasProps>(({
                 components={components}
                 connections={connections}
                 connectingFrom={null}
+                selectedConnection={selectedConnection}
+                onConnectionSelect={handleConnectionSelect}
               />
             </ErrorBoundary>
 

@@ -7,11 +7,15 @@ interface ConnectionManagerProps {
   components: FunnelComponent[];
   connections: Connection[];
   connectingFrom: string | null;
+  selectedConnection: string | null;
+  onConnectionSelect: (connectionId: string) => void;
 }
 
 export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
   components,
-  connections
+  connections,
+  selectedConnection,
+  onConnectionSelect
 }) => {
   return (
     <svg
@@ -30,6 +34,8 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
             connection={connection}
             fromPosition={fromComponent.position}
             toPosition={toComponent.position}
+            isSelected={selectedConnection === connection.id}
+            onSelect={() => onConnectionSelect(connection.id)}
           />
         );
       })}
