@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { Canvas } from '../components/Canvas';
@@ -87,9 +86,19 @@ const Index = () => {
   const handleProjectSelect = useCallback((projectId: string) => {
     const projectData = loadProject(projectId);
     if (projectData) {
-      // Type cast the loaded data to FunnelProject and validate it has required properties
-      const typedProject = projectData as FunnelProject;
-      if (typedProject && typeof typedProject === 'object' && 'name' in typedProject) {
+      // Convert to unknown first, then validate the structure
+      const unknownProject = projectData as unknown;
+      
+      // Validate that the loaded data has the required FunnelProject structure
+      if (
+        unknownProject && 
+        typeof unknownProject === 'object' && 
+        'name' in unknownProject && 
+        'id' in unknownProject &&
+        'components' in unknownProject &&
+        'connections' in unknownProject
+      ) {
+        const typedProject = unknownProject as FunnelProject;
         setProject(typedProject);
         setCurrentProjectId(projectId);
         setIsInEditor(true);
