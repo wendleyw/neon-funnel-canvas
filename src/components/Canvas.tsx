@@ -44,6 +44,18 @@ export const Canvas = React.memo<CanvasProps>(({
     }
   }, [components, eventHandlers]);
 
+  const handleAddCompleteTemplate = useCallback((newComponents: FunnelComponent[], newConnections: Connection[]) => {
+    // Adicionar todos os componentes
+    newComponents.forEach(component => {
+      onComponentAdd(component);
+    });
+    
+    // Adicionar todas as conexões
+    newConnections.forEach(connection => {
+      onConnectionAdd(connection);
+    });
+  }, [onComponentAdd, onConnectionAdd]);
+
   return (
     <ErrorBoundary>
       <div className="flex-1 relative overflow-hidden bg-black">

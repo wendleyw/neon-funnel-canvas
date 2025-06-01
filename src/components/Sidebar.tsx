@@ -3,6 +3,7 @@ import React, { useCallback, useState } from 'react';
 import { ComponentTemplate } from '../types/funnel';
 import { ErrorBoundary } from './ErrorBoundary';
 import { CreateComponentModal } from './ComponentCreator/CreateComponentModal';
+import { ReadyTemplatesModal } from './ReadyTemplates/ReadyTemplatesModal';
 import { useComponentTemplates } from '../hooks/useComponentTemplates';
 import { SidebarHeader } from './Sidebar/SidebarHeader';
 import { TemplateSection } from './Sidebar/TemplateSection';
@@ -10,10 +11,12 @@ import { DigitalLaunchSection } from '../features/digital-launch/components/Digi
 
 interface SidebarProps {
   onDragStart: (template: ComponentTemplate) => void;
+  onAddCompleteTemplate?: (components: any[], connections: any[]) => void;
 }
 
-export const Sidebar = React.memo<SidebarProps>(({ onDragStart }) => {
+export const Sidebar = React.memo<SidebarProps>(({ onDragStart, onAddCompleteTemplate }) => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isReadyTemplatesOpen, setIsReadyTemplatesOpen] = useState(false);
   const { defaultTemplates, customTemplates, addCustomTemplate, removeCustomTemplate } = useComponentTemplates();
 
   const handleDragStart = useCallback((e: React.DragEvent, template: ComponentTemplate) => {
@@ -28,18 +31,28 @@ export const Sidebar = React.memo<SidebarProps>(({ onDragStart }) => {
     addCustomTemplate(template);
   }, [addCustomTemplate]);
 
+  const handleReadyTemplateSelect = useCallback((components: any[], connections: any[]) => {
+    if (onAddCompleteTemplate) {
+      onAddCompleteTemplate(components, connections);
+    }
+  }, [onAddCompleteTemplate]);
+
   console.log('Default templates count:', defaultTemplates.length);
   console.log('Custom templates count:', customTemplates.length);
 
   return (
     <ErrorBoundary>
       <div className="w-64 bg-black border-r border-gray-800 flex flex-col">
-        <SidebarHeader onCreateNewComponent={() => setIsCreateModalOpen(true)} />
+        <SidebarHeader 
+          onCreateNewComponent={() => setIsCreateModalOpen(true)}
+          onOpenReadyTemplates={() => setIsReadyTemplatesOpen(true)}
+        />
         
         <div className="flex-1 p-3 overflow-y-auto">
           <div className="space-y-4">
             <DigitalLaunchSection
               onDragStart={onDragStart}
+              onAddCompleteTemplate={onAddCompleteTemplate}
             />
 
             <TemplateSection
@@ -65,6 +78,12 @@ export const Sidebar = React.memo<SidebarProps>(({ onDragStart }) => {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onCreateTemplate={handleCreateTemplate}
+      />
+
+      <ReadyTemplatesModal
+        isOpen={isReadyTemplatesOpen}
+        onClose={() => setIsReadyTemplatesOpen(false)}
+        onTemplateSelect={handleReadyTemplateSelect}
       />
     </ErrorBoundary>
   );
