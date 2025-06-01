@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useCallback } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { Canvas } from '../components/Canvas';
@@ -8,6 +7,7 @@ import { useFunnelProject } from '../hooks/useFunnelProject';
 import { useWorkspace } from '../hooks/useWorkspace';
 import { ComponentTemplate, Connection } from '../types/funnel';
 import { toast } from 'sonner';
+import { StatusBar } from '../components/StatusBar';
 
 const Index = () => {
   const [currentView, setCurrentView] = useState<'workspace' | 'project'>('workspace');
@@ -145,14 +145,10 @@ const Index = () => {
       </div>
       
       {/* Status Bar */}
-      <div className="h-8 bg-black border-t border-gray-800 flex items-center justify-between px-4 text-xs text-gray-400">
-        <div>
-          Pronto • {project.components.length} componentes • {project.connections.length} conexões
-        </div>
-        <div>
-          FunnelCraft v1.0 • PWA Ready
-        </div>
-      </div>
+      <StatusBar 
+        components={project.components}
+        connections={project.connections}
+      />
     </div>
   );
 };

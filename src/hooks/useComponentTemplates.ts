@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { ComponentTemplate } from '../types/funnel';
 import { componentTemplates as defaultTemplates } from '../data/componentTemplates';
 
@@ -9,13 +9,14 @@ export const useComponentTemplates = () => {
   const addCustomTemplate = useCallback((template: ComponentTemplate) => {
     // Gera um tipo único para o template customizado
     const customType = `custom-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const newTemplate = {
+    const newTemplate: ComponentTemplate = {
       ...template,
       type: customType as any
     };
     
     console.log('Adding custom template:', newTemplate);
     setCustomTemplates(prev => [...prev, newTemplate]);
+    return newTemplate;
   }, []);
 
   const removeCustomTemplate = useCallback((type: string) => {
@@ -23,9 +24,15 @@ export const useComponentTemplates = () => {
     setCustomTemplates(prev => prev.filter(template => template.type !== type));
   }, []);
 
+  // Memoiza os templates para evitar re-renders desnecessários
+  const allTemplates = useMemo(() => {
+    return [...defaultTemplates, ...customTemplates];
+  }, [customTemplates]);
+
   return {
     defaultTemplates,
     customTemplates,
+    allTemplates,
     addCustomTemplate,
     removeCustomTemplate
   };

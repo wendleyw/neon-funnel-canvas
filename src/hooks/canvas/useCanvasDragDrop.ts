@@ -17,7 +17,10 @@ export const useCanvasDragDrop = ({ onComponentAdd, pan, zoom }: UseCanvasDragDr
     setIsDragOver(false);
     
     const rect = canvasRef.current?.getBoundingClientRect();
-    if (!rect) return;
+    if (!rect) {
+      console.error('Canvas rect not found');
+      return;
+    }
 
     const templateData = e.dataTransfer.getData('application/json');
     if (!templateData) {
@@ -29,11 +32,15 @@ export const useCanvasDragDrop = ({ onComponentAdd, pan, zoom }: UseCanvasDragDr
       const template: ComponentTemplate = JSON.parse(templateData);
       console.log('Dropping template on canvas:', template);
       
+      // Calcula a posição correta considerando zoom e pan
       const x = (e.clientX - rect.left - pan.x) / zoom;
       const y = (e.clientY - rect.top - pan.y) / zoom;
       
+      // Gera um ID único para o componente
+      const componentId = `${template.type.toString()}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
       const newComponent: FunnelComponent = {
-        id: `${template.type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        id: componentId,
         type: template.type,
         position: { x: Math.max(0, x - 80), y: Math.max(0, y - 40) },
         data: { ...template.defaultData },
@@ -51,8 +58,10 @@ export const useCanvasDragDrop = ({ onComponentAdd, pan, zoom }: UseCanvasDragDr
     e.preventDefault();
     e.stopPropagation();
     e.dataTransfer.dropEffect = 'copy';
-    setIsDragOver(true);
-  }, []);
+    if (!isDragOver) {
+      setIsDragOver(true);
+    }
+  }, [isDragOver]);
 
   const handleDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -63,6 +72,8 @@ export const useCanvasDragDrop = ({ onComponentAdd, pan, zoom }: UseCanvasDragDr
   const handleDragLeave = useCallback((e: React.DragEvent, canvasRef: React.RefObject<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    // Só remove o isDragOver se realmente saiu do canvas
     const rect = canvasRef.current?.getBoundingClientRect();
     if (rect) {
       const isInsideCanvas = e.clientX >= rect.left && 
