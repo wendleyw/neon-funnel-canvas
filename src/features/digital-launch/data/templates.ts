@@ -1,5 +1,5 @@
 
-import { ComponentTemplate } from '../types/funnel';
+import { ComponentTemplate } from '../../../types/funnel';
 
 export const digitalLaunchTemplates: ComponentTemplate[] = [
   {

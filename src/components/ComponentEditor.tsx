@@ -7,7 +7,7 @@ import { Textarea } from './ui/textarea';
 import { Button } from './ui/button';
 import { Upload, Link, Settings, X, Check } from 'lucide-react';
 import { StatusBadge } from './StatusBadge';
-import { DigitalLaunchFields } from './ComponentEditor/DigitalLaunchFields';
+import { DigitalLaunchFields } from '../features/digital-launch/components/DigitalLaunchFields';
 
 interface ComponentEditorProps {
   component: FunnelComponent;

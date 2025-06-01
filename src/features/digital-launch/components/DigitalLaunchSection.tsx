@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { ComponentTemplateItem } from './ComponentTemplateItem';
-import { useDigitalLaunchTemplates } from '../../hooks/useDigitalLaunchTemplates';
-import { Button } from '../ui/button';
+import { ComponentTemplateItem } from '../../../components/Sidebar/ComponentTemplateItem';
+import { useDigitalLaunchTemplates } from '../hooks/useDigitalLaunchTemplates';
+import { Button } from '../../../components/ui/button';
 import { Rocket, Zap, Target } from 'lucide-react';
 
 interface DigitalLaunchSectionProps {

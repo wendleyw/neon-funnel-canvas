@@ -6,6 +6,7 @@ import { CreateComponentModal } from './ComponentCreator/CreateComponentModal';
 import { useComponentTemplates } from '../hooks/useComponentTemplates';
 import { SidebarHeader } from './Sidebar/SidebarHeader';
 import { TemplateSection } from './Sidebar/TemplateSection';
+import { DigitalLaunchSection } from '../features/digital-launch/components/DigitalLaunchSection';
 
 interface SidebarProps {
   onDragStart: (template: ComponentTemplate) => void;
@@ -37,6 +38,10 @@ export const Sidebar = React.memo<SidebarProps>(({ onDragStart }) => {
         
         <div className="flex-1 p-3 overflow-y-auto">
           <div className="space-y-4">
+            <DigitalLaunchSection
+              onDragStart={onDragStart}
+            />
+
             <TemplateSection
               title="Componentes Padrão"
               templates={defaultTemplates}

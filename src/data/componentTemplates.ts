@@ -1,6 +1,6 @@
 
 import { ComponentTemplate } from '../types/funnel';
-import { digitalLaunchTemplates } from './digitalLaunchTemplates';
+import { digitalLaunchTemplates } from '../features/digital-launch/data/templates';
 
 export const basicTemplates: ComponentTemplate[] = [
   {

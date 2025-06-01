@@ -1,7 +1,7 @@
 
 import { useCallback } from 'react';
-import { FunnelComponent, Connection } from '../types/funnel';
-import { digitalLaunchTemplates } from '../data/digitalLaunchTemplates';
+import { FunnelComponent, Connection } from '../../../types/funnel';
+import { digitalLaunchTemplates } from '../data/templates';
 
 export const useDigitalLaunchTemplates = () => {
   
