@@ -10,27 +10,22 @@ import { Plus, Settings, Eye } from 'lucide-react';
 interface ComponentNodeProps {
   component: FunnelComponent;
   isSelected: boolean;
+  isFirstSelected?: boolean;
   onSelect: () => void;
   onDrag: (id: string, position: { x: number; y: number }) => void;
   onDelete: () => void;
   onUpdate: (id: string, updates: Partial<FunnelComponent>) => void;
-  onConnectionStart?: (componentId: string) => void;
-  onConnectionEnd?: (componentId: string) => void;
-  isConnecting?: boolean;
 }
 
 export const ComponentNode = React.memo<ComponentNodeProps>(({
   component,
   isSelected,
+  isFirstSelected = false,
   onSelect,
   onDrag,
   onDelete,
-  onUpdate,
-  onConnectionStart,
-  onConnectionEnd,
-  isConnecting = false
+  onUpdate
 }) => {
-  const [showConnectionPoints, setShowConnectionPoints] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
   const dragHandlers = useMemo(() => ({
@@ -63,16 +58,6 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
     }
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
-  const handleConnectionPointClick = useCallback((e: React.MouseEvent, isOutput: boolean) => {
-    e.stopPropagation();
-    
-    if (isOutput && onConnectionStart) {
-      onConnectionStart(component.id);
-    } else if (!isOutput && onConnectionEnd && isConnecting) {
-      onConnectionEnd(component.id);
-    }
-  }, [component.id, onConnectionStart, onConnectionEnd, isConnecting]);
-
   const handleDeleteClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     onDelete();
@@ -92,26 +77,25 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
     onUpdate(component.id, updates);
   }, [component.id, onUpdate]);
 
-  const handleMouseEnter = useCallback(() => {
-    setShowConnectionPoints(true);
-  }, []);
-
-  const handleMouseLeave = useCallback(() => {
-    setShowConnectionPoints(false);
-  }, []);
-
   const containerStyle = useMemo(() => ({
     left: component.position.x,
     top: component.position.y,
     zIndex: isSelected ? 1000 : isDragging ? 999 : 1
   }), [component.position.x, component.position.y, isSelected, isDragging]);
 
-  const containerClassName = useMemo(() => 
-    `absolute select-none transition-all duration-200 ${
+  const containerClassName = useMemo(() => {
+    let classes = `absolute select-none transition-all duration-200 ${
       isDragging ? 'cursor-grabbing scale-105' : 'cursor-grab'
-    } ${isSelected ? 'ring-2 ring-blue-500 ring-opacity-50' : ''}`,
-    [isDragging, isSelected]
-  );
+    }`;
+    
+    if (isFirstSelected) {
+      classes += ' ring-4 ring-blue-500 ring-opacity-70 animate-pulse';
+    } else if (isSelected) {
+      classes += ' ring-2 ring-blue-400 ring-opacity-50';
+    }
+    
+    return classes;
+  }, [isDragging, isSelected, isFirstSelected]);
 
   if (!template) return null;
 
@@ -121,19 +105,28 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
       className={containerClassName}
       style={containerStyle}
       onMouseDown={handleMouseDown}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
       onDoubleClick={handleDoubleClick}
+      onClick={(e) => {
+        e.stopPropagation();
+        onSelect();
+      }}
     >
       {/* Main Component Card */}
-      <div className="w-48 bg-gray-900 rounded-lg border border-gray-700 shadow-xl hover:shadow-2xl transition-all duration-300 hover:border-gray-600 relative">
+      <div className="w-48 bg-gray-900 rounded-lg border border-gray-700 shadow-xl hover:shadow-2xl transition-all duration-300 hover:border-gray-600 relative group">
+        {/* Indicator para primeiro selecionado */}
+        {isFirstSelected && (
+          <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold animate-bounce">
+            1
+          </div>
+        )}
+        
         {/* Header */}
         <div className="bg-gray-800 rounded-t-lg p-3 flex items-center justify-between">
           <div className="flex items-center space-x-2 flex-1 min-w-0">
             <span className="text-white text-sm">{template.icon}</span>
             <span className="text-white font-medium text-xs truncate">{template.label}</span>
           </div>
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
               onClick={handleEditClick}
               className="text-gray-400 hover:text-blue-400 transition-colors p-1"
@@ -197,29 +190,15 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
             </div>
           )}
         </div>
-        
+
         {/* Connection Points */}
-        {(showConnectionPoints || isConnecting) && (
-          <>
-            {/* Output connection point (right) */}
-            <div 
-              className="absolute -right-2 top-1/2 transform -translate-y-1/2 connection-point"
-              onClick={(e) => handleConnectionPointClick(e, true)}
-            >
-              <div className="w-4 h-4 bg-green-500 rounded-full border-2 border-white hover:bg-green-400 transition-colors cursor-pointer shadow-lg" />
-            </div>
-            
-            {/* Input connection point (left) */}
-            <div 
-              className="absolute -left-2 top-1/2 transform -translate-y-1/2 connection-point"
-              onClick={(e) => handleConnectionPointClick(e, false)}
-            >
-              <div className={`w-4 h-4 rounded-full border-2 border-white transition-colors cursor-pointer shadow-lg ${
-                isConnecting ? 'bg-blue-500 hover:bg-blue-400' : 'bg-gray-500 hover:bg-gray-400'
-              }`} />
-            </div>
-          </>
-        )}
+        <div className="absolute -right-2 top-1/2 transform -translate-y-1/2">
+          <div className="w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity" />
+        </div>
+        
+        <div className="absolute -left-2 top-1/2 transform -translate-y-1/2">
+          <div className="w-4 h-4 bg-gray-500 rounded-full border-2 border-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity" />
+        </div>
       </div>
 
       {/* Editor Panel */}

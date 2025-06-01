@@ -1,9 +1,11 @@
+
 import React, { useRef, useCallback, useMemo } from 'react';
 import { FunnelComponent, ComponentTemplate, Connection } from '../types/funnel';
 import { ComponentNode } from './ComponentNode';
 import { CanvasGrid } from './Canvas/CanvasGrid';
 import { CanvasControls } from './Canvas/CanvasControls';
 import { ConnectionManager } from './Canvas/ConnectionManager';
+import { FlowAnimation } from './FlowAnimation';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useCanvasDragDrop } from '../hooks/canvas/useCanvasDragDrop';
 import { useCanvasZoom } from '../hooks/canvas/useCanvasZoom';
@@ -42,10 +44,9 @@ export const Canvas = React.memo<CanvasProps>(({
   const selectionProps = useMemo(() => ({ onConnectionAdd }), [onConnectionAdd]);
   const {
     selectedComponent,
+    firstSelected,
     setSelectedComponent,
-    connectingFrom,
-    handleConnectionStart,
-    handleConnectionEnd,
+    handleComponentSelect,
     clearSelection
   } = useCanvasSelection(selectionProps);
 
@@ -72,15 +73,9 @@ export const Canvas = React.memo<CanvasProps>(({
   const handleMiniMapComponentClick = useCallback((componentId: string) => {
     const component = components.find(c => c.id === componentId);
     if (component) {
-      // Centralizar o componente na tela
-      const newPan = {
-        x: -component.position.x * zoom + window.innerWidth / 2,
-        y: -component.position.y * zoom + window.innerHeight / 2
-      };
-      // TODO: Implementar setPan no hook useCanvasPan
       setSelectedComponent(componentId);
     }
-  }, [components, zoom, setSelectedComponent]);
+  }, [components, setSelectedComponent]);
 
   const transformStyle = useMemo(() => ({
     transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
@@ -95,6 +90,13 @@ export const Canvas = React.memo<CanvasProps>(({
     <ErrorBoundary>
       <div className="flex-1 relative overflow-hidden bg-black">
         <CanvasGrid zoom={zoom} pan={pan} isDragOver={isDragOver} />
+        
+        {/* Helper text */}
+        {firstSelected && (
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse">
+            Clique em outro componente para conectar
+          </div>
+        )}
         
         <div
           ref={canvasRef}
@@ -117,7 +119,14 @@ export const Canvas = React.memo<CanvasProps>(({
               <ConnectionManager
                 components={components}
                 connections={connections}
-                connectingFrom={connectingFrom}
+                connectingFrom={null}
+              />
+            </ErrorBoundary>
+
+            <ErrorBoundary>
+              <FlowAnimation
+                components={components}
+                connections={connections}
               />
             </ErrorBoundary>
 
@@ -127,13 +136,11 @@ export const Canvas = React.memo<CanvasProps>(({
                 <ComponentNode
                   component={component}
                   isSelected={selectedComponent === component.id}
-                  onSelect={() => setSelectedComponent(component.id)}
+                  isFirstSelected={firstSelected === component.id}
+                  onSelect={() => handleComponentSelect(component.id)}
                   onDrag={handleComponentDrag}
                   onDelete={() => onComponentDelete(component.id)}
                   onUpdate={onComponentUpdate}
-                  onConnectionStart={handleConnectionStart}
-                  onConnectionEnd={handleConnectionEnd}
-                  isConnecting={connectingFrom !== null}
                 />
               </ErrorBoundary>
             ))}

@@ -7,37 +7,42 @@ interface UseCanvasSelectionOptions {
 
 export const useCanvasSelection = ({ onConnectionAdd }: UseCanvasSelectionOptions) => {
   const [selectedComponent, setSelectedComponent] = useState<string | null>(null);
-  const [connectingFrom, setConnectingFrom] = useState<string | null>(null);
+  const [firstSelected, setFirstSelected] = useState<string | null>(null);
 
-  const handleConnectionStart = useCallback((componentId: string) => {
-    setConnectingFrom(componentId);
-  }, []);
-
-  const handleConnectionEnd = useCallback((componentId: string) => {
-    if (connectingFrom && connectingFrom !== componentId) {
+  const handleComponentSelect = useCallback((componentId: string) => {
+    if (!firstSelected) {
+      // Primeiro componente selecionado
+      setFirstSelected(componentId);
+      setSelectedComponent(componentId);
+    } else if (firstSelected === componentId) {
+      // Clicou no mesmo componente, cancela seleção
+      setFirstSelected(null);
+      setSelectedComponent(null);
+    } else {
+      // Segundo componente selecionado, cria conexão
       const newConnection = {
         id: `connection-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        from: connectingFrom,
+        from: firstSelected,
         to: componentId,
         type: 'success' as const
       };
       
       onConnectionAdd(newConnection);
+      setFirstSelected(null);
+      setSelectedComponent(null);
     }
-    setConnectingFrom(null);
-  }, [connectingFrom, onConnectionAdd]);
+  }, [firstSelected, onConnectionAdd]);
 
   const clearSelection = useCallback(() => {
     setSelectedComponent(null);
-    setConnectingFrom(null);
+    setFirstSelected(null);
   }, []);
 
   return {
     selectedComponent,
+    firstSelected,
     setSelectedComponent,
-    connectingFrom,
-    handleConnectionStart,
-    handleConnectionEnd,
+    handleComponentSelect,
     clearSelection
   };
 };
