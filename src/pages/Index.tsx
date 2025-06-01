@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useCallback } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { Canvas } from '../components/Canvas';
@@ -35,6 +36,7 @@ const Index = () => {
 
   const {
     currentWorkspace,
+    setCurrentWorkspace,
     addProjectToWorkspace,
     loadProject: loadProjectFromWorkspace
   } = useWorkspace();
@@ -44,9 +46,17 @@ const Index = () => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js')
         .then(() => console.log('Service Worker registered'))
-        .catch(err => console.log('Service Worker registration failed'));
+        .catch(err => console.log('Service Worker registration failed:', err));
     }
   }, []);
+
+  // Ensure workspace is selected when switching to project view
+  useEffect(() => {
+    if (currentView === 'project' && !currentWorkspace && user) {
+      console.log('No workspace selected, redirecting to workspace selector');
+      setCurrentView('workspace');
+    }
+  }, [currentView, currentWorkspace, user]);
 
   const handleDragStart = useCallback((template: ComponentTemplate) => {
     console.log('Dragging component:', template.label);
@@ -69,17 +79,20 @@ const Index = () => {
 
   const handleSave = useCallback(() => {
     if (!currentWorkspace) {
-      toast.error('Nenhum workspace selecionado');
+      toast.error('Nenhum workspace selecionado. Selecione um workspace primeiro.');
+      setCurrentView('workspace');
       return;
     }
 
+    console.log('Saving project to workspace:', currentWorkspace.name);
+    
     // Salvar projeto no hook useFunnelProject
     const saved = saveProject(currentWorkspace.id);
     
     if (saved) {
       // Adicionar projeto ao workspace
       addProjectToWorkspace(project, currentWorkspace.id);
-      toast.success('Projeto salvo no workspace!');
+      toast.success(`Projeto "${project.name}" salvo no workspace "${currentWorkspace.name}"!`);
     }
   }, [saveProject, currentWorkspace, addProjectToWorkspace, project]);
 
@@ -111,10 +124,16 @@ const Index = () => {
   }, [loadProjectFromWorkspace, setProjectData]);
 
   const handleNewProject = useCallback(() => {
+    if (!currentWorkspace) {
+      toast.error('Selecione um workspace primeiro');
+      return;
+    }
+    
     clearProject();
     setCurrentProjectId(null);
     setCurrentView('project');
-  }, [clearProject]);
+    toast.success(`Novo projeto criado no workspace "${currentWorkspace.name}"`);
+  }, [clearProject, currentWorkspace]);
 
   const handleBackToWorkspace = useCallback(() => {
     setCurrentView('workspace');
@@ -128,6 +147,17 @@ const Index = () => {
           onProjectSelect={handleProjectSelect}
           onNewProject={handleNewProject}
         />
+      </div>
+    );
+  }
+
+  // Verificação adicional para garantir que há workspace selecionado
+  if (!currentWorkspace) {
+    toast.error('Workspace não encontrado. Retornando à seleção de workspace.');
+    setCurrentView('workspace');
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white">Carregando...</div>
       </div>
     );
   }
