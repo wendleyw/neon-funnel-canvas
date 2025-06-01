@@ -1,24 +1,32 @@
 
 import React, { useState, useCallback } from 'react';
 import { FunnelComponent } from '../types/funnel';
-import { Card, CardHeader, CardContent } from './ui/card';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { Button } from './ui/button';
 import { Upload, Link, Settings, X, Check } from 'lucide-react';
 import { StatusBadge } from './StatusBadge';
 import { DigitalLaunchFields } from '../features/digital-launch/components/DigitalLaunchFields';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from './ui/dialog';
 
 interface ComponentEditorProps {
   component: FunnelComponent;
   onUpdate: (updates: Partial<FunnelComponent>) => void;
   onClose: () => void;
+  isOpen: boolean;
 }
 
 export const ComponentEditor: React.FC<ComponentEditorProps> = ({
   component,
   onUpdate,
-  onClose
+  onClose,
+  isOpen
 }) => {
   const [formData, setFormData] = useState({
     title: component.data.title,
@@ -89,19 +97,17 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
         return (
           <>
             <div className="space-y-2">
-              <label className="text-xs font-medium text-gray-300">Página de Destino</label>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Página de Destino</label>
               <Input
                 placeholder="URL da página"
                 value={formData.url}
                 onChange={(e) => handleInputChange('url', e.target.value)}
-                className="bg-gray-800 border-gray-700 text-white"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-medium text-gray-300">Call-to-Action</label>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Call-to-Action</label>
               <Input
                 placeholder="Texto do botão principal"
-                className="bg-gray-800 border-gray-700 text-white"
               />
             </div>
           </>
@@ -109,10 +115,9 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
       case 'form':
         return (
           <div className="space-y-2">
-            <label className="text-xs font-medium text-gray-300">Campos do Formulário</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Campos do Formulário</label>
             <Textarea
               placeholder="Nome, Email, Telefone..."
-              className="bg-gray-800 border-gray-700 text-white"
               rows={3}
             />
           </div>
@@ -120,11 +125,10 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
       case 'quiz':
         return (
           <div className="space-y-2">
-            <label className="text-xs font-medium text-gray-300">Número de Perguntas</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Número de Perguntas</label>
             <Input
               type="number"
               placeholder="5"
-              className="bg-gray-800 border-gray-700 text-white"
             />
           </div>
         );
@@ -134,95 +138,86 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
   }, [component.type, formData.url, formData.properties, handleInputChange, handlePropertyChange, isDigitalLaunchComponent]);
 
   return (
-    <Card className="absolute top-full left-0 mt-2 w-80 bg-gray-900 border-gray-700 shadow-xl z-50 max-h-96 overflow-y-auto">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-white font-medium text-sm">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>
             {isDigitalLaunchComponent ? 'Configurar Lançamento' : 'Editar Componente'}
-          </h3>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="text-gray-400 hover:text-white p-1"
-          >
-            <X className="w-4 h-4" />
-          </Button>
-        </div>
-      </CardHeader>
-      
-      <CardContent className="space-y-4">
-        {/* Título */}
-        <div className="space-y-2">
-          <label className="text-xs font-medium text-gray-300">Título</label>
-          <Input
-            value={formData.title}
-            onChange={(e) => handleInputChange('title', e.target.value)}
-            className="bg-gray-800 border-gray-700 text-white"
-          />
-        </div>
+          </DialogTitle>
+          <DialogDescription>
+            Configure as propriedades do componente
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-4">
+          {/* Título */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Título</label>
+            <Input
+              value={formData.title}
+              onChange={(e) => handleInputChange('title', e.target.value)}
+            />
+          </div>
 
-        {/* Descrição */}
-        <div className="space-y-2">
-          <label className="text-xs font-medium text-gray-300">Descrição</label>
-          <Textarea
-            value={formData.description}
-            onChange={(e) => handleInputChange('description', e.target.value)}
-            className="bg-gray-800 border-gray-700 text-white"
-            rows={2}
-          />
-        </div>
+          {/* Descrição */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Descrição</label>
+            <Textarea
+              value={formData.description}
+              onChange={(e) => handleInputChange('description', e.target.value)}
+              rows={2}
+            />
+          </div>
 
-        {/* Status */}
-        <div className="space-y-2">
-          <label className="text-xs font-medium text-gray-300">Status</label>
-          <select
-            value={formData.status}
-            onChange={(e) => handleInputChange('status', e.target.value)}
-            className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm"
-          >
-            <option value="draft">Rascunho</option>
-            <option value="active">Ativo</option>
-            <option value="test">Teste</option>
-            <option value="published">Publicado</option>
-            <option value="inactive">Inativo</option>
-          </select>
-        </div>
+          {/* Status */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
+            <select
+              value={formData.status}
+              onChange={(e) => handleInputChange('status', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+            >
+              <option value="draft">Rascunho</option>
+              <option value="active">Ativo</option>
+              <option value="test">Teste</option>
+              <option value="published">Publicado</option>
+              <option value="inactive">Inativo</option>
+            </select>
+          </div>
 
-        {/* Funcionalidades específicas do componente */}
-        {getComponentFeatures()}
+          {/* Funcionalidades específicas do componente */}
+          {getComponentFeatures()}
 
-        {/* Botões de ação */}
-        <div className="flex justify-between pt-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-gray-400 hover:text-white"
-          >
-            <Settings className="w-4 h-4 mr-1" />
-            Avançado
-          </Button>
-          
-          <div className="flex space-x-2">
+          {/* Botões de ação */}
+          <div className="flex justify-between pt-4">
             <Button
               variant="ghost"
               size="sm"
-              onClick={onClose}
-              className="text-gray-400 hover:text-white"
+              className="text-gray-600 dark:text-gray-400"
             >
-              Cancelar
+              <Settings className="w-4 h-4 mr-1" />
+              Avançado
             </Button>
-            <Button
-              size="sm"
-              onClick={handleSave}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              <Check className="w-4 h-4 mr-1" />
-              Salvar
-            </Button>
+            
+            <div className="flex space-x-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onClose}
+              >
+                Cancelar
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleSave}
+              >
+                <Check className="w-4 h-4 mr-1" />
+                Salvar
+              </Button>
+            </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </DialogContent>
+    </Dialog>
   );
 };

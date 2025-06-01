@@ -127,7 +127,7 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
   }
 
   return (
-    <div className="relative">
+    <>
       <div
         ref={nodeRef}
         className={containerClassName}
@@ -177,15 +177,14 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
         </div>
       )}
 
-      {/* Editor Panel */}
-      {isEditing && (
-        <ComponentEditor
-          component={component}
-          onUpdate={handleUpdateComponent}
-          onClose={() => setIsEditing(false)}
-        />
-      )}
-    </div>
+      {/* Editor Modal */}
+      <ComponentEditor
+        component={component}
+        onUpdate={handleUpdateComponent}
+        onClose={() => setIsEditing(false)}
+        isOpen={isEditing}
+      />
+    </>
   );
 });
 

@@ -39,7 +39,8 @@ export interface ComponentTemplate {
   icon: string;
   label: string;
   color: string;
-  defaultData: FunnelComponent['data'];
+  category: string;
+  defaultProps: FunnelComponent['data'];
 }
 
 export interface ComponentFormData {
