@@ -137,8 +137,8 @@ const Index = () => {
     // Carregar projeto do workspace
     const projectData = loadProjectFromWorkspace(projectId);
     if (projectData) {
-      // Garantir que projectData é do tipo correto
-      const typedProjectData = projectData as FunnelProject;
+      // Fazer conversão segura de Json para FunnelProject
+      const typedProjectData = projectData as unknown as FunnelProject;
       setProjectData(typedProjectData);
       setCurrentView('project');
       toast.success('Projeto carregado!');
