@@ -1,5 +1,4 @@
-
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -37,6 +36,7 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
   });
 
   const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleInputChange = useCallback((field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -44,7 +44,12 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
   const handleImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      console.log('Nenhum arquivo selecionado');
+      return;
+    }
+
+    console.log('Arquivo selecionado:', file.name, file.type, file.size);
 
     // Verificar se é uma imagem
     if (!file.type.startsWith('image/')) {
@@ -65,14 +70,14 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
       reader.onload = (event) => {
         const imageUrl = event.target?.result as string;
         if (imageUrl) {
+          console.log('Imagem processada com sucesso, tamanho:', imageUrl.length);
           setFormData(prev => ({ ...prev, image: imageUrl }));
-          console.log('Imagem carregada com sucesso');
         }
         setIsUploading(false);
       };
       
-      reader.onerror = () => {
-        console.error('Erro ao ler o arquivo');
+      reader.onerror = (error) => {
+        console.error('Erro ao ler o arquivo:', error);
         alert('Erro ao carregar a imagem. Tente novamente.');
         setIsUploading(false);
       };
@@ -83,9 +88,22 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
       alert('Erro ao processar a imagem');
       setIsUploading(false);
     }
+
+    // Limpar o input para permitir selecionar o mesmo arquivo novamente
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }, []);
+
+  const handleFileButtonClick = useCallback(() => {
+    console.log('Botão de upload clicado');
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
   }, []);
 
   const handleRemoveImage = useCallback(() => {
+    console.log('Removendo imagem');
     setFormData(prev => ({ ...prev, image: '' }));
   }, []);
 
@@ -243,6 +261,16 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Hidden file input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+                disabled={isUploading}
+              />
+
               {formData.image ? (
                 <div className="space-y-3">
                   <div className="relative">
@@ -278,24 +306,16 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
                       </span>
                     )}
                   </p>
-                  <label className="cursor-pointer">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                      disabled={isUploading}
-                    />
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      className="inline-flex items-center gap-2"
-                      disabled={isUploading}
-                    >
-                      <Upload className="w-4 h-4" />
-                      {isUploading ? 'Carregando...' : 'Escolher Imagem'}
-                    </Button>
-                  </label>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={handleFileButtonClick}
+                    className="inline-flex items-center gap-2"
+                    disabled={isUploading}
+                  >
+                    <Upload className="w-4 h-4" />
+                    {isUploading ? 'Carregando...' : 'Escolher Imagem'}
+                  </Button>
                 </div>
               )}
               
