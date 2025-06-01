@@ -77,6 +77,19 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
     onUpdate(component.id, updates);
   }, [component.id, onUpdate]);
 
+  // Manipulador específico para clicks de seleção
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    // Não seleciona se clicou em botões
+    if ((e.target as Element).closest('button')) {
+      return;
+    }
+    
+    console.log('Componente clicado:', component.id);
+    onSelect();
+  }, [onSelect, component.id]);
+
   const containerStyle = useMemo(() => ({
     left: component.position.x,
     top: component.position.y,
@@ -106,10 +119,7 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
       style={containerStyle}
       onMouseDown={handleMouseDown}
       onDoubleClick={handleDoubleClick}
-      onClick={(e) => {
-        e.stopPropagation();
-        onSelect();
-      }}
+      onClick={handleClick}
     >
       {/* Main Component Card */}
       <div className="w-48 bg-gray-900 rounded-lg border border-gray-700 shadow-xl hover:shadow-2xl transition-all duration-300 hover:border-gray-600 relative group">

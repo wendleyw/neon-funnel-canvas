@@ -12,6 +12,8 @@ export const useCanvasSelection = ({ onConnectionAdd, onConnectionDelete }: UseC
   const [selectedConnection, setSelectedConnection] = useState<string | null>(null);
 
   const handleComponentSelect = useCallback((componentId: string) => {
+    console.log('Selecionando componente:', componentId, 'Primeiro selecionado:', firstSelected);
+    
     // Limpa seleção de conexão ao selecionar componente
     setSelectedConnection(null);
     
@@ -19,12 +21,15 @@ export const useCanvasSelection = ({ onConnectionAdd, onConnectionDelete }: UseC
       // Primeiro componente selecionado
       setFirstSelected(componentId);
       setSelectedComponent(componentId);
+      console.log('Primeiro componente definido:', componentId);
     } else if (firstSelected === componentId) {
       // Clicou no mesmo componente, cancela seleção
       setFirstSelected(null);
       setSelectedComponent(null);
+      console.log('Seleção cancelada');
     } else {
       // Segundo componente selecionado, cria conexão
+      console.log('Criando conexão de', firstSelected, 'para', componentId);
       const newConnection = {
         id: `connection-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         from: firstSelected,
@@ -56,6 +61,7 @@ export const useCanvasSelection = ({ onConnectionAdd, onConnectionDelete }: UseC
   }, [selectedConnection, onConnectionDelete]);
 
   const clearSelection = useCallback(() => {
+    console.log('Limpando todas as seleções');
     setSelectedComponent(null);
     setFirstSelected(null);
     setSelectedConnection(null);
