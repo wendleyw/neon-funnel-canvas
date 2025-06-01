@@ -9,6 +9,9 @@ interface ComponentNodeProps {
   onSelect: () => void;
   onDrag: (id: string, position: { x: number; y: number }) => void;
   onDelete: () => void;
+  onConnectionStart?: (componentId: string) => void;
+  onConnectionEnd?: (componentId: string) => void;
+  isConnecting?: boolean;
 }
 
 export const ComponentNode: React.FC<ComponentNodeProps> = ({
@@ -16,16 +19,26 @@ export const ComponentNode: React.FC<ComponentNodeProps> = ({
   isSelected,
   onSelect,
   onDrag,
-  onDelete
+  onDelete,
+  onConnectionStart,
+  onConnectionEnd,
+  isConnecting = false
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [showConnectionPoints, setShowConnectionPoints] = useState(false);
   const nodeRef = useRef<HTMLDivElement>(null);
 
   const template = componentTemplates.find(t => t.type === component.type);
   
   const handleMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation();
+    
+    // Don't start dragging if clicking on connection points
+    if ((e.target as Element).closest('.connection-point')) {
+      return;
+    }
+    
     setIsDragging(true);
     onSelect();
     
@@ -39,12 +52,18 @@ export const ComponentNode: React.FC<ComponentNodeProps> = ({
   };
 
   const handleMouseMove = (e: MouseEvent) => {
-    if (isDragging) {
-      const newPosition = {
-        x: e.clientX - dragOffset.x,
-        y: e.clientY - dragOffset.y
-      };
-      onDrag(component.id, newPosition);
+    if (isDragging && nodeRef.current) {
+      e.preventDefault();
+      const canvas = nodeRef.current.closest('.canvas-container');
+      const canvasRect = canvas?.getBoundingClientRect();
+      
+      if (canvasRect) {
+        const newPosition = {
+          x: Math.max(0, e.clientX - canvasRect.left - dragOffset.x),
+          y: Math.max(0, e.clientY - canvasRect.top - dragOffset.y)
+        };
+        onDrag(component.id, newPosition);
+      }
     }
   };
 
@@ -63,26 +82,37 @@ export const ComponentNode: React.FC<ComponentNodeProps> = ({
     }
   }, [isDragging, dragOffset]);
 
+  const handleConnectionPointClick = (e: React.MouseEvent, isOutput: boolean) => {
+    e.stopPropagation();
+    
+    if (isOutput && onConnectionStart) {
+      onConnectionStart(component.id);
+    } else if (!isOutput && onConnectionEnd && isConnecting) {
+      onConnectionEnd(component.id);
+    }
+  };
+
   if (!template) return null;
 
   return (
     <div
       ref={nodeRef}
-      className={`absolute select-none cursor-move ${
-        isSelected ? 'ring-1 ring-white' : ''
-      }`}
+      className={`absolute select-none transition-all duration-200 ${
+        isDragging ? 'cursor-grabbing scale-105' : 'cursor-grab'
+      } ${isSelected ? 'ring-2 ring-white ring-opacity-50' : ''}`}
       style={{
         left: component.position.x,
         top: component.position.y,
-        transform: isDragging ? 'scale(1.02)' : 'scale(1)',
-        zIndex: isSelected ? 1000 : 1
+        zIndex: isSelected ? 1000 : isDragging ? 999 : 1
       }}
       onMouseDown={handleMouseDown}
+      onMouseEnter={() => setShowConnectionPoints(true)}
+      onMouseLeave={() => setShowConnectionPoints(false)}
     >
       {/* Main Component Card */}
-      <div className="w-40 bg-gray-900 rounded border border-gray-800 shadow-lg hover:shadow-xl transition-all">
+      <div className="w-40 bg-gray-900 rounded-lg border border-gray-700 shadow-xl hover:shadow-2xl transition-all duration-300 hover:border-gray-600">
         {/* Header */}
-        <div className="bg-gray-800 rounded-t p-2 flex items-center justify-between">
+        <div className="bg-gray-800 rounded-t-lg p-3 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <span className="text-white text-sm">{template.icon}</span>
             <span className="text-white font-medium text-xs">{template.label}</span>
@@ -93,7 +123,7 @@ export const ComponentNode: React.FC<ComponentNodeProps> = ({
                 e.stopPropagation();
                 onDelete();
               }}
-              className="text-white hover:text-red-400 transition-colors text-xs"
+              className="text-white hover:text-red-400 transition-colors text-lg font-bold leading-none"
             >
               ×
             </button>
@@ -101,18 +131,33 @@ export const ComponentNode: React.FC<ComponentNodeProps> = ({
         </div>
         
         {/* Content */}
-        <div className="p-2">
-          <h4 className="text-white font-medium text-xs mb-1">{component.data.title}</h4>
-          <p className="text-gray-400 text-xs">{component.data.description}</p>
+        <div className="p-3">
+          <h4 className="text-white font-medium text-sm mb-1">{component.data.title}</h4>
+          <p className="text-gray-400 text-xs leading-relaxed">{component.data.description}</p>
         </div>
         
         {/* Connection Points */}
-        <div className="absolute -right-1 top-1/2 transform -translate-y-1/2">
-          <div className="w-3 h-3 bg-white rounded-full border border-gray-800 hover:bg-gray-200 transition-colors cursor-crosshair" />
-        </div>
-        <div className="absolute -left-1 top-1/2 transform -translate-y-1/2">
-          <div className="w-3 h-3 bg-white rounded-full border border-gray-800 hover:bg-gray-200 transition-colors cursor-crosshair" />
-        </div>
+        {(showConnectionPoints || isConnecting) && (
+          <>
+            {/* Output connection point (right) */}
+            <div 
+              className="absolute -right-2 top-1/2 transform -translate-y-1/2 connection-point"
+              onClick={(e) => handleConnectionPointClick(e, true)}
+            >
+              <div className="w-4 h-4 bg-green-500 rounded-full border-2 border-white hover:bg-green-400 transition-colors cursor-pointer shadow-lg" />
+            </div>
+            
+            {/* Input connection point (left) */}
+            <div 
+              className="absolute -left-2 top-1/2 transform -translate-y-1/2 connection-point"
+              onClick={(e) => handleConnectionPointClick(e, false)}
+            >
+              <div className={`w-4 h-4 rounded-full border-2 border-white transition-colors cursor-pointer shadow-lg ${
+                isConnecting ? 'bg-blue-500 hover:bg-blue-400' : 'bg-gray-500 hover:bg-gray-400'
+              }`} />
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

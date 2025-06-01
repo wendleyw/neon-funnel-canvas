@@ -1,20 +1,26 @@
-
 import React, { useRef, useState, useCallback } from 'react';
-import { FunnelComponent, ComponentTemplate } from '../types/funnel';
+import { FunnelComponent, ComponentTemplate, Connection } from '../types/funnel';
 import { ComponentNode } from './ComponentNode';
+import { ConnectionLine } from './ConnectionLine';
 
 interface CanvasProps {
   components: FunnelComponent[];
+  connections: Connection[];
   onComponentAdd: (component: FunnelComponent) => void;
   onComponentUpdate: (id: string, updates: Partial<FunnelComponent>) => void;
   onComponentDelete: (id: string) => void;
+  onConnectionAdd: (connection: Connection) => void;
+  onConnectionDelete: (connectionId: string) => void;
 }
 
 export const Canvas: React.FC<CanvasProps> = ({
   components,
+  connections,
   onComponentAdd,
   onComponentUpdate,
-  onComponentDelete
+  onComponentDelete,
+  onConnectionAdd,
+  onConnectionDelete
 }) => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [selectedComponent, setSelectedComponent] = useState<string | null>(null);
@@ -23,52 +29,38 @@ export const Canvas: React.FC<CanvasProps> = ({
   const [isPanning, setIsPanning] = useState(false);
   const [lastPanPosition, setLastPanPosition] = useState({ x: 0, y: 0 });
   const [isDragOver, setIsDragOver] = useState(false);
+  const [connectingFrom, setConnectingFrom] = useState<string | null>(null);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragOver(false);
     
-    console.log('Drop event triggered on canvas');
-    
     const rect = canvasRef.current?.getBoundingClientRect();
-    if (!rect) {
-      console.log('No canvas rect found');
-      return;
-    }
+    if (!rect) return;
 
     const templateData = e.dataTransfer.getData('application/json');
-    console.log('Template data from dataTransfer:', templateData);
-    
-    if (!templateData) {
-      console.log('No template data found in dataTransfer');
-      return;
-    }
+    if (!templateData) return;
 
     try {
       const template: ComponentTemplate = JSON.parse(templateData);
-      console.log('Parsed template successfully:', template);
       
-      // Calculate position relative to canvas viewport (not accounting for zoom/pan for simplicity)
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      
-      console.log('Calculated position:', { x, y });
+      const x = (e.clientX - rect.left - pan.x) / zoom;
+      const y = (e.clientY - rect.top - pan.y) / zoom;
       
       const newComponent: FunnelComponent = {
         id: `${template.type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         type: template.type,
-        position: { x: Math.max(0, x - 80), y: Math.max(0, y - 40) }, // Center component on cursor
+        position: { x: Math.max(0, x - 80), y: Math.max(0, y - 40) },
         data: { ...template.defaultData },
         connections: []
       };
 
-      console.log('Creating new component:', newComponent);
       onComponentAdd(newComponent);
     } catch (error) {
       console.error('Error parsing template data:', error);
     }
-  }, [onComponentAdd]);
+  }, [onComponentAdd, pan, zoom]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -86,7 +78,6 @@ export const Canvas: React.FC<CanvasProps> = ({
   const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // Only set drag over to false if we're leaving the canvas completely
     const rect = canvasRef.current?.getBoundingClientRect();
     if (rect) {
       const isInsideCanvas = e.clientX >= rect.left && 
@@ -104,6 +95,7 @@ export const Canvas: React.FC<CanvasProps> = ({
       setIsPanning(true);
       setLastPanPosition({ x: e.clientX, y: e.clientY });
       setSelectedComponent(null);
+      setConnectingFrom(null);
     }
   }, []);
 
@@ -139,6 +131,24 @@ export const Canvas: React.FC<CanvasProps> = ({
     onComponentUpdate(id, { position });
   }, [onComponentUpdate]);
 
+  const handleConnectionStart = useCallback((componentId: string) => {
+    setConnectingFrom(componentId);
+  }, []);
+
+  const handleConnectionEnd = useCallback((componentId: string) => {
+    if (connectingFrom && connectingFrom !== componentId) {
+      const newConnection: Connection = {
+        id: `connection-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        from: connectingFrom,
+        to: componentId,
+        type: 'success'
+      };
+      
+      onConnectionAdd(newConnection);
+    }
+    setConnectingFrom(null);
+  }, [connectingFrom, onConnectionAdd]);
+
   return (
     <div className="flex-1 relative overflow-hidden bg-black">
       {/* Canvas Grid */}
@@ -154,15 +164,13 @@ export const Canvas: React.FC<CanvasProps> = ({
         }}
       />
       
-      {/* Drop indicator */}
       {isDragOver && (
         <div className="absolute inset-0 border-2 border-dashed border-white opacity-30 pointer-events-none z-50" />
       )}
       
-      {/* Canvas */}
       <div
         ref={canvasRef}
-        className="w-full h-full relative"
+        className="w-full h-full relative canvas-container"
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragEnter={handleDragEnter}
@@ -173,7 +181,6 @@ export const Canvas: React.FC<CanvasProps> = ({
         onWheel={handleWheel}
         style={{ cursor: isPanning ? 'grabbing' : 'grab' }}
       >
-        {/* Components Container */}
         <div 
           className="absolute inset-0"
           style={{
@@ -181,6 +188,29 @@ export const Canvas: React.FC<CanvasProps> = ({
             transformOrigin: '0 0'
           }}
         >
+          {/* SVG for connections */}
+          <svg
+            className="absolute inset-0 w-full h-full pointer-events-none"
+            style={{ zIndex: 0 }}
+          >
+            {connections.map((connection) => {
+              const fromComponent = components.find(c => c.id === connection.from);
+              const toComponent = components.find(c => c.id === connection.to);
+              
+              if (!fromComponent || !toComponent) return null;
+              
+              return (
+                <ConnectionLine
+                  key={connection.id}
+                  connection={connection}
+                  fromPosition={fromComponent.position}
+                  toPosition={toComponent.position}
+                />
+              );
+            })}
+          </svg>
+
+          {/* Components */}
           {components.map((component) => (
             <ComponentNode
               key={component.id}
@@ -189,6 +219,9 @@ export const Canvas: React.FC<CanvasProps> = ({
               onSelect={() => setSelectedComponent(component.id)}
               onDrag={handleComponentDrag}
               onDelete={() => onComponentDelete(component.id)}
+              onConnectionStart={handleConnectionStart}
+              onConnectionEnd={handleConnectionEnd}
+              isConnecting={connectingFrom !== null}
             />
           ))}
         </div>
@@ -212,6 +245,12 @@ export const Canvas: React.FC<CanvasProps> = ({
           -
         </button>
       </div>
+
+      {connectingFrom && (
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+          Clique em outro componente para conectar
+        </div>
+      )}
     </div>
   );
 };

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { Canvas } from '../components/Canvas';
@@ -18,6 +17,8 @@ const Index = () => {
     addComponent,
     updateComponent,
     deleteComponent,
+    addConnection,
+    deleteConnection,
     saveProject,
     loadProject,
     exportProject,
@@ -115,9 +116,12 @@ const Index = () => {
         {/* Canvas */}
         <Canvas
           components={project.components}
+          connections={project.connections}
           onComponentAdd={addComponent}
           onComponentUpdate={updateComponent}
           onComponentDelete={deleteComponent}
+          onConnectionAdd={addConnection}
+          onConnectionDelete={deleteConnection}
         />
       </div>
       

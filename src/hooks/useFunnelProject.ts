@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { FunnelProject, FunnelComponent, Connection } from '../types/funnel';
 
@@ -39,11 +38,26 @@ export const useFunnelProject = () => {
     }));
   }, []);
 
+  const addConnection = useCallback((connection: Connection) => {
+    setProject(prev => ({
+      ...prev,
+      connections: [...prev.connections, connection],
+      updatedAt: new Date().toISOString()
+    }));
+  }, []);
+
+  const deleteConnection = useCallback((connectionId: string) => {
+    setProject(prev => ({
+      ...prev,
+      connections: prev.connections.filter(conn => conn.id !== connectionId),
+      updatedAt: new Date().toISOString()
+    }));
+  }, []);
+
   const saveProject = useCallback(() => {
     const projectData = JSON.stringify(project, null, 2);
     localStorage.setItem(`funnel-project-${project.id}`, projectData);
     
-    // Also save to projects list
     const existingProjects = JSON.parse(localStorage.getItem('funnel-projects') || '[]');
     const updatedProjects = existingProjects.filter((p: FunnelProject) => p.id !== project.id);
     updatedProjects.push({
@@ -102,6 +116,8 @@ export const useFunnelProject = () => {
     addComponent,
     updateComponent,
     deleteComponent,
+    addConnection,
+    deleteConnection,
     saveProject,
     loadProject,
     exportProject,
