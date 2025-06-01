@@ -26,6 +26,7 @@ export const useCanvasDragDrop = ({
   const handleDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(true);
+    console.log('Drag enter canvas');
   }, []);
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
@@ -33,6 +34,7 @@ export const useCanvasDragDrop = ({
     // Only set isDragOver to false if we're leaving the canvas container
     if (!canvasRef.current?.contains(e.relatedTarget as Node)) {
       setIsDragOver(false);
+      console.log('Drag leave canvas');
     }
   }, [canvasRef]);
 
@@ -40,18 +42,32 @@ export const useCanvasDragDrop = ({
     e.preventDefault();
     setIsDragOver(false);
     
+    console.log('Drop event triggered');
+    
     try {
       const templateData = e.dataTransfer.getData('application/json');
-      if (!templateData) return;
+      console.log('Template data from drag:', templateData);
+      
+      if (!templateData) {
+        console.warn('No template data found in drag event');
+        return;
+      }
       
       const template: ComponentTemplate = JSON.parse(templateData);
+      console.log('Parsed template:', template);
+      
       const canvasRect = canvasRef.current?.getBoundingClientRect();
       
-      if (!canvasRect) return;
+      if (!canvasRect) {
+        console.warn('Canvas rect not found');
+        return;
+      }
 
       // Calcular posição considerando zoom e pan
-      const x = (e.clientX - canvasRect.left - panOffset.x) / scale;
-      const y = (e.clientY - canvasRect.top - panOffset.y) / scale;
+      const x = Math.max(0, (e.clientX - canvasRect.left - panOffset.x) / scale);
+      const y = Math.max(0, (e.clientY - canvasRect.top - panOffset.y) / scale);
+
+      console.log('Drop position:', { x, y });
 
       const newComponent: FunnelComponent = {
         id: `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -68,8 +84,8 @@ export const useCanvasDragDrop = ({
         }
       };
 
+      console.log('Creating new component:', newComponent);
       onAddComponent(newComponent);
-      console.log('Component added:', newComponent);
     } catch (error) {
       console.error('Error adding component:', error);
     }

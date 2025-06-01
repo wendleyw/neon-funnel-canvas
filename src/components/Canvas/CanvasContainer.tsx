@@ -1,4 +1,3 @@
-
 import React, { useRef, useMemo, useCallback } from 'react';
 import { FunnelComponent, Connection } from '../../types/funnel';
 import { ComponentNode } from '../ComponentNode';
@@ -27,11 +26,12 @@ interface CanvasContainerProps {
   onMouseMove: (e: React.MouseEvent) => void;
   onMouseUp: () => void;
   onWheel: (e: React.WheelEvent) => void;
-  onDrop: (e: React.DragEvent, canvasRef: React.RefObject<HTMLDivElement>) => void;
+  onDrop: (e: React.DragEvent) => void;
   onDragOver: (e: React.DragEvent) => void;
   onDragEnter: (e: React.DragEvent) => void;
-  onDragLeave: (e: React.DragEvent, canvasRef: React.RefObject<HTMLDivElement>) => void;
-  handleMouseDown: (e: React.MouseEvent, canvasRef: React.RefObject<HTMLDivElement>) => void;
+  onDragLeave: (e: React.DragEvent) => void;
+  handleMouseDown: (e: React.MouseEvent) => void;
+  isDragOver?: boolean;
 }
 
 export const CanvasContainer: React.FC<CanvasContainerProps> = ({
@@ -59,7 +59,8 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
   onDragOver,
   onDragEnter,
   onDragLeave,
-  handleMouseDown
+  handleMouseDown,
+  isDragOver = false
 }) => {
   const canvasRef = useRef<HTMLDivElement>(null);
 
@@ -90,8 +91,8 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
   const handleCanvasMouseDown = React.useCallback((e: React.MouseEvent) => {
     // Call the canvas mouse down handler
     onCanvasMouseDown(e);
-    // Call the pan mouse down handler with canvasRef
-    handleMouseDown(e, canvasRef);
+    // Call the pan mouse down handler
+    handleMouseDown(e);
   }, [onCanvasMouseDown, handleMouseDown]);
 
   const transformStyle = useMemo(() => ({
@@ -100,8 +101,8 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
   }), [pan.x, pan.y, zoom]);
 
   const canvasStyle = useMemo(() => ({
-    cursor: isPanning ? 'grabbing' : 'grab'
-  }), [isPanning]);
+    cursor: isPanning ? 'grabbing' : isDragOver ? 'copy' : 'grab'
+  }), [isPanning, isDragOver]);
 
   // Handler para deletar conexão
   const handleConnectionDelete = useCallback((connectionId: string) => {
@@ -111,11 +112,13 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
   return (
     <div
       ref={canvasRef}
-      className="w-full h-full relative canvas-container"
-      onDrop={(e) => onDrop(e, canvasRef)}
+      className={`w-full h-full relative canvas-container ${
+        isDragOver ? 'bg-blue-900/10 border-2 border-blue-500 border-dashed' : ''
+      }`}
+      onDrop={onDrop}
       onDragOver={onDragOver}
       onDragEnter={onDragEnter}
-      onDragLeave={(e) => onDragLeave(e, canvasRef)}
+      onDragLeave={onDragLeave}
       onMouseDown={handleCanvasMouseDown}
       onMouseMove={onMouseMove}
       onMouseUp={onMouseUp}
