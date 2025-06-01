@@ -36,19 +36,52 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
     image: component.data.image || ''
   });
 
+  const [isUploading, setIsUploading] = useState(false);
+
   const handleInputChange = useCallback((field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   }, []);
 
-  const handleImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
+    if (!file) return;
+
+    // Verificar se é uma imagem
+    if (!file.type.startsWith('image/')) {
+      alert('Por favor, selecione apenas arquivos de imagem');
+      return;
+    }
+
+    // Verificar tamanho do arquivo (máximo 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('A imagem deve ter no máximo 5MB');
+      return;
+    }
+
+    setIsUploading(true);
+    
+    try {
       const reader = new FileReader();
       reader.onload = (event) => {
         const imageUrl = event.target?.result as string;
-        setFormData(prev => ({ ...prev, image: imageUrl }));
+        if (imageUrl) {
+          setFormData(prev => ({ ...prev, image: imageUrl }));
+          console.log('Imagem carregada com sucesso');
+        }
+        setIsUploading(false);
       };
+      
+      reader.onerror = () => {
+        console.error('Erro ao ler o arquivo');
+        alert('Erro ao carregar a imagem. Tente novamente.');
+        setIsUploading(false);
+      };
+      
       reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Erro no upload:', error);
+      alert('Erro ao processar a imagem');
+      setIsUploading(false);
     }
   }, []);
 
@@ -58,6 +91,8 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
+    
+    console.log('Salvando dados:', formData);
     
     onUpdate({
       data: {
@@ -215,6 +250,10 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
                       src={formData.image}
                       alt="Preview"
                       className="w-full h-48 object-cover rounded-lg border"
+                      onError={(e) => {
+                        console.error('Erro ao carregar imagem de preview');
+                        e.currentTarget.src = '';
+                      }}
                     />
                     <Button
                       type="button"
@@ -222,6 +261,7 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
                       size="sm"
                       onClick={handleRemoveImage}
                       className="absolute top-2 right-2"
+                      disabled={isUploading}
                     >
                       <X className="w-4 h-4" />
                     </Button>
@@ -244,36 +284,41 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
                       accept="image/*"
                       onChange={handleImageUpload}
                       className="hidden"
+                      disabled={isUploading}
                     />
-                    <Button type="button" variant="outline" className="inline-flex items-center gap-2">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      className="inline-flex items-center gap-2"
+                      disabled={isUploading}
+                    >
                       <Upload className="w-4 h-4" />
-                      Escolher Imagem
+                      {isUploading ? 'Carregando...' : 'Escolher Imagem'}
                     </Button>
                   </label>
                 </div>
               )}
               
-              {!formData.image && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Ou cole uma URL de imagem</label>
-                  <Input
-                    value={formData.image}
-                    onChange={(e) => handleInputChange('image', e.target.value)}
-                    placeholder="https://exemplo.com/imagem.jpg"
-                    type="url"
-                  />
-                </div>
-              )}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Ou cole uma URL de imagem</label>
+                <Input
+                  value={formData.image}
+                  onChange={(e) => handleInputChange('image', e.target.value)}
+                  placeholder="https://exemplo.com/imagem.jpg"
+                  type="url"
+                  disabled={isUploading}
+                />
+              </div>
             </CardContent>
           </Card>
 
           {/* Actions */}
           <div className="flex justify-end space-x-3 pt-4">
-            <Button type="button" variant="outline" onClick={onClose}>
+            <Button type="button" variant="outline" onClick={onClose} disabled={isUploading}>
               Cancelar
             </Button>
-            <Button type="submit">
-              Salvar Alterações
+            <Button type="submit" disabled={isUploading}>
+              {isUploading ? 'Processando...' : 'Salvar Alterações'}
             </Button>
           </div>
         </form>
