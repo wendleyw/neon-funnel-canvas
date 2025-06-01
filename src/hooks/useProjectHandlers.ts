@@ -1,3 +1,4 @@
+
 import { useCallback } from 'react';
 import { FunnelComponent, Connection, FunnelProject } from '../types/funnel';
 import { useWorkspace } from './useWorkspace';
@@ -85,25 +86,16 @@ export const useProjectHandlers = ({
   }, [setProject]);
 
   const handleProjectSelect = useCallback((projectId: string) => {
-    const projectData = loadProject(projectId);
-    if (projectData) {
-      const unknownProject = projectData as unknown;
-      
-      if (
-        unknownProject && 
-        typeof unknownProject === 'object' && 
-        'name' in unknownProject && 
-        'id' in unknownProject &&
-        'components' in unknownProject &&
-        'connections' in unknownProject
-      ) {
-        const typedProject = unknownProject as FunnelProject;
-        loadProjectData(typedProject, projectId);
-        console.log('Project loaded:', typedProject.name);
+    try {
+      const projectData = loadProject(projectId);
+      if (projectData) {
+        console.log('Project loaded:', projectData.name);
+        loadProjectData(projectData, projectId);
       } else {
-        toast.error('Dados do projeto inválidos');
+        toast.error('Projeto não encontrado');
       }
-    } else {
+    } catch (error) {
+      console.error('Erro ao carregar projeto:', error);
       toast.error('Erro ao carregar projeto');
     }
   }, [loadProject, loadProjectData]);

@@ -20,7 +20,7 @@ interface FunnelEditorProps {
   enterEditor: () => void;
   onBackToWorkspace: () => void;
   handleProjectNameChange: (name: string) => void;
-  currentWorkspace?: { name?: string };
+  currentWorkspace?: { id: string; name: string; description?: string } | null;
 }
 
 export const FunnelEditor: React.FC<FunnelEditorProps> = ({
@@ -87,7 +87,7 @@ export const FunnelEditor: React.FC<FunnelEditorProps> = ({
           onBackToWorkspace={onBackToWorkspace}
           projectName={project.name}
           onProjectNameChange={handleProjectNameChange}
-          workspaceName={currentWorkspace?.name}
+          workspaceName={currentWorkspace?.name || ''}
           componentsCount={project.components.length}
         />
         <StatusBar 
