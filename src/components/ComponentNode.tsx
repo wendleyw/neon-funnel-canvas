@@ -43,26 +43,13 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
   const {
     isDragging,
     nodeRef,
-    handleMouseDown,
-    handleMouseMove,
-    handleMouseUp
+    handleMouseDown
   } = useComponentDrag(dragHandlers);
 
   const template = useMemo(() => 
     componentTemplates.find(t => t.type === component.type), 
     [component.type]
   );
-
-  useEffect(() => {
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      };
-    }
-  }, [isDragging, handleMouseMove, handleMouseUp]);
 
   const handleDeleteClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -139,7 +126,7 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
     >
       {/* Main Component Card */}
       <div className="w-48 bg-gray-900 rounded-lg border border-gray-700 shadow-xl hover:shadow-2xl transition-all duration-300 hover:border-gray-600 relative group">
-        {/* Connection Button (appears when selected) */}
+        {/* Connection Button - só aparece quando selecionado e não está conectando */}
         {isSelected && !isConnecting && (
           <button
             onClick={handleConnectionClick}

@@ -11,19 +11,16 @@ export const useComponentDrag = ({ componentId, onDrag, onSelect }: UseComponent
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [hasDragged, setHasDragged] = useState(false);
+  const [dragStartPosition, setDragStartPosition] = useState({ x: 0, y: 0 });
   const nodeRef = useRef<HTMLDivElement>(null);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    
-    // Don't start dragging if clicking on connection points or buttons
-    if ((e.target as Element).closest('.connection-point') || 
-        (e.target as Element).closest('button')) {
+    // Don't start dragging if clicking on buttons
+    if ((e.target as Element).closest('button')) {
       return;
     }
     
-    setIsDragging(true);
-    setHasDragged(false);
+    e.stopPropagation();
     
     const rect = nodeRef.current?.getBoundingClientRect();
     if (rect) {
@@ -31,43 +28,60 @@ export const useComponentDrag = ({ componentId, onDrag, onSelect }: UseComponent
         x: e.clientX - rect.left,
         y: e.clientY - rect.top
       });
-    }
-  }, []);
-
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (isDragging && nodeRef.current) {
-      e.preventDefault();
-      setHasDragged(true);
+      setDragStartPosition({ x: e.clientX, y: e.clientY });
+      setIsDragging(true);
+      setHasDragged(false);
       
-      const canvas = nodeRef.current.closest('.canvas-container');
-      const canvasRect = canvas?.getBoundingClientRect();
+      // Adiciona listeners globais para mousemove e mouseup
+      const handleMouseMove = (event: MouseEvent) => {
+        event.preventDefault();
+        
+        // Calcula a distância do movimento
+        const distance = Math.sqrt(
+          Math.pow(event.clientX - dragStartPosition.x, 2) + 
+          Math.pow(event.clientY - dragStartPosition.y, 2)
+        );
+        
+        // Só considera como drag se moveu mais de 5 pixels
+        if (distance > 5) {
+          setHasDragged(true);
+          
+          const canvas = nodeRef.current?.closest('.canvas-container');
+          const canvasRect = canvas?.getBoundingClientRect();
+          
+          if (canvasRect) {
+            const newPosition = {
+              x: Math.max(0, event.clientX - canvasRect.left - dragOffset.x),
+              y: Math.max(0, event.clientY - canvasRect.top - dragOffset.y)
+            };
+            onDrag(componentId, newPosition);
+          }
+        }
+      };
       
-      if (canvasRect) {
-        const newPosition = {
-          x: Math.max(0, e.clientX - canvasRect.left - dragOffset.x),
-          y: Math.max(0, e.clientY - canvasRect.top - dragOffset.y)
-        };
-        onDrag(componentId, newPosition);
-      }
+      const handleMouseUp = () => {
+        setIsDragging(false);
+        
+        // Remove listeners
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+        
+        // Só chama onSelect se não arrastou o componente
+        if (!hasDragged) {
+          setTimeout(() => onSelect(), 0); // Pequeno delay para evitar conflitos
+        }
+        
+        setHasDragged(false);
+      };
+      
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
     }
-  }, [isDragging, dragOffset, componentId, onDrag]);
-
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
-    
-    // Só chama onSelect se não arrastou o componente
-    if (!hasDragged) {
-      onSelect();
-    }
-    
-    setHasDragged(false);
-  }, [hasDragged, onSelect]);
+  }, [componentId, onDrag, onSelect, dragOffset.x, dragOffset.y, dragStartPosition.x, dragStartPosition.y, hasDragged]);
 
   return {
     isDragging,
     nodeRef,
-    handleMouseDown,
-    handleMouseMove,
-    handleMouseUp
+    handleMouseDown
   };
 };

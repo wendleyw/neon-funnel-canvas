@@ -16,23 +16,17 @@ export const useCanvasSelection = ({ onConnectionAdd, onConnectionDelete }: UseC
     
     // Limpa seleção de conexão ao selecionar componente
     setSelectedConnection(null);
+    setConnectingFrom(null);
     
-    if (selectedComponent === componentId) {
-      // Clicou no mesmo componente, cancela seleção
-      setSelectedComponent(null);
-      setConnectingFrom(null);
-      console.log('Seleção cancelada');
-    } else {
-      // Seleciona o componente
-      setSelectedComponent(componentId);
-      setConnectingFrom(null);
-      console.log('Componente selecionado:', componentId);
-    }
-  }, [selectedComponent]);
+    // Sempre seleciona o componente clicado
+    setSelectedComponent(componentId);
+    console.log('Componente selecionado:', componentId);
+  }, []);
 
   const startConnection = useCallback((fromComponentId: string) => {
     console.log('Iniciando conexão de:', fromComponentId);
     setConnectingFrom(fromComponentId);
+    // Mantém o componente selecionado durante a conexão
   }, []);
 
   const handleComponentConnect = useCallback((toComponentId: string) => {
@@ -47,7 +41,8 @@ export const useCanvasSelection = ({ onConnectionAdd, onConnectionDelete }: UseC
       
       onConnectionAdd(newConnection);
       setConnectingFrom(null);
-      setSelectedComponent(null);
+      // Mantém o componente origem selecionado após criar a conexão
+      setSelectedComponent(connectingFrom);
     }
   }, [connectingFrom, onConnectionAdd]);
 
