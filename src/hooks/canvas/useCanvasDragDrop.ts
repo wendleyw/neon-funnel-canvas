@@ -37,11 +37,11 @@ export const useCanvasDragDrop = ({ onComponentAdd, pan, zoom }: UseCanvasDragDr
       const y = (e.clientY - rect.top - pan.y) / zoom;
       
       // Gera um ID único para o componente
-      const componentId = `${template.type.toString()}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const componentId = `${template.type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       
       const newComponent: FunnelComponent = {
         id: componentId,
-        type: template.type,
+        type: template.type, // Aceita qualquer tipo de string, incluindo componentes personalizados
         position: { x: Math.max(0, x - 80), y: Math.max(0, y - 40) },
         data: { ...template.defaultData },
         connections: []

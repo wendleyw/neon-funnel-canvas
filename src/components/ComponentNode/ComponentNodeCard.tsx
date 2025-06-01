@@ -4,6 +4,7 @@ import { ArrowRight } from 'lucide-react';
 import { ComponentNodeHeader } from './ComponentNodeHeader';
 import { ComponentNodeContent } from './ComponentNodeContent';
 import { ComponentNodeConnectionPoints } from './ComponentNodeConnectionPoints';
+import { ComponentNodeFooter } from './ComponentNodeFooter';
 import { FunnelComponent, ComponentTemplate } from '../../types/funnel';
 
 interface ComponentNodeCardProps {
@@ -34,11 +35,8 @@ export const ComponentNodeCard: React.FC<ComponentNodeCardProps> = ({
       <ComponentNodeHeader
         template={template}
         isSelected={isSelected}
-        isConnecting={isConnecting}
         onEditClick={onEditClick}
         onDeleteClick={onDeleteClick}
-        onConnectionClick={onConnectionClick}
-        onDuplicateClick={onDuplicateClick}
       />
       
       {/* Indicator para modo de conexão */}
@@ -51,6 +49,13 @@ export const ComponentNodeCard: React.FC<ComponentNodeCardProps> = ({
       <ComponentNodeContent component={component} />
       
       <ComponentNodeConnectionPoints />
+      
+      <ComponentNodeFooter
+        isSelected={isSelected}
+        isConnecting={isConnecting}
+        onConnectionClick={onConnectionClick}
+        onDuplicateClick={onDuplicateClick}
+      />
     </div>
   );
 };
