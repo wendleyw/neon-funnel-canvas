@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+
+import React, { useState, useMemo, useCallback } from 'react';
 import { FunnelComponent } from '../types/funnel';
 import { componentTemplates } from '../data/componentTemplates';
 import { useComponentDrag } from '../hooks/canvas/useComponentDrag';
 import { ComponentEditor } from './ComponentEditor';
-import { StatusBadge } from './StatusBadge';
-import { Plus, Settings, Eye, ArrowRight, Link, Copy } from 'lucide-react';
+import { ComponentNodeCard } from './ComponentNode/ComponentNodeCard';
 
 interface ComponentNodeProps {
   component: FunnelComponent;
@@ -130,117 +130,17 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
       onDoubleClick={handleDoubleClick}
       onClick={handleClick}
     >
-      {/* Main Component Card */}
-      <div className="w-48 bg-gray-900 rounded-lg border border-gray-700 shadow-xl hover:shadow-2xl transition-all duration-300 hover:border-gray-600 relative group">
-        {/* Connection Button - só aparece quando selecionado e não está conectando */}
-        {isSelected && !isConnecting && (
-          <button
-            onClick={handleConnectionClick}
-            className="absolute -top-3 right-4 bg-blue-500 hover:bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 z-10"
-            title="Conectar com outro componente"
-          >
-            <Link className="w-4 h-4" />
-          </button>
-        )}
-        
-        {/* Duplicate Button - aparece quando selecionado */}
-        {isSelected && !isConnecting && onDuplicate && (
-          <button
-            onClick={handleDuplicateClick}
-            className="absolute -top-3 right-16 bg-green-500 hover:bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 z-10"
-            title="Duplicar componente"
-          >
-            <Copy className="w-4 h-4" />
-          </button>
-        )}
-        
-        {/* Indicator para modo de conexão */}
-        {canConnect && (
-          <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold animate-bounce">
-            <ArrowRight className="w-3 h-3" />
-          </div>
-        )}
-        
-        {/* Header */}
-        <div className="bg-gray-800 rounded-t-lg p-3 flex items-center justify-between">
-          <div className="flex items-center space-x-2 flex-1 min-w-0">
-            <span className="text-white text-sm">{template.icon}</span>
-            <span className="text-white font-medium text-xs truncate">{template.label}</span>
-          </div>
-          <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button
-              onClick={handleEditClick}
-              className="text-gray-400 hover:text-blue-400 transition-colors p-1"
-              title="Editar componente"
-            >
-              <Plus className="w-3 h-3" />
-            </button>
-            {isSelected && (
-              <>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    // TODO: Implementar ações avançadas
-                  }}
-                  className="text-gray-400 hover:text-white transition-colors p-1"
-                  title="Configurações avançadas"
-                >
-                  <Settings className="w-3 h-3" />
-                </button>
-                <button
-                  onClick={handleDeleteClick}
-                  className="text-gray-400 hover:text-red-400 transition-colors text-lg font-bold leading-none p-1"
-                >
-                  ×
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-        
-        {/* Image Preview */}
-        {component.data.image && (
-          <div className="px-3 pt-2">
-            <img
-              src={component.data.image}
-              alt={component.data.title}
-              className="w-full h-16 object-cover rounded border border-gray-700"
-            />
-          </div>
-        )}
-        
-        {/* Content */}
-        <div className="p-3">
-          <div className="flex items-start justify-between mb-2">
-            <h4 className="text-white font-medium text-sm flex-1 min-w-0 truncate">
-              {component.data.title}
-            </h4>
-            <StatusBadge status={component.data.status} />
-          </div>
-          
-          {component.data.description && (
-            <p className="text-gray-400 text-xs leading-relaxed mb-2 line-clamp-2">
-              {component.data.description}
-            </p>
-          )}
-          
-          {component.data.url && (
-            <div className="flex items-center space-x-1 text-xs text-blue-400">
-              <Eye className="w-3 h-3" />
-              <span className="truncate">{component.data.url}</span>
-            </div>
-          )}
-        </div>
-
-        {/* Connection Points */}
-        <div className="absolute -right-2 top-1/2 transform -translate-y-1/2">
-          <div className="w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity" />
-        </div>
-        
-        <div className="absolute -left-2 top-1/2 transform -translate-y-1/2">
-          <div className="w-4 h-4 bg-gray-500 rounded-full border-2 border-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity" />
-        </div>
-      </div>
+      <ComponentNodeCard
+        component={component}
+        template={template}
+        isSelected={isSelected}
+        isConnecting={isConnecting}
+        canConnect={canConnect}
+        onEditClick={handleEditClick}
+        onDeleteClick={handleDeleteClick}
+        onConnectionClick={handleConnectionClick}
+        onDuplicateClick={handleDuplicateClick}
+      />
 
       {/* Editor Panel */}
       {isEditing && (
