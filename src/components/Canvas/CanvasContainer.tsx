@@ -1,3 +1,4 @@
+
 import React, { useMemo, useCallback } from 'react';
 import { FunnelComponent, Connection } from '../../types/funnel';
 import { ComponentNode } from '../ComponentNode';
@@ -140,13 +141,13 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
       onContextMenu={onContextMenu}
       style={{
         ...canvasStyle,
-        position: 'fixed',
+        position: 'absolute',
         top: 0,
         left: 0,
         right: 0,
         bottom: 0,
-        width: '100vw',
-        height: '100vh',
+        width: '100%',
+        height: '100%',
         overflow: 'hidden',
         zIndex: 1
       }}
@@ -155,11 +156,11 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
         className="canvas-background"
         style={{
           ...transformStyle,
-          position: 'absolute',
-          width: '10000px',
-          height: '10000px',
-          top: '-5000px',
-          left: '-5000px'
+          position: 'relative',
+          width: '100%',
+          height: '100%',
+          minWidth: '5000px',
+          minHeight: '5000px'
         }}
       >
         <ErrorBoundary>
