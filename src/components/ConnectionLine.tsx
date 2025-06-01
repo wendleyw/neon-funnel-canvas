@@ -45,6 +45,7 @@ export const ConnectionLine: React.FC<ConnectionLineProps> = ({
   const pathData = `M ${startX} ${startY} L ${endX} ${endY}`;
   const color = getConnectionColor();
   const gradientId = `gradient-${connection.id}`;
+  const shadowId = `shadow-${connection.id}`;
   const isAnimated = connection.animated || false;
 
   const editorPosition = {
@@ -54,69 +55,142 @@ export const ConnectionLine: React.FC<ConnectionLineProps> = ({
 
   return (
     <g>
-      {/* Definição do degradê */}
+      {/* Definições avançadas de filtros e gradientes */}
       <defs>
+        {/* Gradiente principal melhorado */}
         <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor={color} stopOpacity="0.1" />
-          <stop offset="50%" stopColor={color} stopOpacity="0.8" />
-          <stop offset="100%" stopColor={color} stopOpacity="0.1" />
+          <stop offset="0%" stopColor={color} stopOpacity="0.3" />
+          <stop offset="25%" stopColor={color} stopOpacity="0.8" />
+          <stop offset="75%" stopColor={color} stopOpacity="0.8" />
+          <stop offset="100%" stopColor={color} stopOpacity="0.3" />
         </linearGradient>
+        
+        {/* Sombra e brilho */}
+        <filter id={shadowId} x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+          <feOffset dx="0" dy="2" result="offset"/>
+          <feFlood floodColor={color} floodOpacity="0.3"/>
+          <feComposite in2="offset" operator="in"/>
+          <feMerge>
+            <feMergeNode/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
       </defs>
 
-      {/* Área clicável invisível mais ampla */}
+      {/* Área clicável invisível mais ampla com hover efect */}
       <path
         d={pathData}
         stroke="transparent"
-        strokeWidth="20"
+        strokeWidth="24"
         fill="none"
-        className="pointer-events-auto cursor-pointer"
+        className="pointer-events-auto cursor-pointer transition-all duration-200"
         onClick={(e) => {
           e.stopPropagation();
           onSelect?.();
         }}
+        onMouseEnter={(e) => {
+          const target = e.currentTarget;
+          target.style.stroke = `${color}20`;
+          target.style.strokeWidth = "28";
+        }}
+        onMouseLeave={(e) => {
+          const target = e.currentTarget;
+          target.style.stroke = "transparent";
+          target.style.strokeWidth = "24";
+        }}
       />
       
-      {/* Linha principal com degradê */}
+      {/* Linha base com sombra */}
+      <path
+        d={pathData}
+        stroke={color}
+        strokeWidth="1"
+        fill="none"
+        className="pointer-events-none"
+        filter={`url(#${shadowId})`}
+        opacity="0.6"
+      />
+      
+      {/* Linha principal com gradiente melhorado */}
       <path
         d={pathData}
         stroke={`url(#${gradientId})`}
-        strokeWidth="2"
+        strokeWidth="3"
         fill="none"
-        className={`pointer-events-none ${isAnimated ? 'animate-pulse' : ''}`}
+        className={`pointer-events-none transition-all duration-300 ${
+          isAnimated ? 'animate-pulse' : ''
+        } ${isSelected ? 'drop-shadow-lg' : ''}`}
+        style={{
+          filter: isSelected ? `drop-shadow(0 0 8px ${color}80)` : 'none'
+        }}
       />
       
-      {/* Bola animada no meio da linha */}
+      {/* Partícula animada no centro */}
       <circle
         cx={(startX + endX) / 2}
         cy={(startY + endY) / 2}
-        r="4"
+        r={isSelected ? "6" : "4"}
         fill={color}
-        className={`pointer-events-none ${isAnimated ? 'animate-bounce' : ''}`}
-        opacity={isAnimated ? "0.8" : "0.6"}
+        className={`pointer-events-none transition-all duration-300 ${
+          isAnimated ? 'animate-bounce' : isSelected ? 'animate-pulse' : ''
+        }`}
+        opacity={isAnimated ? "0.9" : "0.7"}
+        style={{
+          filter: `drop-shadow(0 0 6px ${color}80)`,
+          transform: isSelected ? 'scale(1.2)' : 'scale(1)'
+        }}
       />
       
-      {/* Indicador visual quando selecionado */}
+      {/* Efeito de brilho quando selecionado */}
       {isSelected && (
         <>
-          {/* Linha pulsante para indicar seleção */}
+          {/* Linha pulsante externa */}
           <path
             d={pathData}
             stroke={color}
-            strokeWidth="3"
+            strokeWidth="6"
             fill="none"
-            strokeDasharray="8,4"
-            opacity="0.8"
+            strokeDasharray="12,8"
+            opacity="0.4"
             className="pointer-events-none animate-pulse"
+            style={{
+              filter: `drop-shadow(0 0 12px ${color}60)`
+            }}
           />
           
-          {/* Editor de conexão quando selecionado */}
-          <foreignObject
-            x={0}
-            y={0}
-            width="100%"
-            height="100%"
-            className="pointer-events-auto"
-          >
+          {/* Partículas extras nos extremos */}
+          <circle
+            cx={startX}
+            cy={startY}
+            r="3"
+            fill={color}
+            className="pointer-events-none animate-ping"
+            opacity="0.6"
+          />
+          <circle
+            cx={endX}
+            cy={endY}
+            r="3"
+            fill={color}
+            className="pointer-events-none animate-ping"
+            opacity="0.6"
+            style={{ animationDelay: '0.5s' }}
+          />
+        </>
+      )}
+      
+      {/* Editor de conexão quando selecionado - agora em portal para z-index correto */}
+      {isSelected && (
+        <foreignObject
+          x={0}
+          y={0}
+          width="100%"
+          height="100%"
+          className="pointer-events-none overflow-visible"
+          style={{ zIndex: 9999 }}
+        >
+          <div className="pointer-events-auto">
             <ConnectionEditor
               connection={connection}
               position={editorPosition}
@@ -124,8 +198,8 @@ export const ConnectionLine: React.FC<ConnectionLineProps> = ({
               onDelete={onDelete || (() => {})}
               onClose={() => onSelect?.()}
             />
-          </foreignObject>
-        </>
+          </div>
+        </foreignObject>
       )}
     </g>
   );
