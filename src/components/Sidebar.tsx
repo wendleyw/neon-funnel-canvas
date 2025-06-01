@@ -7,6 +7,7 @@ import { SidebarHeader } from './Sidebar/SidebarHeader';
 import { TemplateSection } from './Sidebar/TemplateSection';
 import { FavoriteTemplatesSection } from './Sidebar/FavoriteTemplatesSection';
 import { DigitalLaunchOrganizedSection } from './Sidebar/DigitalLaunchOrganizedSection';
+import { SocialMediaSection } from './Sidebar/SocialMediaSection';
 import { ReadyTemplatesModal } from './ReadyTemplates/ReadyTemplatesModal';
 import { Button } from './ui/button';
 import { Star } from 'lucide-react';
@@ -64,6 +65,11 @@ export const Sidebar = React.memo<SidebarProps>(({ onDragStart, onAddCompleteTem
             favorites={favorites}
             onDragStart={handleDragStart}
             onToggleFavorite={toggleFavorite}
+          />
+
+          <SocialMediaSection
+            onDragStart={handleDragStart}
+            onAddCompleteTemplate={onAddCompleteTemplate}
           />
 
           <DigitalLaunchOrganizedSection

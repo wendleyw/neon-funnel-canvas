@@ -88,9 +88,10 @@ export const useProjectHandlers = ({
   const handleProjectSelect = useCallback((projectId: string) => {
     try {
       const projectData = loadProject(projectId);
-      if (projectData) {
-        console.log('Project loaded:', projectData.name);
-        loadProjectData(projectData, projectId);
+      if (projectData && typeof projectData === 'object' && 'name' in projectData) {
+        const typedProject = projectData as FunnelProject;
+        console.log('Project loaded:', typedProject.name);
+        loadProjectData(typedProject, projectId);
       } else {
         toast.error('Projeto não encontrado');
       }

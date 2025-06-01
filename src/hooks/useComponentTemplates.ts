@@ -3,6 +3,7 @@ import { useState, useCallback, useMemo } from 'react';
 import { ComponentTemplate } from '../types/funnel';
 import { componentTemplatesByCategory } from '../data/componentTemplates';
 import { digitalLaunchTemplates } from '../features/digital-launch/data/templates';
+import { socialMediaTemplates } from '../features/social-media/data/templates';
 
 export const useComponentTemplates = () => {
   const [customTemplates, setCustomTemplates] = useState<ComponentTemplate[]>([]);
@@ -13,6 +14,7 @@ export const useComponentTemplates = () => {
     return [
       ...categoryTemplates,
       ...digitalLaunchTemplates,
+      ...socialMediaTemplates,
       ...customTemplates
     ];
   }, [customTemplates]);
@@ -39,6 +41,7 @@ export const useComponentTemplates = () => {
     allTemplates,
     customTemplates,
     digitalLaunchTemplates,
+    socialMediaTemplates,
     categoryTemplates: Object.values(componentTemplatesByCategory).flat(),
     addCustomTemplate,
     removeCustomTemplate,

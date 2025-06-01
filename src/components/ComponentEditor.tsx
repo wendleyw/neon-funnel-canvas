@@ -12,7 +12,7 @@ import { Textarea } from './ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
-import { X, Upload, Image as ImageIcon } from 'lucide-react';
+import { X, Upload, Image as ImageIcon, Instagram, Youtube } from 'lucide-react';
 import { FunnelComponent } from '../types/funnel';
 
 interface ComponentEditorProps {
@@ -73,6 +73,27 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
     onClose();
   }, [formData, component.data, onUpdate, onClose]);
 
+  const isSocialMediaComponent = component.type.includes('instagram-') || 
+                                 component.type.includes('youtube-') || 
+                                 component.type.includes('tiktok-') ||
+                                 component.type.includes('facebook-') ||
+                                 component.type.includes('linkedin-') ||
+                                 component.type.includes('twitter-');
+
+  const getDimensionsInfo = () => {
+    const props = component.data.properties;
+    if (props?.dimensions && props?.aspectRatio) {
+      return `${props.dimensions} (${props.aspectRatio})`;
+    }
+    return 'Dimensões não especificadas';
+  };
+
+  const getPlatformIcon = () => {
+    if (component.type.includes('instagram-')) return <Instagram className="w-4 h-4" />;
+    if (component.type.includes('youtube-')) return <Youtube className="w-4 h-4" />;
+    return null;
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -80,6 +101,7 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
+            {getPlatformIcon()}
             Editar Componente
             <Badge variant="outline">{component.type}</Badge>
           </DialogTitle>
@@ -140,6 +162,43 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
             </CardContent>
           </Card>
 
+          {/* Social Media Specs */}
+          {isSocialMediaComponent && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  {getPlatformIcon()}
+                  Especificações da Plataforma
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Dimensões</label>
+                    <p className="text-sm font-mono bg-gray-100 p-2 rounded">
+                      {getDimensionsInfo()}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Plataforma</label>
+                    <p className="text-sm bg-gray-100 p-2 rounded">
+                      {component.data.properties?.platform || component.type.split('-')[0]}
+                    </p>
+                  </div>
+                </div>
+                
+                {component.data.properties?.duration && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Duração</label>
+                    <p className="text-sm bg-gray-100 p-2 rounded">
+                      {component.data.properties.duration}
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           {/* Image Upload */}
           <Card>
             <CardHeader>
@@ -173,6 +232,11 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
                   <ImageIcon className="w-12 h-12 mx-auto mb-4 text-gray-400" />
                   <p className="text-sm text-gray-600 mb-4">
                     Adicione uma imagem para representar este componente
+                    {isSocialMediaComponent && (
+                      <span className="block text-xs text-gray-500 mt-1">
+                        Recomendado: {getDimensionsInfo()}
+                      </span>
+                    )}
                   </p>
                   <label className="cursor-pointer">
                     <input
