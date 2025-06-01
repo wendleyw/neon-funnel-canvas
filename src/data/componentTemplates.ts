@@ -1,7 +1,8 @@
 
 import { ComponentTemplate } from '../types/funnel';
+import { digitalLaunchTemplates } from './digitalLaunchTemplates';
 
-export const componentTemplates: ComponentTemplate[] = [
+export const basicTemplates: ComponentTemplate[] = [
   {
     type: 'landing-page',
     icon: '🎯',
@@ -110,4 +111,10 @@ export const componentTemplates: ComponentTemplate[] = [
       properties: {}
     }
   }
+];
+
+// Combina templates básicos com templates de lançamento digital
+export const componentTemplates: ComponentTemplate[] = [
+  ...basicTemplates,
+  ...digitalLaunchTemplates
 ];

@@ -7,6 +7,7 @@ import { Textarea } from './ui/textarea';
 import { Button } from './ui/button';
 import { Upload, Link, Settings, X, Check } from 'lucide-react';
 import { StatusBadge } from './StatusBadge';
+import { DigitalLaunchFields } from './ComponentEditor/DigitalLaunchFields';
 
 interface ComponentEditorProps {
   component: FunnelComponent;
@@ -24,11 +25,19 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
     description: component.data.description || '',
     image: component.data.image || '',
     url: component.data.url || '',
-    status: component.data.status
+    status: component.data.status,
+    properties: component.data.properties || {}
   });
 
   const handleInputChange = useCallback((field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  }, []);
+
+  const handlePropertyChange = useCallback((key: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      properties: { ...prev.properties, [key]: value }
+    }));
   }, []);
 
   const handleImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,7 +62,28 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
     onClose();
   }, [component.data, formData, onUpdate, onClose]);
 
+  // Verificar se é um template de lançamento digital
+  const digitalLaunchTypes = [
+    'offer', 'target-audience', 'traffic-organic', 'traffic-paid', 
+    'lead-capture', 'nurturing', 'webinar-vsl', 'sales-page', 
+    'checkout-upsell', 'post-sale', 'analytics-optimization'
+  ];
+  
+  const isDigitalLaunchComponent = digitalLaunchTypes.includes(component.type);
+
   const getComponentFeatures = useCallback(() => {
+    // Para componentes de lançamento digital, usar campos específicos
+    if (isDigitalLaunchComponent) {
+      return (
+        <DigitalLaunchFields
+          componentType={component.type}
+          properties={formData.properties}
+          onPropertyChange={handlePropertyChange}
+        />
+      );
+    }
+
+    // Manter lógica existente para componentes básicos
     switch (component.type) {
       case 'landing-page':
         return (
@@ -101,13 +131,15 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
       default:
         return null;
     }
-  }, [component.type, formData.url, handleInputChange]);
+  }, [component.type, formData.url, formData.properties, handleInputChange, handlePropertyChange, isDigitalLaunchComponent]);
 
   return (
-    <Card className="absolute top-full left-0 mt-2 w-80 bg-gray-900 border-gray-700 shadow-xl z-50">
+    <Card className="absolute top-full left-0 mt-2 w-80 bg-gray-900 border-gray-700 shadow-xl z-50 max-h-96 overflow-y-auto">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-white font-medium text-sm">Editar Componente</h3>
+          <h3 className="text-white font-medium text-sm">
+            {isDigitalLaunchComponent ? 'Configurar Lançamento' : 'Editar Componente'}
+          </h3>
           <Button
             variant="ghost"
             size="sm"
@@ -139,42 +171,6 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
             className="bg-gray-800 border-gray-700 text-white"
             rows={2}
           />
-        </div>
-
-        {/* Upload de Imagem */}
-        <div className="space-y-2">
-          <label className="text-xs font-medium text-gray-300">Imagem</label>
-          <div className="flex items-center space-x-2">
-            <Input
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="hidden"
-              id="image-upload"
-            />
-            <label
-              htmlFor="image-upload"
-              className="flex items-center space-x-2 px-3 py-2 bg-gray-800 border border-gray-700 rounded cursor-pointer hover:bg-gray-700"
-            >
-              <Upload className="w-4 h-4 text-gray-400" />
-              <span className="text-xs text-gray-300">Upload</span>
-            </label>
-            <Input
-              placeholder="ou cole o link da imagem"
-              value={formData.image}
-              onChange={(e) => handleInputChange('image', e.target.value)}
-              className="bg-gray-800 border-gray-700 text-white flex-1"
-            />
-          </div>
-          {formData.image && (
-            <div className="mt-2">
-              <img 
-                src={formData.image} 
-                alt="Preview" 
-                className="w-full h-20 object-cover rounded border border-gray-700"
-              />
-            </div>
-          )}
         </div>
 
         {/* Status */}
