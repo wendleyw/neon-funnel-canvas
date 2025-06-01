@@ -1,7 +1,7 @@
 
 export interface FunnelComponent {
   id: string;
-  type: 'landing-page' | 'quiz' | 'form' | 'email-sequence' | 'checkout' | 'automation' | 'analytics' | 'segmentation' | 'conversion';
+  type: 'landing-page' | 'quiz' | 'form' | 'email-sequence' | 'checkout' | 'automation' | 'analytics' | 'segmentation' | 'conversion' | 'custom' | string;
   position: { x: number; y: number };
   data: {
     title: string;
@@ -20,6 +20,7 @@ export interface Connection {
   from: string;
   to: string;
   type: 'success' | 'failure' | 'conditional';
+  color?: string;
 }
 
 export interface FunnelProject {
