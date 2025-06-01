@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useCallback } from 'react';
 import { Copy, Link } from 'lucide-react';
 import { FunnelComponent } from '../types/funnel';
@@ -6,6 +5,9 @@ import { useComponentTemplates } from '../hooks/useComponentTemplates';
 import { useComponentDrag } from '../hooks/canvas/useComponentDrag';
 import { ComponentEditor } from './ComponentEditor';
 import { ComponentNodeCard } from './ComponentNode/ComponentNodeCard';
+import { NoteComponent } from './VisualHelpers/NoteComponent';
+import { ArrowComponent } from './VisualHelpers/ArrowComponent';
+import { FrameComponent } from './VisualHelpers/FrameComponent';
 
 interface ComponentNodeProps {
   component: FunnelComponent;
@@ -143,6 +145,95 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
     templateFound: !!template
   });
 
+  // Render different components based on type
+  if (component.type === 'note') {
+    return (
+      <>
+        <div
+          ref={nodeRef}
+          className={containerClassName}
+          style={containerStyle}
+          onMouseDown={handleMouseDown}
+          onDoubleClick={handleDoubleClick}
+        >
+          <NoteComponent
+            component={component}
+            isSelected={isSelected}
+            onUpdate={onUpdate}
+            onDelete={onDelete}
+            onSelect={onSelect}
+          />
+        </div>
+        
+        <ComponentEditor
+          component={component}
+          onUpdate={handleUpdateComponent}
+          onClose={() => setIsEditing(false)}
+          isOpen={isEditing}
+        />
+      </>
+    );
+  }
+
+  if (component.type === 'arrow') {
+    return (
+      <>
+        <div
+          ref={nodeRef}
+          className={containerClassName}
+          style={containerStyle}
+          onMouseDown={handleMouseDown}
+          onDoubleClick={handleDoubleClick}
+        >
+          <ArrowComponent
+            component={component}
+            isSelected={isSelected}
+            onUpdate={onUpdate}
+            onDelete={onDelete}
+            onSelect={onSelect}
+          />
+        </div>
+        
+        <ComponentEditor
+          component={component}
+          onUpdate={handleUpdateComponent}
+          onClose={() => setIsEditing(false)}
+          isOpen={isEditing}
+        />
+      </>
+    );
+  }
+
+  if (component.type === 'frame') {
+    return (
+      <>
+        <div
+          ref={nodeRef}
+          className={containerClassName}
+          style={containerStyle}
+          onMouseDown={handleMouseDown}
+          onDoubleClick={handleDoubleClick}
+        >
+          <FrameComponent
+            component={component}
+            isSelected={isSelected}
+            onUpdate={onUpdate}
+            onDelete={onDelete}
+            onSelect={onSelect}
+          />
+        </div>
+        
+        <ComponentEditor
+          component={component}
+          onUpdate={handleUpdateComponent}
+          onClose={() => setIsEditing(false)}
+          isOpen={isEditing}
+        />
+      </>
+    );
+  }
+
+  // Default component rendering for all other types
   return (
     <>
       <div

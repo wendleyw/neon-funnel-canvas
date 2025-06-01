@@ -1,7 +1,6 @@
-
 export interface FunnelComponent {
   id: string;
-  type: 'landing-page' | 'quiz' | 'form' | 'email-sequence' | 'checkout' | 'automation' | 'analytics' | 'segmentation' | 'conversion' | 'custom' | 'target-audience' | 'offer' | 'traffic-organic' | 'traffic-paid' | 'lead-capture' | 'nurturing' | 'webinar-vsl' | 'sales-page' | 'checkout-upsell' | 'post-sales' | 'analysis' | 'instagram-post' | 'instagram-story' | 'instagram-reels' | 'instagram-carousel' | 'tiktok-video' | 'youtube-short' | 'youtube-video' | 'youtube-thumbnail' | 'facebook-post' | 'facebook-ad' | 'linkedin-post' | 'twitter-post' | string;
+  type: 'landing-page' | 'quiz' | 'form' | 'email-sequence' | 'checkout' | 'automation' | 'analytics' | 'segmentation' | 'conversion' | 'custom' | 'target-audience' | 'offer' | 'traffic-organic' | 'traffic-paid' | 'lead-capture' | 'nurturing' | 'webinar-vsl' | 'sales-page' | 'checkout-upsell' | 'post-sales' | 'analysis' | 'instagram-post' | 'instagram-story' | 'instagram-reels' | 'instagram-carousel' | 'tiktok-video' | 'youtube-short' | 'youtube-video' | 'youtube-thumbnail' | 'facebook-post' | 'facebook-ad' | 'linkedin-post' | 'twitter-post' | 'note' | 'arrow' | 'frame' | string;
   position: { x: number; y: number };
   data: {
     title: string;
