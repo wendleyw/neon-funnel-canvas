@@ -1,5 +1,5 @@
 
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { FunnelComponent } from '../../types/funnel';
 import { useCanvasDragDrop } from '../../hooks/canvas/useCanvasDragDrop';
 import { useCanvasZoom } from '../../hooks/canvas/useCanvasZoom';
@@ -19,6 +19,8 @@ export const useCanvasEventHandlers = ({
   onConnectionDelete,
   onConnectionUpdate
 }: UseCanvasEventHandlersProps) => {
+  const canvasRef = useRef<HTMLDivElement>(null);
+
   // Canvas zoom functionality
   const { zoom, handleWheel, handleZoomIn, handleZoomOut } = useCanvasZoom();
 
@@ -35,7 +37,13 @@ export const useCanvasEventHandlers = ({
   const selectionHooks = useCanvasSelection(selectionProps);
 
   // Canvas drag and drop functionality
-  const dragDropProps = useMemo(() => ({ onComponentAdd, pan, zoom }), [onComponentAdd, pan, zoom]);
+  const dragDropProps = useMemo(() => ({ 
+    onAddComponent: onComponentAdd, 
+    canvasRef,
+    scale: zoom,
+    panOffset: pan
+  }), [onComponentAdd, zoom, pan]);
+  
   const dragDropHooks = useCanvasDragDrop(dragDropProps);
 
   // Enhanced mouse down handler that combines pan and selection
@@ -44,7 +52,6 @@ export const useCanvasEventHandlers = ({
     if (e.target === e.currentTarget) {
       selectionHooks.clearSelection();
     }
-    // Note: The canvasRef will be handled internally in CanvasContainer
   }, [selectionHooks]);
 
   return {

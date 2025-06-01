@@ -1,5 +1,5 @@
 
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { ComponentTemplate, FunnelComponent } from '../../types/funnel';
 
 interface UseCanvasDragDropProps {
@@ -16,13 +16,29 @@ export const useCanvasDragDrop = ({
   panOffset 
 }: UseCanvasDragDropProps) => {
   
+  const [isDragOver, setIsDragOver] = useState(false);
+
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'copy';
   }, []);
 
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    // Only set isDragOver to false if we're leaving the canvas container
+    if (!canvasRef.current?.contains(e.relatedTarget as Node)) {
+      setIsDragOver(false);
+    }
+  }, [canvasRef]);
+
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
+    setIsDragOver(false);
     
     try {
       const templateData = e.dataTransfer.getData('application/json');
@@ -41,6 +57,7 @@ export const useCanvasDragDrop = ({
         id: `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         type: template.type,
         position: { x, y },
+        connections: [],
         data: {
           title: template.defaultProps.title,
           description: template.defaultProps.description || '',
@@ -59,7 +76,10 @@ export const useCanvasDragDrop = ({
   }, [onAddComponent, canvasRef, scale, panOffset]);
 
   return {
+    isDragOver,
     handleDragOver,
+    handleDragEnter,
+    handleDragLeave,
     handleDrop
   };
 };

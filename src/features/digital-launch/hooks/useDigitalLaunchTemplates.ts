@@ -8,6 +8,7 @@ export const useDigitalLaunchTemplates = () => {
       id: `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       type: template.type,
       position,
+      connections: [],
       data: {
         ...template.defaultProps,
         title: template.defaultProps.title,
@@ -52,7 +53,8 @@ export const useDigitalLaunchTemplates = () => {
           id: `connection-${Date.now()}-${i}`,
           from: components[i].id,
           to: components[i + 1].id,
-          style: { strokeColor: '#3B82F6' }
+          type: 'success',
+          color: '#3B82F6'
         });
       }
     }
@@ -63,7 +65,8 @@ export const useDigitalLaunchTemplates = () => {
         id: `connection-paid-traffic`,
         from: components[10].id, // Tráfego Pago
         to: components[3].id,    // Captura de Leads
-        style: { strokeColor: '#EA580C' }
+        type: 'success',
+        color: '#EA580C'
       });
     }
 
@@ -107,7 +110,8 @@ export const useDigitalLaunchTemplates = () => {
         id: `connection-${Date.now()}-${i}`,
         from: components[i].id,
         to: components[i + 1].id,
-        style: { strokeColor: '#10B981' }
+        type: 'success',
+        color: '#10B981'
       });
     }
 
