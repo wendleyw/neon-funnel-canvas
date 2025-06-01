@@ -195,28 +195,61 @@ export const useSupabaseWorkspace = () => {
     }
   }, [user]);
 
+  // Limpar workspaces antigos do localStorage que não são compatíveis com Supabase
+  const clearOldLocalStorageWorkspaces = useCallback(() => {
+    if (!user) return;
+    
+    try {
+      const savedCurrentWorkspace = localStorage.getItem(`current-workspace-${user.id}`);
+      if (savedCurrentWorkspace) {
+        const workspace = JSON.parse(savedCurrentWorkspace);
+        // Se o workspace tem ID no formato antigo (não UUID), remover
+        if (workspace.id && !workspace.id.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)) {
+          console.log('Removing old workspace format from localStorage');
+          localStorage.removeItem(`current-workspace-${user.id}`);
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao limpar localStorage:', error);
+      localStorage.removeItem(`current-workspace-${user.id}`);
+    }
+  }, [user]);
+
   // Carregar dados quando usuário mudar
   useEffect(() => {
     if (user) {
+      clearOldLocalStorageWorkspaces();
       loadWorkspaces();
-      
-      // Tentar carregar workspace atual salvo
-      try {
-        const savedCurrentWorkspace = localStorage.getItem(`current-workspace-${user.id}`);
-        if (savedCurrentWorkspace) {
-          const workspace = JSON.parse(savedCurrentWorkspace);
-          console.log('Loading saved current workspace:', workspace.name);
-          setCurrentWorkspace(workspace);
-        }
-      } catch (error) {
-        console.error('Erro ao carregar workspace atual:', error);
-      }
     } else {
       setWorkspaces([]);
       setWorkspaceProjects([]);
       setCurrentWorkspace(null);
     }
-  }, [user, loadWorkspaces]);
+  }, [user, loadWorkspaces, clearOldLocalStorageWorkspaces]);
+
+  // Carregar workspace atual salvo após carregar workspaces
+  useEffect(() => {
+    if (user && workspaces.length > 0) {
+      try {
+        const savedCurrentWorkspace = localStorage.getItem(`current-workspace-${user.id}`);
+        if (savedCurrentWorkspace) {
+          const workspace = JSON.parse(savedCurrentWorkspace);
+          // Verificar se o workspace ainda existe no Supabase
+          const existingWorkspace = workspaces.find(w => w.id === workspace.id);
+          if (existingWorkspace) {
+            console.log('Loading saved current workspace:', existingWorkspace.name);
+            setCurrentWorkspace(existingWorkspace);
+          } else {
+            console.log('Saved workspace not found in Supabase, clearing');
+            localStorage.removeItem(`current-workspace-${user.id}`);
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao carregar workspace atual:', error);
+        localStorage.removeItem(`current-workspace-${user.id}`);
+      }
+    }
+  }, [user, workspaces]);
 
   return {
     currentWorkspace,

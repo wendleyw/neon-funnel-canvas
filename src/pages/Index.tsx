@@ -8,7 +8,7 @@ import { ProfileModal } from '../components/Profile/ProfileModal';
 import { useFunnelProject } from '../hooks/useFunnelProject';
 import { useSupabaseWorkspace } from '../hooks/useSupabaseWorkspace';
 import { useAuth } from '../contexts/AuthContext';
-import { ComponentTemplate, Connection } from '../types/funnel';
+import { ComponentTemplate, Connection, FunnelProject } from '../types/funnel';
 import { toast } from 'sonner';
 import { StatusBar } from '../components/StatusBar';
 import { User } from 'lucide-react';
@@ -137,7 +137,9 @@ const Index = () => {
     // Carregar projeto do workspace
     const projectData = loadProjectFromWorkspace(projectId);
     if (projectData) {
-      setProjectData(projectData);
+      // Garantir que projectData é do tipo correto
+      const typedProjectData = projectData as FunnelProject;
+      setProjectData(typedProjectData);
       setCurrentView('project');
       toast.success('Projeto carregado!');
     } else {
