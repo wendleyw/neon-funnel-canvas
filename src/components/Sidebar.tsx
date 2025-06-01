@@ -2,13 +2,11 @@
 import React, { useCallback, useState } from 'react';
 import { ComponentTemplate } from '../types/funnel';
 import { ErrorBoundary } from './ErrorBoundary';
-import { CreateComponentModal } from './ComponentCreator/CreateComponentModal';
-import { ReadyTemplatesModal } from './ReadyTemplates/ReadyTemplatesModal';
 import { useComponentTemplates } from '../hooks/useComponentTemplates';
 import { SidebarHeader } from './Sidebar/SidebarHeader';
 import { TemplateSection } from './Sidebar/TemplateSection';
-import { CategorizedTemplates } from './Sidebar/CategorizedTemplates';
-import { DigitalLaunchSection } from '../features/digital-launch/components/DigitalLaunchSection';
+import { FavoriteTemplatesSection } from './Sidebar/FavoriteTemplatesSection';
+import { DigitalLaunchOrganizedSection } from './Sidebar/DigitalLaunchOrganizedSection';
 
 interface SidebarProps {
   onDragStart: (template: ComponentTemplate) => void;
@@ -16,9 +14,8 @@ interface SidebarProps {
 }
 
 export const Sidebar = React.memo<SidebarProps>(({ onDragStart, onAddCompleteTemplate }) => {
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isReadyTemplatesOpen, setIsReadyTemplatesOpen] = useState(false);
   const { customTemplates, addCustomTemplate, removeCustomTemplate } = useComponentTemplates();
+  const [favorites, setFavorites] = useState<string[]>(['offer', 'target-audience', 'lead-capture']);
 
   const handleDragStart = useCallback((e: React.DragEvent, template: ComponentTemplate) => {
     console.log('Starting drag for template:', template);
@@ -27,67 +24,46 @@ export const Sidebar = React.memo<SidebarProps>(({ onDragStart, onAddCompleteTem
     onDragStart(template);
   }, [onDragStart]);
 
-  const handleCreateTemplate = useCallback((template: ComponentTemplate) => {
-    console.log('Creating new template:', template);
-    addCustomTemplate(template);
-  }, [addCustomTemplate]);
-
-  const handleReadyTemplateSelect = useCallback((components: any[], connections: any[]) => {
-    if (onAddCompleteTemplate) {
-      onAddCompleteTemplate(components, connections);
-    }
-  }, [onAddCompleteTemplate]);
+  const toggleFavorite = useCallback((templateType: string) => {
+    setFavorites(prev => 
+      prev.includes(templateType) 
+        ? prev.filter(t => t !== templateType)
+        : [...prev, templateType]
+    );
+  }, []);
 
   console.log('Custom templates count:', customTemplates.length);
 
   return (
     <ErrorBoundary>
-      <div className="w-64 bg-black border-r border-gray-800 flex flex-col">
-        <div className="p-4 border-b border-gray-800">
-          <h2 className="text-white font-semibold text-lg">Componentes</h2>
-          <div className="flex gap-2 mt-3">
-            <button
-              onClick={() => setIsReadyTemplatesOpen(true)}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs py-2 px-3 rounded transition-colors"
-            >
-              Templates Prontos
-            </button>
-          </div>
-        </div>
+      <div className="w-72 bg-gray-950 border-r border-gray-800 flex flex-col">
+        <SidebarHeader />
         
-        <div className="flex-1 p-3 overflow-y-auto">
-          <div className="space-y-6">
-            <DigitalLaunchSection
-              onDragStart={onDragStart}
-              onAddCompleteTemplate={onAddCompleteTemplate}
+        <div className="flex-1 p-4 overflow-y-auto space-y-6">
+          <FavoriteTemplatesSection
+            favorites={favorites}
+            onDragStart={handleDragStart}
+            onToggleFavorite={toggleFavorite}
+          />
+
+          <DigitalLaunchOrganizedSection
+            onDragStart={handleDragStart}
+            favorites={favorites}
+            onToggleFavorite={toggleFavorite}
+            onAddCompleteTemplate={onAddCompleteTemplate}
+          />
+
+          {customTemplates.length > 0 && (
+            <TemplateSection
+              title="Componentes Personalizados"
+              templates={customTemplates}
+              onDragStart={handleDragStart}
+              isCustomSection
+              onRemoveTemplate={removeCustomTemplate}
             />
-
-            <CategorizedTemplates onDragStart={handleDragStart} />
-
-            {customTemplates.length > 0 && (
-              <TemplateSection
-                title="Componentes Personalizados"
-                templates={customTemplates}
-                onDragStart={handleDragStart}
-                isCustomSection
-                onRemoveTemplate={removeCustomTemplate}
-              />
-            )}
-          </div>
+          )}
         </div>
       </div>
-
-      <CreateComponentModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onCreateTemplate={handleCreateTemplate}
-      />
-
-      <ReadyTemplatesModal
-        isOpen={isReadyTemplatesOpen}
-        onClose={() => setIsReadyTemplatesOpen(false)}
-        onTemplateSelect={handleReadyTemplateSelect}
-      />
     </ErrorBoundary>
   );
 });
