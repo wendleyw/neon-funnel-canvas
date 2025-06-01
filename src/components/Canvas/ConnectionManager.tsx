@@ -24,7 +24,7 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
   return (
     <svg
       className="absolute inset-0 w-full h-full pointer-events-none"
-      style={{ zIndex: 500 }}
+      style={{ zIndex: 0 }}
     >
       {connections.map((connection) => {
         const fromComponent = components.find(c => c.id === connection.from);
