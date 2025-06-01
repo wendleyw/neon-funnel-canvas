@@ -1,7 +1,10 @@
+
 import React, { useRef, useState, useCallback } from 'react';
 import { FunnelComponent, ComponentTemplate, Connection } from '../types/funnel';
 import { ComponentNode } from './ComponentNode';
-import { ConnectionLine } from './ConnectionLine';
+import { CanvasGrid } from './Canvas/CanvasGrid';
+import { CanvasControls } from './Canvas/CanvasControls';
+import { ConnectionManager } from './Canvas/ConnectionManager';
 
 interface CanvasProps {
   components: FunnelComponent[];
@@ -149,24 +152,17 @@ export const Canvas: React.FC<CanvasProps> = ({
     setConnectingFrom(null);
   }, [connectingFrom, onConnectionAdd]);
 
+  const handleZoomIn = useCallback(() => {
+    setZoom(prev => Math.min(2, prev + 0.1));
+  }, []);
+
+  const handleZoomOut = useCallback(() => {
+    setZoom(prev => Math.max(0.5, prev - 0.1));
+  }, []);
+
   return (
     <div className="flex-1 relative overflow-hidden bg-black">
-      {/* Canvas Grid */}
-      <div 
-        className={`absolute inset-0 opacity-5 canvas-background ${isDragOver ? 'bg-gray-900' : ''}`}
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)
-          `,
-          backgroundSize: `${20 * zoom}px ${20 * zoom}px`,
-          backgroundPosition: `${pan.x}px ${pan.y}px`
-        }}
-      />
-      
-      {isDragOver && (
-        <div className="absolute inset-0 border-2 border-dashed border-white opacity-30 pointer-events-none z-50" />
-      )}
+      <CanvasGrid zoom={zoom} pan={pan} isDragOver={isDragOver} />
       
       <div
         ref={canvasRef}
@@ -188,27 +184,11 @@ export const Canvas: React.FC<CanvasProps> = ({
             transformOrigin: '0 0'
           }}
         >
-          {/* SVG for connections */}
-          <svg
-            className="absolute inset-0 w-full h-full pointer-events-none"
-            style={{ zIndex: 0 }}
-          >
-            {connections.map((connection) => {
-              const fromComponent = components.find(c => c.id === connection.from);
-              const toComponent = components.find(c => c.id === connection.to);
-              
-              if (!fromComponent || !toComponent) return null;
-              
-              return (
-                <ConnectionLine
-                  key={connection.id}
-                  connection={connection}
-                  fromPosition={fromComponent.position}
-                  toPosition={toComponent.position}
-                />
-              );
-            })}
-          </svg>
+          <ConnectionManager
+            components={components}
+            connections={connections}
+            connectingFrom={connectingFrom}
+          />
 
           {/* Components */}
           {components.map((component) => (
@@ -227,30 +207,11 @@ export const Canvas: React.FC<CanvasProps> = ({
         </div>
       </div>
 
-      {/* Zoom Controls */}
-      <div className="absolute bottom-4 right-4 flex flex-col gap-1 z-10">
-        <button
-          onClick={() => setZoom(prev => Math.min(2, prev + 0.1))}
-          className="w-8 h-8 bg-gray-900 hover:bg-gray-700 border border-gray-600 rounded flex items-center justify-center text-white text-sm transition-colors"
-        >
-          +
-        </button>
-        <div className="w-8 h-6 bg-gray-900 border border-gray-600 rounded flex items-center justify-center text-xs text-white">
-          {Math.round(zoom * 100)}%
-        </div>
-        <button
-          onClick={() => setZoom(prev => Math.max(0.5, prev - 0.1))}
-          className="w-8 h-8 bg-gray-900 hover:bg-gray-700 border border-gray-600 rounded flex items-center justify-center text-xs text-white transition-colors"
-        >
-          -
-        </button>
-      </div>
-
-      {connectingFrom && (
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-50">
-          Clique em outro componente para conectar
-        </div>
-      )}
+      <CanvasControls
+        zoom={zoom}
+        onZoomIn={handleZoomIn}
+        onZoomOut={handleZoomOut}
+      />
     </div>
   );
 };
