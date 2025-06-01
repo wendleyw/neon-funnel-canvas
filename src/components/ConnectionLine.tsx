@@ -82,33 +82,56 @@ export const ConnectionLine: React.FC<ConnectionLineProps> = ({
             className="pointer-events-none animate-pulse"
           />
           
-          {/* Botão de delete no meio da conexão */}
+          {/* Controles de cor quando selecionado */}
           <g>
-            <circle
-              cx={(startX + endX) / 2}
-              cy={(startY + endY) / 2}
-              r="14"
-              fill="#EF4444"
-              stroke="white"
-              strokeWidth="2"
-              className="pointer-events-auto cursor-pointer drop-shadow-lg"
-              onClick={(e) => {
-                e.stopPropagation();
-                onSelect?.();
-              }}
-            />
-            <text
-              x={(startX + endX) / 2}
-              y={(startY + endY) / 2}
-              textAnchor="middle"
-              dominantBaseline="middle"
-              fill="white"
-              fontSize="14"
-              fontWeight="bold"
-              className="pointer-events-none select-none"
+            <foreignObject
+              x={(startX + endX) / 2 - 60}
+              y={(startY + endY) / 2 - 50}
+              width="120"
+              height="100"
+              className="pointer-events-auto"
             >
-              ×
-            </text>
+              <div className="flex flex-col items-center gap-2 bg-gray-900 p-3 rounded-lg shadow-lg border border-gray-700">
+                <div className="text-white text-xs font-medium">Cor da Conexão</div>
+                <div className="flex gap-2">
+                  <button
+                    className="w-6 h-6 rounded-full bg-green-500 border-2 border-white hover:scale-110 transition-transform"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Aqui você pode adicionar a lógica para mudar a cor para success
+                      console.log('Mudando cor para success');
+                    }}
+                  />
+                  <button
+                    className="w-6 h-6 rounded-full bg-red-500 border-2 border-white hover:scale-110 transition-transform"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Aqui você pode adicionar a lógica para mudar a cor para failure
+                      console.log('Mudando cor para failure');
+                    }}
+                  />
+                  <button
+                    className="w-6 h-6 rounded-full bg-yellow-500 border-2 border-white hover:scale-110 transition-transform"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Aqui você pode adicionar a lógica para mudar a cor para conditional
+                      console.log('Mudando cor para conditional');
+                    }}
+                  />
+                </div>
+                
+                {/* Botão de delete */}
+                <button
+                  className="w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center hover:bg-red-700 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSelect?.();
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+            </foreignObject>
           </g>
         </>
       )}

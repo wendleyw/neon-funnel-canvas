@@ -81,30 +81,46 @@ export const FlowAnimation: React.FC<FlowAnimationProps> = ({
     };
   };
 
+  const getParticleOpacity = (progress: number) => {
+    // Gradiente de transparência: aparece no início, some no final
+    if (progress < 0.1) {
+      return progress * 10; // Aparece gradualmente
+    } else if (progress > 0.9) {
+      return (1 - progress) * 10; // Some gradualmente
+    }
+    return 1; // Totalmente visível no meio
+  };
+
   return (
     <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 10 }}>
       {particles.map(particle => {
         const pos = getParticlePosition(particle);
         const connection = connections.find(c => c.id === particle.connectionId);
+        const opacity = getParticleOpacity(particle.progress);
         
         const getParticleColor = () => {
           switch (connection?.type) {
-            case 'success': return 'bg-green-400';
-            case 'failure': return 'bg-red-400';
-            case 'conditional': return 'bg-yellow-400';
-            default: return 'bg-blue-400';
+            case 'success': return '#10B981';
+            case 'failure': return '#EF4444';
+            case 'conditional': return '#F59E0B';
+            default: return '#3B82F6';
           }
         };
+
+        const color = getParticleColor();
 
         return (
           <div
             key={particle.id}
-            className={`absolute w-3 h-3 rounded-full ${getParticleColor()} opacity-80 shadow-lg transition-all duration-100`}
+            className="absolute w-2 h-2 rounded-full transition-all duration-100"
             style={{
-              left: pos.x - 6,
-              top: pos.y - 6,
-              transform: `scale(${1 + Math.sin(particle.progress * Math.PI) * 0.3})`,
-              boxShadow: `0 0 8px ${connection?.type === 'success' ? '#10B981' : '#3B82F6'}`
+              left: pos.x - 4,
+              top: pos.y - 4,
+              backgroundColor: color,
+              opacity: opacity,
+              transform: `scale(${1 + Math.sin(particle.progress * Math.PI) * 0.2})`,
+              boxShadow: `0 0 6px ${color}`,
+              filter: `drop-shadow(0 0 4px ${color})`
             }}
           />
         );

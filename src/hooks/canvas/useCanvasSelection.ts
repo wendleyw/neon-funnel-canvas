@@ -4,9 +4,14 @@ import { useCallback, useState } from 'react';
 interface UseCanvasSelectionOptions {
   onConnectionAdd: (connection: any) => void;
   onConnectionDelete: (connectionId: string) => void;
+  onConnectionUpdate?: (connectionId: string, updates: any) => void;
 }
 
-export const useCanvasSelection = ({ onConnectionAdd, onConnectionDelete }: UseCanvasSelectionOptions) => {
+export const useCanvasSelection = ({ 
+  onConnectionAdd, 
+  onConnectionDelete, 
+  onConnectionUpdate 
+}: UseCanvasSelectionOptions) => {
   const [selectedComponent, setSelectedComponent] = useState<string | null>(null);
   const [connectingFrom, setConnectingFrom] = useState<string | null>(null);
   const [selectedConnection, setSelectedConnection] = useState<string | null>(null);
@@ -63,6 +68,13 @@ export const useCanvasSelection = ({ onConnectionAdd, onConnectionDelete }: UseC
     }
   }, [selectedConnection, onConnectionDelete]);
 
+  const handleConnectionColorChange = useCallback((connectionId: string, newType: string) => {
+    console.log('Mudando cor da conexão:', connectionId, 'para:', newType);
+    if (onConnectionUpdate) {
+      onConnectionUpdate(connectionId, { type: newType });
+    }
+  }, [onConnectionUpdate]);
+
   const clearSelection = useCallback(() => {
     console.log('Limpando todas as seleções');
     setSelectedComponent(null);
@@ -79,6 +91,7 @@ export const useCanvasSelection = ({ onConnectionAdd, onConnectionDelete }: UseC
     startConnection,
     handleComponentConnect,
     handleConnectionSelect,
+    handleConnectionColorChange,
     clearSelection
   };
 };
