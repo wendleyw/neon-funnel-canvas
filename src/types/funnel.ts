@@ -21,6 +21,8 @@ export interface Connection {
   to: string;
   type: 'success' | 'failure' | 'conditional';
   color?: string;
+  customColor?: string;
+  animated?: boolean;
 }
 
 export interface FunnelProject {

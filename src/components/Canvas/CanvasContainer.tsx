@@ -103,6 +103,16 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
     cursor: isPanning ? 'grabbing' : 'grab'
   }), [isPanning]);
 
+  // Handler para deletar conexão
+  const handleConnectionDelete = useCallback((connectionId: string) => {
+    // Usar o handler já existente do Canvas
+    const deleteHandler = onConnectionColorChange; // Este é na verdade o handler de update/delete
+    if (deleteHandler) {
+      // Para deletar, vamos usar o onConnectionSelect que já tem a lógica de delete
+      onConnectionSelect(connectionId);
+    }
+  }, [onConnectionSelect, onConnectionColorChange]);
+
   return (
     <div
       ref={canvasRef}
@@ -128,7 +138,8 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
             connectingFrom={connectingFrom}
             selectedConnection={selectedConnection}
             onConnectionSelect={onConnectionSelect}
-            onConnectionColorChange={onConnectionColorChange}
+            onConnectionUpdate={onConnectionColorChange}
+            onConnectionDelete={handleConnectionDelete}
           />
         </ErrorBoundary>
 

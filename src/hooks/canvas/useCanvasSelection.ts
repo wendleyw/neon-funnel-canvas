@@ -41,7 +41,8 @@ export const useCanvasSelection = ({
         id: `connection-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         from: connectingFrom,
         to: toComponentId,
-        type: 'success' as const
+        type: 'success' as const,
+        animated: false
       };
       
       onConnectionAdd(newConnection);
@@ -57,21 +58,20 @@ export const useCanvasSelection = ({
     setConnectingFrom(null);
     
     if (selectedConnection === connectionId) {
-      // Se já estava selecionada, delete a conexão
-      console.log('Deletando conexão:', connectionId);
-      onConnectionDelete(connectionId);
+      // Se já estava selecionada, fecha o editor
+      console.log('Fechando editor de conexão:', connectionId);
       setSelectedConnection(null);
     } else {
-      // Seleciona a conexão
-      console.log('Selecionando conexão:', connectionId);
+      // Seleciona a conexão e abre o editor
+      console.log('Abrindo editor de conexão:', connectionId);
       setSelectedConnection(connectionId);
     }
-  }, [selectedConnection, onConnectionDelete]);
+  }, [selectedConnection]);
 
-  const handleConnectionColorChange = useCallback((connectionId: string, newType: string) => {
-    console.log('Mudando cor da conexão:', connectionId, 'para:', newType);
+  const handleConnectionColorChange = useCallback((connectionId: string, updates: any) => {
+    console.log('Atualizando conexão:', connectionId, 'com:', updates);
     if (onConnectionUpdate) {
-      onConnectionUpdate(connectionId, { type: newType });
+      onConnectionUpdate(connectionId, updates);
     }
   }, [onConnectionUpdate]);
 
