@@ -72,13 +72,13 @@ export const FunnelEditor: React.FC<FunnelEditorProps> = ({
   });
 
   return (
-    <div className="h-screen flex bg-black">
+    <div className="h-screen w-full flex bg-black overflow-hidden">
       <Sidebar 
         onDragStart={handleDragStart} 
         onAddCompleteTemplate={projectHandlers.handleAddCompleteTemplate}
       />
       
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-0 ml-0">
         <Toolbar 
           onSave={projectHandlers.handleSave}
           onLoad={handleLoad}
@@ -90,20 +90,23 @@ export const FunnelEditor: React.FC<FunnelEditorProps> = ({
           workspaceName={currentWorkspace?.name || ''}
           componentsCount={project.components.length}
         />
+        
+        <div className="flex-1 flex flex-col min-h-0">
+          <Canvas
+            components={project.components}
+            connections={project.connections}
+            onComponentAdd={projectHandlers.handleComponentAdd}
+            onComponentUpdate={projectHandlers.handleComponentUpdate}
+            onComponentDelete={projectHandlers.handleComponentDelete}
+            onConnectionAdd={projectHandlers.handleConnectionAdd}
+            onConnectionDelete={projectHandlers.handleConnectionDelete}
+            onConnectionUpdate={projectHandlers.handleConnectionUpdate}
+          />
+        </div>
+
         <StatusBar 
           components={project.components}
           connections={project.connections}
-        />
-        
-        <Canvas
-          components={project.components}
-          connections={project.connections}
-          onComponentAdd={projectHandlers.handleComponentAdd}
-          onComponentUpdate={projectHandlers.handleComponentUpdate}
-          onComponentDelete={projectHandlers.handleComponentDelete}
-          onConnectionAdd={projectHandlers.handleConnectionAdd}
-          onConnectionDelete={projectHandlers.handleConnectionDelete}
-          onConnectionUpdate={projectHandlers.handleConnectionUpdate}
         />
       </div>
 
