@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useCallback } from 'react';
 import { Copy, Link } from 'lucide-react';
 import { FunnelComponent } from '../types/funnel';
@@ -19,6 +18,7 @@ interface ComponentNodeProps {
   onDelete: () => void;
   onUpdate: (id: string, updates: Partial<FunnelComponent>) => void;
   onDuplicate?: () => void;
+  onInstagramMockupOpen?: () => void;
 }
 
 export const ComponentNode = React.memo<ComponentNodeProps>(({
@@ -32,7 +32,8 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
   onDrag,
   onDelete,
   onUpdate,
-  onDuplicate
+  onDuplicate,
+  onInstagramMockupOpen
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const { getTemplateByType } = useComponentTemplates();
@@ -155,14 +156,14 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
       >
         <ComponentNodeCard
           component={component}
-          template={template}
           isSelected={isSelected}
-          isConnecting={isConnecting}
-          canConnect={canConnect}
-          onEditClick={handleEditClick}
-          onDeleteClick={handleDeleteClick}
-          onConnectionClick={handleConnectionClick}
-          onDuplicateClick={handleDuplicateClick}
+          connectingFrom={connectingFrom}
+          onSelect={onSelect}
+          onDelete={onDelete}
+          onUpdate={handleUpdateComponent}
+          onStartConnection={onStartConnection}
+          onConnect={onConnect}
+          onInstagramMockupOpen={onInstagramMockupOpen}
         />
       </div>
 

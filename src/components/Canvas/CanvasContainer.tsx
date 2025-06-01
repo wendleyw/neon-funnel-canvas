@@ -36,6 +36,7 @@ interface CanvasContainerProps {
   handleMouseDown: (e: React.MouseEvent) => void;
   onContextMenu?: (e: React.MouseEvent) => void;
   isDragOver?: boolean;
+  onInstagramMockupOpen?: () => void;
 }
 
 export const CanvasContainer: React.FC<CanvasContainerProps> = ({
@@ -67,7 +68,8 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
   onDragLeave,
   handleMouseDown,
   onContextMenu,
-  isDragOver = false
+  isDragOver = false,
+  onInstagramMockupOpen
 }) => {
   const handleComponentDrag = useCallback((id: string, position: { x: number; y: number }) => {
     console.log('Component dragged to position:', position);
@@ -183,6 +185,7 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
                 onDelete={() => onComponentDelete(component.id)}
                 onUpdate={onComponentUpdate}
                 onDuplicate={() => handleComponentDuplicate(component.id)}
+                onInstagramMockupOpen={onInstagramMockupOpen}
               />
             </ErrorBoundary>
           );
