@@ -27,12 +27,14 @@ interface CanvasContainerProps {
   onCanvasMouseDown: (e: React.MouseEvent) => void;
   onMouseMove: (e: React.MouseEvent) => void;
   onMouseUp: () => void;
+  onMouseLeave?: (e: React.MouseEvent) => void;
   onWheel: (e: React.WheelEvent) => void;
   onDrop: (e: React.DragEvent) => void;
   onDragOver: (e: React.DragEvent) => void;
   onDragEnter: (e: React.DragEvent) => void;
   onDragLeave: (e: React.DragEvent) => void;
   handleMouseDown: (e: React.MouseEvent) => void;
+  onContextMenu?: (e: React.MouseEvent) => void;
   isDragOver?: boolean;
 }
 
@@ -57,12 +59,14 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
   onCanvasMouseDown,
   onMouseMove,
   onMouseUp,
+  onMouseLeave,
   onWheel,
   onDrop,
   onDragOver,
   onDragEnter,
   onDragLeave,
   handleMouseDown,
+  onContextMenu,
   isDragOver = false
 }) => {
   const handleComponentDrag = useCallback((id: string, position: { x: number; y: number }) => {
@@ -103,7 +107,8 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
   }), [pan.x, pan.y, zoom]);
 
   const canvasStyle = useMemo(() => ({
-    cursor: isPanning ? 'grabbing' : isDragOver ? 'copy' : 'grab'
+    cursor: isPanning ? 'grabbing' : isDragOver ? 'copy' : 'grab',
+    userSelect: isPanning ? 'none' : 'auto'
   }), [isPanning, isDragOver]);
 
   // Handler para deletar conexão
@@ -116,7 +121,8 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
     connectionsCount: connections.length,
     pan,
     zoom,
-    isDragOver
+    isDragOver,
+    isPanning
   });
 
   return (
@@ -132,11 +138,13 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
       onMouseDown={handleCanvasMouseDown}
       onMouseMove={onMouseMove}
       onMouseUp={onMouseUp}
+      onMouseLeave={onMouseLeave}
       onWheel={onWheel}
+      onContextMenu={onContextMenu}
       style={canvasStyle}
     >
       <div 
-        className="absolute inset-0"
+        className="absolute inset-0 canvas-background"
         style={transformStyle}
       >
         <ErrorBoundary>

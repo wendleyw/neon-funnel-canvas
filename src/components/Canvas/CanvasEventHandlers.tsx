@@ -25,7 +25,14 @@ export const useCanvasEventHandlers = ({
   const { zoom, handleWheel, handleZoomIn, handleZoomOut } = useCanvasZoom();
 
   // Canvas pan functionality
-  const { pan, isPanning, handleMouseDown, handleMouseMove, handleMouseUp } = useCanvasPan();
+  const { 
+    pan, 
+    isPanning, 
+    handleMouseDown: panMouseDown, 
+    handleMouseMove: panMouseMove, 
+    handleMouseUp: panMouseUp,
+    handleMouseLeave: panMouseLeave
+  } = useCanvasPan();
 
   // Canvas selection and connection functionality
   const selectionProps = useMemo(() => ({ 
@@ -48,11 +55,31 @@ export const useCanvasEventHandlers = ({
 
   // Enhanced mouse down handler that combines pan and selection
   const handleCanvasMouseDown = useCallback((e: React.MouseEvent) => {
-    // Só limpa a seleção se o clique foi diretamente no canvas (não em componentes ou conexões)
-    if (e.target === e.currentTarget) {
+    // Primeiro tentar o pan
+    panMouseDown(e);
+    
+    // Se não está fazendo pan e clique foi diretamente no canvas, limpar seleção
+    if (!isPanning && e.target === e.currentTarget) {
       selectionHooks.clearSelection();
     }
-  }, [selectionHooks]);
+  }, [panMouseDown, isPanning, selectionHooks]);
+
+  // Mouse move handler que combina pan e outros comportamentos
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    panMouseMove(e);
+  }, [panMouseMove]);
+
+  // Mouse up handler
+  const handleMouseUp = useCallback((e?: React.MouseEvent) => {
+    panMouseUp(e);
+  }, [panMouseUp]);
+
+  // Context menu handler para prevenir menu padrão durante pan
+  const handleContextMenu = useCallback((e: React.MouseEvent) => {
+    if (isPanning) {
+      e.preventDefault();
+    }
+  }, [isPanning]);
 
   return {
     // Canvas ref
@@ -67,10 +94,12 @@ export const useCanvasEventHandlers = ({
     // Pan
     pan,
     isPanning,
-    handleMouseDown,
+    handleMouseDown: panMouseDown,
     handleMouseMove,
     handleMouseUp,
+    handleMouseLeave: panMouseLeave,
     handleCanvasMouseDown,
+    handleContextMenu,
     
     // Selection
     ...selectionHooks,

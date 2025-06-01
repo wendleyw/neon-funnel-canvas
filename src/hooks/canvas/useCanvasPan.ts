@@ -1,25 +1,42 @@
 
-import { useCallback, useState, useMemo } from 'react';
+import { useCallback, useState, useMemo, useRef } from 'react';
 import { CanvasPosition } from '../../types/canvas';
 
 export const useCanvasPan = () => {
   const [pan, setPan] = useState<CanvasPosition>({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
   const [lastPanPosition, setLastPanPosition] = useState<CanvasPosition>({ x: 0, y: 0 });
+  const panStartRef = useRef<CanvasPosition>({ x: 0, y: 0 });
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    // Check if the click is on the canvas background
-    if (e.target === e.currentTarget || (e.target as Element).closest('.canvas-background')) {
-      setIsPanning(true);
-      setLastPanPosition({ x: e.clientX, y: e.clientY });
+    // Permitir pan com botão esquerdo (0) ou botão do meio (1)
+    if (e.button === 0 || e.button === 1) {
+      // Verificar se o clique é no canvas background ou diretamente no canvas container
+      const target = e.target as Element;
+      const isCanvasBackground = target === e.currentTarget || 
+                                target.classList.contains('canvas-background') ||
+                                target.classList.contains('canvas-container');
+      
+      if (isCanvasBackground) {
+        e.preventDefault();
+        setIsPanning(true);
+        setLastPanPosition({ x: e.clientX, y: e.clientY });
+        panStartRef.current = { x: e.clientX, y: e.clientY };
+        
+        // Mudar cursor para grabbing
+        document.body.style.cursor = 'grabbing';
+      }
     }
   }, []);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (isPanning) {
+      e.preventDefault();
+      
       const deltaX = e.clientX - lastPanPosition.x;
       const deltaY = e.clientY - lastPanPosition.y;
       
+      // Aplicar o movimento de pan
       setPan(prev => ({
         x: prev.x + deltaX,
         y: prev.y + deltaY
@@ -29,15 +46,27 @@ export const useCanvasPan = () => {
     }
   }, [isPanning, lastPanPosition.x, lastPanPosition.y]);
 
-  const handleMouseUp = useCallback(() => {
-    setIsPanning(false);
-  }, []);
+  const handleMouseUp = useCallback((e?: React.MouseEvent) => {
+    if (isPanning) {
+      setIsPanning(false);
+      document.body.style.cursor = '';
+    }
+  }, [isPanning]);
+
+  // Handler para mouse leave - para quando o mouse sai da área do canvas
+  const handleMouseLeave = useCallback(() => {
+    if (isPanning) {
+      setIsPanning(false);
+      document.body.style.cursor = '';
+    }
+  }, [isPanning]);
 
   const panHandlers = useMemo(() => ({
     handleMouseDown,
     handleMouseMove,
-    handleMouseUp
-  }), [handleMouseDown, handleMouseMove, handleMouseUp]);
+    handleMouseUp,
+    handleMouseLeave
+  }), [handleMouseDown, handleMouseMove, handleMouseUp, handleMouseLeave]);
 
   return {
     pan,

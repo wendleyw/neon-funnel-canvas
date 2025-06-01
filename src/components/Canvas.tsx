@@ -91,12 +91,14 @@ export const Canvas = React.memo<CanvasProps>(({
           onCanvasMouseDown={eventHandlers.handleCanvasMouseDown}
           onMouseMove={eventHandlers.handleMouseMove}
           onMouseUp={eventHandlers.handleMouseUp}
+          onMouseLeave={eventHandlers.handleMouseLeave}
           onWheel={eventHandlers.handleWheel}
           onDrop={eventHandlers.handleDrop}
           onDragOver={eventHandlers.handleDragOver}
           onDragEnter={eventHandlers.handleDragEnter}
           onDragLeave={eventHandlers.handleDragLeave}
           handleMouseDown={eventHandlers.handleMouseDown}
+          onContextMenu={eventHandlers.handleContextMenu}
           isDragOver={eventHandlers.isDragOver}
         />
 
