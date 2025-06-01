@@ -1,3 +1,4 @@
+
 export interface FunnelComponent {
   id: string;
   type: 'landing-page' | 'quiz' | 'form' | 'email-sequence' | 'checkout' | 'automation' | 'analytics' | 'segmentation' | 'conversion' | 'custom' | 'target-audience' | 'offer' | 'traffic-organic' | 'traffic-paid' | 'lead-capture' | 'nurturing' | 'webinar-vsl' | 'sales-page' | 'checkout-upsell' | 'post-sales' | 'analysis' | 'instagram-post' | 'instagram-story' | 'instagram-reels' | 'instagram-carousel' | 'tiktok-video' | 'youtube-short' | 'youtube-video' | 'youtube-thumbnail' | 'facebook-post' | 'facebook-ad' | 'linkedin-post' | 'twitter-post' | 'note' | 'arrow' | 'frame' | string;
@@ -12,6 +13,8 @@ export interface FunnelComponent {
   };
   connections: string[];
   isExpanded?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Connection {
@@ -22,6 +25,8 @@ export interface Connection {
   color?: string;
   customColor?: string;
   animated?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface FunnelProject {

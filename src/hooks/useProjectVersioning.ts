@@ -85,6 +85,8 @@ export const useProjectVersioning = () => {
   }, [versions]);
 
   const exportGitCompatible = useCallback((project: FunnelProject) => {
+    const currentTime = new Date().toISOString();
+    
     const gitData = {
       version: '1.0.0',
       metadata: {
@@ -100,8 +102,8 @@ export const useProjectVersioning = () => {
         position: component.position,
         data: component.data,
         metadata: {
-          createdAt: component.createdAt || new Date().toISOString(),
-          updatedAt: component.updatedAt || new Date().toISOString()
+          createdAt: component.createdAt || currentTime,
+          updatedAt: component.updatedAt || currentTime
         }
       })),
       connections: project.connections.map(connection => ({
@@ -112,8 +114,8 @@ export const useProjectVersioning = () => {
         customColor: connection.customColor,
         animated: connection.animated,
         metadata: {
-          createdAt: connection.createdAt || new Date().toISOString(),
-          updatedAt: connection.updatedAt || new Date().toISOString()
+          createdAt: connection.createdAt || currentTime,
+          updatedAt: connection.updatedAt || currentTime
         }
       })),
       history: versions.slice(0, 10).map(v => ({

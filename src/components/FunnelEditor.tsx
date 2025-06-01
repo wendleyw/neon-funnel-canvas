@@ -89,6 +89,7 @@ export const FunnelEditor: React.FC<FunnelEditorProps> = ({
           onProjectNameChange={handleProjectNameChange}
           workspaceName={currentWorkspace?.name || ''}
           componentsCount={project.components.length}
+          project={project}
         />
         
         <div className="flex-1 flex flex-col min-h-0">
