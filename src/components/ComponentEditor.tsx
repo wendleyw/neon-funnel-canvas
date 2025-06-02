@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { X, Sparkles, Maximize2, Minimize2 } from 'lucide-react';
@@ -42,12 +43,19 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
     }
   });
 
+  // Debug logging
+  useEffect(() => {
+    console.log('🎭 ComponentEditor state:', { isOpen, component: component.id });
+  }, [isOpen, component.id]);
+
   // Prevent body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      console.log('🚫 Body scroll disabled');
     } else {
       document.body.style.overflow = 'unset';
+      console.log('✅ Body scroll enabled');
     }
     return () => {
       document.body.style.overflow = 'unset';
@@ -61,7 +69,7 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log('Saving data:', { ...formData, image });
+    console.log('💾 Saving data:', { ...formData, image });
     
     onUpdate({
       data: {
@@ -79,6 +87,7 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape') {
+      console.log('⌨️ ESC pressed - closing modal');
       onClose();
     }
   }, [onClose]);
@@ -105,39 +114,97 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
     return 'Dimensions not specified';
   };
 
-  if (!isOpen) return null;
+  // Early return with logging
+  if (!isOpen) {
+    console.log('❌ Modal not open, not rendering');
+    return null;
+  }
 
-  return (
-    <>
-      {/* Enhanced Background overlay */}
+  console.log('✅ Rendering ComponentEditor modal with Portal');
+
+  const modalContent = (
+    <div 
+      className="component-editor-portal"
+      style={{ 
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 999999,
+        pointerEvents: 'auto'
+      }}
+    >
+      {/* Debug indicator - remove after testing */}
+      <div 
+        className="fixed top-4 right-4 bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-bold animate-pulse"
+        style={{ zIndex: 1000002 }}
+      >
+        MODAL ACTIVE - {component.id}
+      </div>
+
+      {/* Ultra high z-index background overlay */}
       <div
-        className="fixed inset-0 bg-black/70 backdrop-blur-lg transition-all duration-300 z-[9999]"
-        onClick={onClose}
+        className="fixed inset-0 bg-black/80 backdrop-blur-lg transition-all duration-300"
+        style={{ 
+          zIndex: 999999,
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0
+        }}
+        onClick={() => {
+          console.log('🖱️ Background clicked - closing modal');
+          onClose();
+        }}
       />
       
-      {/* Compact modal container */}
+      {/* Modal container with extreme z-index */}
       <div
-        className="fixed inset-0 flex items-center justify-center p-4 z-[10000]"
-        onClick={(e) => e.target === e.currentTarget && onClose()}
+        className="fixed inset-0 flex items-center justify-center p-4"
+        style={{ 
+          zIndex: 1000000,
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          pointerEvents: 'none'
+        }}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) {
+            console.log('🖱️ Modal container clicked - closing modal');
+            onClose();
+          }
+        }}
       >
         <div 
           className={`relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl border border-gray-700/50 shadow-2xl overflow-hidden backdrop-blur-md transition-all duration-300 ${
             isMaximized 
               ? 'w-[95vw] h-[95vh]' 
-              : 'w-full max-w-2xl max-h-[80vh]'
+              : 'w-full max-w-2xl max-h-[85vh]'
           }`}
-          onClick={(e) => e.stopPropagation()}
+          style={{ 
+            pointerEvents: 'auto',
+            position: 'relative',
+            zIndex: 1000001
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            console.log('🖱️ Modal content clicked - preventing close');
+          }}
         >
           {/* Enhanced neon border glow */}
-          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-pink-500/20 opacity-60 blur-xl animate-pulse" />
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-500/30 via-purple-500/30 to-pink-500/30 opacity-70 blur-xl animate-pulse" />
           <div className="absolute inset-[1px] rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900" />
           
           {/* Content container */}
           <div className="relative z-10 flex flex-col h-full">
-            {/* Compact Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-700/50 bg-gradient-to-r from-gray-800/80 to-gray-900/80 backdrop-blur-sm">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-700/50 bg-gradient-to-r from-gray-800/90 to-gray-900/90 backdrop-blur-sm">
               <div className="flex items-center gap-3 min-w-0 flex-1">
-                <div className="p-2 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-xl flex-shrink-0">
+                <div className="p-2 bg-gradient-to-r from-cyan-500/30 to-purple-500/30 rounded-xl flex-shrink-0">
                   <Sparkles className="w-5 h-5 text-cyan-400" />
                 </div>
                 <div className="min-w-0 flex-1">
@@ -157,7 +224,11 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
               {/* Action buttons */}
               <div className="flex items-center gap-2 ml-4 flex-shrink-0">
                 <button
-                  onClick={() => setIsMaximized(!isMaximized)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    console.log('🔄 Toggle maximize:', !isMaximized);
+                    setIsMaximized(!isMaximized);
+                  }}
                   className="group p-2 text-gray-400 hover:text-white transition-all duration-200 hover:bg-gray-700/50 rounded-xl"
                   title={isMaximized ? "Restore" : "Maximize"}
                 >
@@ -168,7 +239,11 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
                   )}
                 </button>
                 <button
-                  onClick={onClose}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    console.log('❌ Close button clicked');
+                    onClose();
+                  }}
                   className="group p-2 text-gray-400 hover:text-white transition-all duration-200 hover:bg-gray-700/50 rounded-xl"
                   title="Close (Esc)"
                 >
@@ -186,7 +261,7 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
                     <div className="w-1 h-6 bg-gradient-to-b from-cyan-400 to-purple-500 rounded-full" />
                     <h3 className="text-base font-semibold text-white">Basic Information</h3>
                   </div>
-                  <div className="bg-gray-800/30 backdrop-blur-sm rounded-xl p-4 border border-gray-700/30">
+                  <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 border border-gray-700/30">
                     <BasicInfoForm
                       formData={formData}
                       onInputChange={handleInputChange}
@@ -201,7 +276,7 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
                       <div className="w-1 h-6 bg-gradient-to-b from-purple-400 to-pink-500 rounded-full" />
                       <h3 className="text-base font-semibold text-white">Social Media Specifications</h3>
                     </div>
-                    <div className="bg-gray-800/30 backdrop-blur-sm rounded-xl p-4 border border-gray-700/30">
+                    <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 border border-gray-700/30">
                       <SocialMediaSpecs component={component} />
                     </div>
                   </div>
@@ -213,7 +288,7 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
                     <div className="w-1 h-6 bg-gradient-to-b from-pink-400 to-rose-500 rounded-full" />
                     <h3 className="text-base font-semibold text-white">Media & Assets</h3>
                   </div>
-                  <div className="bg-gray-800/30 backdrop-blur-sm rounded-xl p-4 border border-gray-700/30">
+                  <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 border border-gray-700/30">
                     <ImageUploadSection
                       image={image}
                       isUploading={isUploading}
@@ -228,12 +303,16 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
               </form>
             </div>
 
-            {/* Compact Footer Actions */}
+            {/* Footer Actions */}
             <div className="flex justify-end items-center gap-3 p-4 border-t border-gray-700/50 bg-gradient-to-r from-gray-800/50 to-gray-900/50 backdrop-blur-sm">
               <Button 
                 type="button" 
                 variant="outline" 
-                onClick={onClose} 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  console.log('🚫 Cancel button clicked');
+                  onClose();
+                }}
                 disabled={isUploading}
                 className="bg-gray-800/50 border-gray-600/50 text-gray-300 hover:bg-gray-700/50 hover:text-white hover:border-gray-500 transition-all duration-200"
               >
@@ -241,7 +320,11 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
               </Button>
               <Button 
                 type="submit" 
-                onClick={handleSubmit}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  console.log('💾 Save button clicked');
+                  handleSubmit(e as any);
+                }}
                 disabled={isUploading}
                 className="bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white border-0 shadow-lg hover:shadow-cyan-500/25 transition-all duration-200 hover:scale-105"
               >
@@ -258,6 +341,9 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
+
+  // Use React Portal to render modal outside of canvas context
+  return createPortal(modalContent, document.body);
 };
