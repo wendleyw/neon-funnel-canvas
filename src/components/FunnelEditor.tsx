@@ -5,7 +5,7 @@ import { Canvas } from './Canvas';
 import { Toolbar } from './Toolbar';
 import { StatusBar } from './StatusBar';
 import { CreateProjectModal } from './ProjectCreator/CreateProjectModal';
-import { OpenProjectModal } from './ProjectLoader/OpenProjectModal';
+import { OpenProjectModal } from './OpenProjectModal';
 import { FunnelProject } from '../types/funnel';
 import { useProjectHandlers } from '../hooks/useProjectHandlers';
 import { useHotkeys } from 'react-hotkeys-hook';
