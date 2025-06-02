@@ -39,12 +39,16 @@ export interface FunnelProject {
 }
 
 export interface ComponentTemplate {
+  id?: string;
   type: FunnelComponent['type'];
   icon: string;
   label: string;
   color: string;
   category: string;
   defaultProps: FunnelComponent['data'];
+  title?: string;
+  description?: string;
+  config?: Record<string, any>;
 }
 
 export interface ComponentFormData {

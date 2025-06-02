@@ -1,14 +1,15 @@
+
 import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '../ui/dialog';
-import { Button } from '../ui/button';
-import { FunnelProject } from '../../types/funnel';
-import { useSupabaseWorkspace } from '../../hooks/useSupabaseWorkspace';
-import { useAuth } from '../../contexts/AuthContext';
+} from './ui/dialog';
+import { Button } from './ui/button';
+import { FunnelProject } from '../types/funnel';
+import { useSupabaseWorkspace } from '../hooks';
+import { useAuth } from '../contexts/AuthContext';
 
 interface OpenProjectModalProps {
   isOpen: boolean;

@@ -54,7 +54,16 @@ export const AdminTemplatesManager: React.FC = () => {
       description: formData.description,
       category: formData.category,
       type: formData.type as any,
-      config
+      config,
+      icon: '🔧',
+      label: formData.title,
+      color: '#6366F1',
+      defaultProps: {
+        title: formData.title,
+        description: formData.description,
+        status: 'draft' as const,
+        properties: config
+      }
     };
 
     if (editingTemplate) {
@@ -73,11 +82,11 @@ export const AdminTemplatesManager: React.FC = () => {
   const handleEdit = (template: ComponentTemplate) => {
     setEditingTemplate(template);
     setFormData({
-      title: template.title,
+      title: template.title || template.label,
       description: template.description || '',
       category: template.category,
       type: template.type,
-      config: JSON.stringify(template.config, null, 2)
+      config: JSON.stringify(template.config || {}, null, 2)
     });
     setIsCreating(true);
   };
@@ -178,7 +187,7 @@ export const AdminTemplatesManager: React.FC = () => {
                 {customTemplates.map((template) => (
                   <div key={template.id} className="flex items-center justify-between p-3 border rounded">
                     <div>
-                      <h5 className="font-medium">{template.title}</h5>
+                      <h5 className="font-medium">{template.title || template.label}</h5>
                       <p className="text-sm text-gray-500">
                         {template.category} • {template.type}
                       </p>
@@ -197,7 +206,7 @@ export const AdminTemplatesManager: React.FC = () => {
                       <Button 
                         size="sm" 
                         variant="outline" 
-                        onClick={() => handleDelete(template.id)}
+                        onClick={() => handleDelete(template.id!)}
                       >
                         <Trash2 size={14} />
                       </Button>
