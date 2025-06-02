@@ -59,21 +59,37 @@ export const ComponentNodeCard: React.FC<ComponentNodeCardProps> = ({
   };
 
   return (
-    <div className="w-72 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl border border-gray-700/50 shadow-2xl hover:shadow-3xl transition-all duration-500 hover:border-gray-600/70 relative group overflow-hidden backdrop-blur-sm">
+    <div className={`w-72 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl border shadow-2xl hover:shadow-3xl transition-all duration-500 relative group overflow-hidden backdrop-blur-sm ${
+      canConnect 
+        ? 'border-green-400/70 animate-pulse cursor-pointer hover:border-green-300 hover:shadow-green-500/30' 
+        : isSelected 
+          ? 'border-cyan-400/70 hover:border-cyan-300' 
+          : 'border-gray-700/50 hover:border-gray-600/70'
+    }`}>
       {/* Neon border effect */}
       <div 
-        className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+        className={`absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none ${
+          canConnect ? 'from-green-500/20 via-green-400/10 to-green-500/20' : ''
+        }`}
         style={{
-          background: `linear-gradient(45deg, transparent, ${template.color}30, transparent)`
+          background: canConnect 
+            ? `linear-gradient(45deg, transparent, rgba(34, 197, 94, 0.3), transparent)`
+            : `linear-gradient(45deg, transparent, ${template.color}30, transparent)`
         }}
       />
       
       {/* Inner glow effect */}
       <div 
-        className="absolute inset-[1px] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+        className={`absolute inset-[1px] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none ${
+          canConnect ? 'opacity-100' : ''
+        }`}
         style={{
-          background: `linear-gradient(135deg, ${template.color}10, transparent, ${template.color}10)`,
-          boxShadow: `inset 0 0 20px ${template.color}20`
+          background: canConnect 
+            ? `linear-gradient(135deg, rgba(34, 197, 94, 0.2), transparent, rgba(34, 197, 94, 0.2))`
+            : `linear-gradient(135deg, ${template.color}10, transparent, ${template.color}10)`,
+          boxShadow: canConnect 
+            ? `inset 0 0 20px rgba(34, 197, 94, 0.3)`
+            : `inset 0 0 20px ${template.color}20`
         }}
       />
 
@@ -133,12 +149,19 @@ export const ComponentNodeCard: React.FC<ComponentNodeCardProps> = ({
         </div>
       </div>
       
-      {/* Indicator para modo de conexão */}
+      {/* Enhanced indicator para modo de conexão */}
       {canConnect && (
-        <div className="absolute -top-3 -right-3 w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg z-20">
-          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 animate-ping opacity-75" />
-          <ArrowRight className="w-5 h-5 relative z-10" />
-        </div>
+        <>
+          <div className="absolute -top-4 -right-4 w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg z-20">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 animate-ping opacity-75" />
+            <ArrowRight className="w-6 h-6 relative z-10" />
+          </div>
+          
+          {/* Floating connection hint */}
+          <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-3 py-1 rounded-lg text-xs font-medium shadow-lg animate-bounce z-20">
+            Click to Connect
+          </div>
+        </>
       )}
       
       {/* Conteúdo do componente */}
