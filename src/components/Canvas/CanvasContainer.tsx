@@ -1,74 +1,45 @@
 
 import React, { useMemo, useCallback } from 'react';
-import { FunnelComponent, Connection } from '../../types/funnel';
+import { FunnelComponent } from '../../types/funnel';
 import { ComponentNode } from '../ComponentNode';
 import { ConnectionManager } from './ConnectionManager';
 import { FlowAnimation } from '../FlowAnimation';
 import { ErrorBoundary } from '../ErrorBoundary';
+import { useCanvas } from '../../contexts/CanvasContext';
 
-interface CanvasContainerProps {
-  canvasRef: React.RefObject<HTMLDivElement>;
-  components: FunnelComponent[];
-  connections: Connection[];
-  selectedComponent: string | null;
-  connectingFrom: string | null;
-  selectedConnection: string | null;
-  pan: { x: number; y: number };
-  zoom: number;
-  isPanning: boolean;
-  onComponentUpdate: (id: string, updates: Partial<FunnelComponent>) => void;
-  onComponentDelete: (id: string) => void;
-  onComponentAdd: (component: FunnelComponent) => void;
-  onConnectionSelect: (connectionId: string) => void;
-  onConnectionColorChange?: (connectionId: string, updates: Partial<Connection>) => void;
-  onComponentSelect: (componentId: string) => void;
-  startConnection: (componentId: string) => void;
-  handleComponentConnect: (componentId: string) => void;
-  onCanvasMouseDown: (e: React.MouseEvent) => void;
-  onMouseMove: (e: React.MouseEvent) => void;
-  onMouseUp: () => void;
-  onMouseLeave?: (e: React.MouseEvent) => void;
-  onWheel: (e: React.WheelEvent) => void;
-  onDrop: (e: React.DragEvent) => void;
-  onDragOver: (e: React.DragEvent) => void;
-  onDragEnter: (e: React.DragEvent) => void;
-  onDragLeave: (e: React.DragEvent) => void;
-  handleMouseDown: (e: React.MouseEvent) => void;
-  onContextMenu?: (e: React.MouseEvent) => void;
-  isDragOver?: boolean;
-}
+export const CanvasContainer: React.FC = () => {
+  const {
+    canvasRef,
+    components,
+    connections,
+    selectedComponent,
+    connectingFrom,
+    selectedConnection,
+    pan,
+    zoom,
+    isPanning,
+    isDragOver,
+    onComponentUpdate,
+    onComponentDelete,
+    onComponentAdd,
+    onConnectionSelect,
+    onConnectionColorChange,
+    onComponentSelect,
+    startConnection,
+    handleComponentConnect,
+    handleCanvasMouseDown,
+    handleMouseMove,
+    handleMouseUp,
+    handleMouseLeave,
+    handleWheel,
+    handleDrop,
+    handleDragOver,
+    handleDragEnter,
+    handleDragLeave,
+    handleMouseDown,
+    handleContextMenu
+  } = useCanvas();
 
-export const CanvasContainer: React.FC<CanvasContainerProps> = ({
-  canvasRef,
-  components,
-  connections,
-  selectedComponent,
-  connectingFrom,
-  selectedConnection,
-  pan,
-  zoom,
-  isPanning,
-  onComponentUpdate,
-  onComponentDelete,
-  onComponentAdd,
-  onConnectionSelect,
-  onConnectionColorChange,
-  onComponentSelect,
-  startConnection,
-  handleComponentConnect,
-  onCanvasMouseDown,
-  onMouseMove,
-  onMouseUp,
-  onMouseLeave,
-  onWheel,
-  onDrop,
-  onDragOver,
-  onDragEnter,
-  onDragLeave,
-  handleMouseDown,
-  onContextMenu,
-  isDragOver = false
-}) => {
   const handleComponentDrag = useCallback((id: string, position: { x: number; y: number }) => {
     console.log('Component dragged to position:', position);
     onComponentUpdate(id, { position });
@@ -94,12 +65,10 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
     }
   }, [components, onComponentAdd]);
 
-  const handleCanvasMouseDown = useCallback((e: React.MouseEvent) => {
-    // Call the canvas mouse down handler
-    onCanvasMouseDown(e);
-    // Call the pan mouse down handler
+  const handleCanvasMouseDownInternal = useCallback((e: React.MouseEvent) => {
+    handleCanvasMouseDown(e);
     handleMouseDown(e);
-  }, [onCanvasMouseDown, handleMouseDown]);
+  }, [handleCanvasMouseDown, handleMouseDown]);
 
   const transformStyle = useMemo(() => ({
     transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
@@ -111,7 +80,6 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
     userSelect: (isPanning ? 'none' : 'auto') as 'none' | 'auto'
   }), [isPanning, isDragOver]);
 
-  // Handler para deletar conexão
   const handleConnectionDelete = useCallback((connectionId: string) => {
     onConnectionSelect(connectionId);
   }, [onConnectionSelect]);
@@ -131,16 +99,16 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
       className={`canvas-container w-full h-full relative overflow-hidden ${
         isDragOver ? 'bg-blue-900/10 border-2 border-blue-500 border-dashed' : ''
       }`}
-      onDrop={onDrop}
-      onDragOver={onDragOver}
-      onDragEnter={onDragEnter}
-      onDragLeave={onDragLeave}
-      onMouseDown={handleCanvasMouseDown}
-      onMouseMove={onMouseMove}
-      onMouseUp={onMouseUp}
-      onMouseLeave={onMouseLeave}
-      onWheel={onWheel}
-      onContextMenu={onContextMenu}
+      onDrop={handleDrop}
+      onDragOver={handleDragOver}
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onMouseDown={handleCanvasMouseDownInternal}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseLeave}
+      onWheel={handleWheel}
+      onContextMenu={handleContextMenu}
       style={canvasStyle}
     >
       <div 

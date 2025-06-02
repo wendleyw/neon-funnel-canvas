@@ -7,6 +7,7 @@ import { CanvasHelpers } from './Canvas/CanvasHelpers';
 import { CanvasContainer } from './Canvas/CanvasContainer';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useCanvasEventHandlers } from './Canvas/CanvasEventHandlers';
+import { CanvasProvider } from '../contexts/CanvasContext';
 import { MiniMap } from './MiniMap';
 import { MobilePreviewButton } from './Canvas/MobilePreviewButton';
 import { InstagramMockupModal } from './Instagram/InstagramMockupModal';
@@ -48,88 +49,99 @@ export const Canvas = React.memo<CanvasProps>(({
     }
   }, [components, eventHandlers]);
 
-  const handleAddCompleteTemplate = useCallback((newComponents: FunnelComponent[], newConnections: Connection[]) => {
-    // Adicionar todos os componentes
-    newComponents.forEach(component => {
-      onComponentAdd(component);
-    });
-    
-    // Adicionar todas as conexões
-    newConnections.forEach(connection => {
-      onConnectionAdd(connection);
-    });
-  }, [onComponentAdd, onConnectionAdd]);
-
   const handleMobilePreviewClick = useCallback(() => {
     setIsInstagramModalOpen(true);
   }, []);
 
+  // Criar o valor do context com todas as props e handlers
+  const canvasContextValue = {
+    // Estado
+    components,
+    connections,
+    selectedComponent: eventHandlers.selectedComponent,
+    connectingFrom: eventHandlers.connectingFrom,
+    selectedConnection: eventHandlers.selectedConnection,
+    pan: eventHandlers.pan,
+    zoom: eventHandlers.zoom,
+    isPanning: eventHandlers.isPanning,
+    isDragOver: eventHandlers.isDragOver,
+    canvasRef: eventHandlers.canvasRef,
+    
+    // Actions externas
+    onComponentAdd,
+    onComponentUpdate,
+    onComponentDelete,
+    onConnectionAdd,
+    onConnectionDelete,
+    onConnectionUpdate,
+    
+    // Actions internas dos handlers
+    onComponentSelect: eventHandlers.handleComponentSelect,
+    onConnectionSelect: eventHandlers.handleConnectionSelect,
+    onConnectionColorChange: eventHandlers.handleConnectionColorChange,
+    startConnection: eventHandlers.startConnection,
+    handleComponentConnect: eventHandlers.handleComponentConnect,
+    clearSelection: eventHandlers.clearSelection,
+    setSelectedComponent: eventHandlers.setSelectedComponent,
+    
+    // Zoom
+    handleZoomIn: eventHandlers.handleZoomIn,
+    handleZoomOut: eventHandlers.handleZoomOut,
+    handleWheel: eventHandlers.handleWheel,
+    
+    // Pan
+    handleMouseDown: eventHandlers.handleMouseDown,
+    handleMouseMove: eventHandlers.handleMouseMove,
+    handleMouseUp: eventHandlers.handleMouseUp,
+    handleMouseLeave: eventHandlers.handleMouseLeave,
+    handleCanvasMouseDown: eventHandlers.handleCanvasMouseDown,
+    handleContextMenu: eventHandlers.handleContextMenu,
+    
+    // Drag & Drop
+    handleDrop: eventHandlers.handleDrop,
+    handleDragOver: eventHandlers.handleDragOver,
+    handleDragEnter: eventHandlers.handleDragEnter,
+    handleDragLeave: eventHandlers.handleDragLeave
+  };
+
   return (
     <ErrorBoundary>
-      <div className="flex-1 relative overflow-hidden bg-black">
-        <CanvasGrid 
-          zoom={eventHandlers.zoom} 
-          pan={eventHandlers.pan} 
-          isDragOver={eventHandlers.isDragOver} 
-        />
-        
-        <CanvasHelpers
-          connectingFrom={eventHandlers.connectingFrom}
-          selectedConnection={eventHandlers.selectedConnection}
-        />
-        
-        <CanvasContainer
-          canvasRef={eventHandlers.canvasRef}
-          components={components}
-          connections={connections}
-          selectedComponent={eventHandlers.selectedComponent}
-          connectingFrom={eventHandlers.connectingFrom}
-          selectedConnection={eventHandlers.selectedConnection}
-          pan={eventHandlers.pan}
-          zoom={eventHandlers.zoom}
-          isPanning={eventHandlers.isPanning}
-          onComponentUpdate={onComponentUpdate}
-          onComponentDelete={onComponentDelete}
-          onComponentAdd={onComponentAdd}
-          onConnectionSelect={eventHandlers.handleConnectionSelect}
-          onConnectionColorChange={eventHandlers.handleConnectionColorChange}
-          onComponentSelect={eventHandlers.handleComponentSelect}
-          startConnection={eventHandlers.startConnection}
-          handleComponentConnect={eventHandlers.handleComponentConnect}
-          onCanvasMouseDown={eventHandlers.handleCanvasMouseDown}
-          onMouseMove={eventHandlers.handleMouseMove}
-          onMouseUp={eventHandlers.handleMouseUp}
-          onMouseLeave={eventHandlers.handleMouseLeave}
-          onWheel={eventHandlers.handleWheel}
-          onDrop={eventHandlers.handleDrop}
-          onDragOver={eventHandlers.handleDragOver}
-          onDragEnter={eventHandlers.handleDragEnter}
-          onDragLeave={eventHandlers.handleDragLeave}
-          handleMouseDown={eventHandlers.handleMouseDown}
-          onContextMenu={eventHandlers.handleContextMenu}
-          isDragOver={eventHandlers.isDragOver}
-        />
+      <CanvasProvider value={canvasContextValue}>
+        <div className="flex-1 relative overflow-hidden bg-black">
+          <CanvasGrid 
+            zoom={eventHandlers.zoom} 
+            pan={eventHandlers.pan} 
+            isDragOver={eventHandlers.isDragOver} 
+          />
+          
+          <CanvasHelpers
+            connectingFrom={eventHandlers.connectingFrom}
+            selectedConnection={eventHandlers.selectedConnection}
+          />
+          
+          <CanvasContainer />
 
-        <CanvasControls
-          zoom={eventHandlers.zoom}
-          onZoomIn={eventHandlers.handleZoomIn}
-          onZoomOut={eventHandlers.handleZoomOut}
-        />
+          <CanvasControls
+            zoom={eventHandlers.zoom}
+            onZoomIn={eventHandlers.handleZoomIn}
+            onZoomOut={eventHandlers.handleZoomOut}
+          />
 
-        <MiniMap
-          components={components}
-          connections={connections}
-          canvasTransform={{ pan: eventHandlers.pan, zoom: eventHandlers.zoom }}
-          onComponentClick={handleMiniMapComponentClick}
-        />
+          <MiniMap
+            components={components}
+            connections={connections}
+            canvasTransform={{ pan: eventHandlers.pan, zoom: eventHandlers.zoom }}
+            onComponentClick={handleMiniMapComponentClick}
+          />
 
-        <MobilePreviewButton onClick={handleMobilePreviewClick} />
+          <MobilePreviewButton onClick={handleMobilePreviewClick} />
 
-        <InstagramMockupModal
-          isOpen={isInstagramModalOpen}
-          onClose={() => setIsInstagramModalOpen(false)}
-        />
-      </div>
+          <InstagramMockupModal
+            isOpen={isInstagramModalOpen}
+            onClose={() => setIsInstagramModalOpen(false)}
+          />
+        </div>
+      </CanvasProvider>
     </ErrorBoundary>
   );
 });
