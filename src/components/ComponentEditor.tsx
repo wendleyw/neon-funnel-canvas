@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { X } from 'lucide-react';
+import { X, Sparkles } from 'lucide-react';
 import { FunnelComponent } from '../types/funnel';
 import { BasicInfoForm } from './ComponentEditor/BasicInfoForm';
 import { SocialMediaSpecs } from './ComponentEditor/SocialMediaSpecs';
@@ -84,78 +84,129 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
   return (
     <>
-      {/* Background overlay with blur - full screen */}
+      {/* Background overlay with enhanced blur */}
       <div
-        className="fixed inset-0 bg-black/20 backdrop-blur-sm"
+        className="fixed inset-0 bg-black/60 backdrop-blur-lg"
         style={{ zIndex: 9999 }}
         onClick={onClose}
       />
       
-      {/* Custom modal with blur - full screen */}
+      {/* Modern modal with neon design */}
       <div
-        className="fixed inset-4 bg-gray-900/95 backdrop-blur-md border border-gray-700 rounded-xl shadow-2xl overflow-y-auto"
+        className="fixed inset-0 flex items-center justify-center p-4"
         style={{ zIndex: 10000 }}
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => e.target === e.currentTarget && onClose()}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-700">
-          <div className="flex items-center gap-2">
-            <h2 className="text-lg font-semibold text-white">Edit Component</h2>
-            <Badge variant="outline" className="border-gray-600 text-gray-300">{component.type}</Badge>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-200 transition-colors p-1 hover:bg-gray-800 rounded"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
+        <div 
+          className="relative w-full max-w-4xl max-h-[90vh] bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl border border-gray-700/50 shadow-2xl overflow-hidden backdrop-blur-md"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Neon border glow effect */}
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-pink-500/20 opacity-50 blur-xl" />
+          <div className="absolute inset-[1px] rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900" />
+          
+          {/* Content container */}
+          <div className="relative z-10 flex flex-col h-full max-h-[90vh]">
+            {/* Enhanced Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-700/50 bg-gradient-to-r from-gray-800/80 to-gray-900/80 backdrop-blur-sm">
+              <div className="flex items-center gap-4">
+                <div className="p-2 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-xl">
+                  <Sparkles className="w-6 h-6 text-cyan-400" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                    Edit Component
+                  </h2>
+                  <p className="text-sm text-gray-400">Customize your component settings</p>
+                </div>
+                <Badge 
+                  variant="outline" 
+                  className="border-cyan-500/30 text-cyan-300 bg-cyan-500/10 hover:bg-cyan-500/20 transition-colors"
+                >
+                  {component.type}
+                </Badge>
+              </div>
+              <button
+                onClick={onClose}
+                className="group p-2 text-gray-400 hover:text-white transition-all duration-200 hover:bg-gray-700/50 rounded-xl"
+              >
+                <X className="h-5 w-5 group-hover:rotate-90 transition-transform duration-200" />
+              </button>
+            </div>
 
-        {/* Content */}
-        <div className="p-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Basic Info */}
-            <BasicInfoForm
-              formData={formData}
-              onInputChange={handleInputChange}
-            />
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-8">
+              <form onSubmit={handleSubmit} className="space-y-8">
+                {/* Basic Info Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-2 h-8 bg-gradient-to-b from-cyan-400 to-purple-500 rounded-full" />
+                    <h3 className="text-lg font-semibold text-white">Basic Information</h3>
+                  </div>
+                  <BasicInfoForm
+                    formData={formData}
+                    onInputChange={handleInputChange}
+                  />
+                </div>
 
-            {/* Social Media Specs */}
-            {isSocialMediaComponent && (
-              <SocialMediaSpecs component={component} />
-            )}
+                {/* Social Media Specs Section */}
+                {isSocialMediaComponent && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-2 h-8 bg-gradient-to-b from-purple-400 to-pink-500 rounded-full" />
+                      <h3 className="text-lg font-semibold text-white">Social Media Specifications</h3>
+                    </div>
+                    <SocialMediaSpecs component={component} />
+                  </div>
+                )}
 
-            {/* Image Upload */}
-            <ImageUploadSection
-              image={image}
-              isUploading={isUploading}
-              isSocialMediaComponent={isSocialMediaComponent}
-              dimensionsInfo={getDimensionsInfo()}
-              onImageChange={handleImageUrlChange}
-              onImageUpload={handleImageUpload}
-              onRemoveImage={handleRemoveImage}
-            />
+                {/* Image Upload Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-2 h-8 bg-gradient-to-b from-pink-400 to-rose-500 rounded-full" />
+                    <h3 className="text-lg font-semibold text-white">Media & Assets</h3>
+                  </div>
+                  <ImageUploadSection
+                    image={image}
+                    isUploading={isUploading}
+                    isSocialMediaComponent={isSocialMediaComponent}
+                    dimensionsInfo={getDimensionsInfo()}
+                    onImageChange={handleImageUrlChange}
+                    onImageUpload={handleImageUpload}
+                    onRemoveImage={handleRemoveImage}
+                  />
+                </div>
+              </form>
+            </div>
 
-            {/* Actions */}
-            <div className="flex justify-end space-x-3 pt-4">
+            {/* Enhanced Footer Actions */}
+            <div className="flex justify-end items-center gap-3 p-6 border-t border-gray-700/50 bg-gradient-to-r from-gray-800/50 to-gray-900/50 backdrop-blur-sm">
               <Button 
                 type="button" 
                 variant="outline" 
                 onClick={onClose} 
                 disabled={isUploading}
-                className="bg-gray-700/70 border-gray-600 text-white hover:bg-gray-600"
+                className="bg-gray-800/50 border-gray-600/50 text-gray-300 hover:bg-gray-700/50 hover:text-white hover:border-gray-500 transition-all duration-200"
               >
                 Cancel
               </Button>
               <Button 
                 type="submit" 
+                onClick={handleSubmit}
                 disabled={isUploading}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
+                className="bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white border-0 shadow-lg hover:shadow-cyan-500/25 transition-all duration-200 hover:scale-105"
               >
-                {isUploading ? 'Processing...' : 'Save Changes'}
+                {isUploading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Processing...
+                  </div>
+                ) : (
+                  'Save Changes'
+                )}
               </Button>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </>

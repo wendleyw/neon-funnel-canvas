@@ -135,17 +135,6 @@ export const CanvasContainer: React.FC = () => {
         className="canvas-viewport"
         style={transformStyle}
       >
-        {/* Debug center indicator */}
-        <div 
-          className="absolute w-4 h-4 bg-red-500 rounded-full z-50"
-          style={{ 
-            left: '5000px', 
-            top: '5000px', 
-            transform: 'translate(-50%, -50%)' 
-          }}
-          title="Canvas Center (0,0)"
-        />
-        
         {/* Grid or pattern background can be added here if needed */}
         
         <ErrorBoundary>

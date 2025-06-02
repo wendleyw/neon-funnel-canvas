@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ArrowRight, Settings, Trash2, MoreVertical } from 'lucide-react';
 import { ComponentNodeHeader } from './ComponentNodeHeader';
@@ -131,26 +130,6 @@ export const ComponentNodeCard: React.FC<ComponentNodeCardProps> = ({
               </p>
             </div>
           </div>
-          
-          {/* Botões de ação no header */}
-          {isSelected && !isConnecting && (
-            <div className="flex items-center gap-1">
-              <button
-                onClick={onEditClick}
-                className="w-8 h-8 bg-gray-800/80 hover:bg-gray-700/80 text-gray-300 hover:text-white rounded-lg flex items-center justify-center transition-all duration-200 opacity-0 group-hover:opacity-100 hover:shadow-lg hover:shadow-blue-500/20"
-                title="Editar componente"
-              >
-                <Settings className="w-4 h-4" />
-              </button>
-              <button
-                onClick={onDeleteClick}
-                className="w-8 h-8 bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 rounded-lg flex items-center justify-center transition-all duration-200 opacity-0 group-hover:opacity-100 hover:shadow-lg hover:shadow-red-500/20"
-                title="Excluir componente"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          )}
         </div>
       </div>
       
