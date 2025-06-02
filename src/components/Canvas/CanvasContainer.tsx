@@ -70,14 +70,27 @@ export const CanvasContainer: React.FC = () => {
     handleMouseDown(e);
   }, [handleCanvasMouseDown, handleMouseDown]);
 
+  const handleContextMenuInternal = useCallback((e: React.MouseEvent) => {
+    e.preventDefault(); // Always prevent context menu
+    handleContextMenu?.(e);
+  }, [handleContextMenu]);
+
   const transformStyle = useMemo(() => ({
     transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-    transformOrigin: '0 0'
+    transformOrigin: '0 0',
+    width: '100%',
+    height: '100%',
+    minWidth: '200vw', // Allow components to be placed far to the right
+    minHeight: '200vh' // Allow components to be placed far down
   }), [pan.x, pan.y, zoom]);
 
   const canvasStyle = useMemo(() => ({
-    cursor: isPanning ? 'grabbing' : isDragOver ? 'copy' : 'grab',
-    userSelect: (isPanning ? 'none' : 'auto') as 'none' | 'auto'
+    cursor: isPanning ? 'grabbing' : isDragOver ? 'copy' : 'default',
+    userSelect: (isPanning ? 'none' : 'auto') as 'none' | 'auto',
+    width: '100%',
+    height: '100%',
+    overflow: 'hidden',
+    position: 'relative' as const
   }), [isPanning, isDragOver]);
 
   const handleConnectionDelete = useCallback((connectionId: string) => {
@@ -96,7 +109,7 @@ export const CanvasContainer: React.FC = () => {
   return (
     <div
       ref={canvasRef}
-      className={`absolute inset-0 w-full h-full overflow-hidden ${
+      className={`canvas-container absolute inset-0 w-full h-full overflow-hidden ${
         isDragOver ? 'bg-blue-900/10 border-2 border-blue-500 border-dashed' : ''
       }`}
       onDrop={handleDrop}
@@ -108,11 +121,11 @@ export const CanvasContainer: React.FC = () => {
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseLeave}
       onWheel={handleWheel}
-      onContextMenu={handleContextMenu}
+      onContextMenu={handleContextMenuInternal}
       style={canvasStyle}
     >
       <div 
-        className="absolute w-full h-full"
+        className="canvas-background absolute"
         style={transformStyle}
       >
         <ErrorBoundary>

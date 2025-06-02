@@ -9,23 +9,31 @@ export const useCanvasPan = () => {
   const panStartRef = useRef<CanvasPosition>({ x: 0, y: 0 });
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    // Permitir pan com botão esquerdo (0), do meio (1) ou com space+left click
-    if (e.button === 0 || e.button === 1 || (e.button === 0 && e.ctrlKey)) {
-      // Verificar se o clique é no canvas background ou diretamente no canvas container
+    // Allow panning with middle mouse button (1) or Ctrl+left click or right click
+    if (e.button === 1 || (e.button === 0 && e.ctrlKey) || e.button === 2) {
+      e.preventDefault();
+      setIsPanning(true);
+      setLastPanPosition({ x: e.clientX, y: e.clientY });
+      panStartRef.current = { x: e.clientX, y: e.clientY };
+      
+      // Change cursor to grabbing
+      document.body.style.cursor = 'grabbing';
+      document.body.style.userSelect = 'none';
+    } else if (e.button === 0) {
+      // For left click, check if clicking on canvas background
       const target = e.target as Element;
       const isCanvasBackground = target === e.currentTarget || 
                                 target.classList.contains('canvas-background') ||
                                 target.classList.contains('canvas-container') ||
                                 target.tagName === 'svg';
       
-      if (isCanvasBackground || e.button === 1 || e.ctrlKey) {
-        e.preventDefault();
+      if (isCanvasBackground && !e.ctrlKey && !e.shiftKey) {
+        // Allow panning on canvas background with left click
         setIsPanning(true);
         setLastPanPosition({ x: e.clientX, y: e.clientY });
         panStartRef.current = { x: e.clientX, y: e.clientY };
-        
-        // Mudar cursor para grabbing
         document.body.style.cursor = 'grabbing';
+        document.body.style.userSelect = 'none';
       }
     }
   }, []);
@@ -37,7 +45,7 @@ export const useCanvasPan = () => {
       const deltaX = e.clientX - lastPanPosition.x;
       const deltaY = e.clientY - lastPanPosition.y;
       
-      // Aplicar o movimento de pan
+      // Apply pan movement
       setPan(prev => ({
         x: prev.x + deltaX,
         y: prev.y + deltaY
@@ -51,14 +59,16 @@ export const useCanvasPan = () => {
     if (isPanning) {
       setIsPanning(false);
       document.body.style.cursor = '';
+      document.body.style.userSelect = '';
     }
   }, [isPanning]);
 
-  // Handler para mouse leave - para quando o mouse sai da área do canvas
+  // Handler for mouse leave - when mouse leaves canvas area
   const handleMouseLeave = useCallback(() => {
     if (isPanning) {
       setIsPanning(false);
       document.body.style.cursor = '';
+      document.body.style.userSelect = '';
     }
   }, [isPanning]);
 

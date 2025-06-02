@@ -24,6 +24,13 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
+  const handleDragStart = (e: React.DragEvent, template: ComponentTemplate) => {
+    console.log('Starting drag for template:', template);
+    e.dataTransfer.setData('application/json', JSON.stringify(template));
+    e.dataTransfer.effectAllowed = 'copy';
+    onDragStart(e, template);
+  };
+
   return (
     <div className="mb-4">
       <button
@@ -47,7 +54,7 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
             <div
               key={template.type}
               draggable
-              onDragStart={(e) => onDragStart(e, template)}
+              onDragStart={(e) => handleDragStart(e, template)}
               className="flex items-center justify-between p-2 mx-3 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded cursor-grab active:cursor-grabbing transition-colors group"
             >
               <div className="flex items-center gap-3">

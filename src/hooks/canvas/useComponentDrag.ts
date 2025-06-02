@@ -15,8 +15,9 @@ export const useComponentDrag = ({ componentId, onDrag, onSelect }: UseComponent
   const nodeRef = useRef<HTMLDivElement>(null);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    // Don't start dragging if clicking on buttons
-    if ((e.target as Element).closest('button')) {
+    // Don't start dragging if clicking on buttons, inputs, or other interactive elements
+    const target = e.target as Element;
+    if (target.closest('button, input, textarea, select, [contenteditable]')) {
       return;
     }
     
@@ -34,21 +35,21 @@ export const useComponentDrag = ({ componentId, onDrag, onSelect }: UseComponent
       setIsDragging(true);
       setHasDragged(false);
       
-      // Adiciona listeners globais para mousemove e mouseup
+      // Add global listeners for mousemove and mouseup
       const handleMouseMove = (event: MouseEvent) => {
         event.preventDefault();
         
-        // Calcula a distância do movimento
+        // Calculate movement distance
         const distance = Math.sqrt(
           Math.pow(event.clientX - dragStartPosition.x, 2) + 
           Math.pow(event.clientY - dragStartPosition.y, 2)
         );
         
-        // Só considera como drag se moveu mais de 5 pixels
+        // Only consider as drag if moved more than 5 pixels
         if (distance > 5) {
           setHasDragged(true);
           
-          // Find the canvas container with the specific class
+          // Find the canvas container
           const canvas = document.querySelector('.canvas-container');
           const canvasRect = canvas?.getBoundingClientRect();
           
@@ -57,7 +58,7 @@ export const useComponentDrag = ({ componentId, onDrag, onSelect }: UseComponent
             const canvasContent = canvas.querySelector('div[style*="transform"]') as HTMLElement;
             const transform = canvasContent?.style.transform || '';
             
-            // Extract translate and scale values
+            // Extract translate and scale values from transform
             const translateMatch = transform.match(/translate\(([^,]+),\s*([^)]+)\)/);
             const scaleMatch = transform.match(/scale\(([^)]+)\)/);
             
@@ -65,9 +66,10 @@ export const useComponentDrag = ({ componentId, onDrag, onSelect }: UseComponent
             const panY = translateMatch ? parseFloat(translateMatch[2].replace('px', '')) : 0;
             const scale = scaleMatch ? parseFloat(scaleMatch[1]) : 1;
             
+            // Calculate new position in canvas coordinates
             const newPosition = {
-              x: Math.max(0, (event.clientX - canvasRect.left - panX - dragOffset.x) / scale),
-              y: Math.max(0, (event.clientY - canvasRect.top - panY - dragOffset.y) / scale)
+              x: (event.clientX - canvasRect.left - panX - dragOffset.x) / scale,
+              y: (event.clientY - canvasRect.top - panY - dragOffset.y) / scale
             };
             
             console.log('Dragging component to position:', newPosition, {
@@ -90,18 +92,19 @@ export const useComponentDrag = ({ componentId, onDrag, onSelect }: UseComponent
         console.log('Drag ended for component:', componentId, 'hasDragged:', hasDragged);
         setIsDragging(false);
         
-        // Remove listeners
+        // Remove global listeners
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
         
-        // Só chama onSelect se não arrastou o componente
+        // Only call onSelect if component wasn't dragged
         if (!hasDragged) {
-          setTimeout(() => onSelect(), 0); // Pequeno delay para evitar conflitos
+          setTimeout(() => onSelect(), 0); // Small delay to avoid conflicts
         }
         
         setHasDragged(false);
       };
       
+      // Add global event listeners
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
     }

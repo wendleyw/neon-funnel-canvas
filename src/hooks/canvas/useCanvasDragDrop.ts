@@ -32,7 +32,13 @@ export const useCanvasDragDrop = ({
   const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     // Only set isDragOver to false if we're leaving the canvas container
-    if (!canvasRef.current?.contains(e.relatedTarget as Node)) {
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (rect && (
+      e.clientX < rect.left || 
+      e.clientX > rect.right || 
+      e.clientY < rect.top || 
+      e.clientY > rect.bottom
+    )) {
       setIsDragOver(false);
       console.log('Drag leave canvas');
     }
@@ -71,9 +77,13 @@ export const useCanvasDragDrop = ({
       console.log('Scale:', scale);
       
       // Calculate position with proper scaling and panning
-      // Subtract pan offset and divide by scale to get the correct canvas position
-      const x = Math.max(0, (e.clientX - canvasRect.left - panOffset.x) / scale);
-      const y = Math.max(0, (e.clientY - canvasRect.top - panOffset.y) / scale);
+      // Convert screen coordinates to canvas coordinates
+      const canvasX = (e.clientX - canvasRect.left - panOffset.x) / scale;
+      const canvasY = (e.clientY - canvasRect.top - panOffset.y) / scale;
+
+      // Ensure minimum position is 0, but allow negative values for better UX
+      const x = Math.max(-100, canvasX);
+      const y = Math.max(-100, canvasY);
 
       console.log('Calculated drop position:', { x, y, scale, panOffset });
 
