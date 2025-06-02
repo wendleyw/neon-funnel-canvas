@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { FunnelComponent } from '../types/funnel';
 import { useComponentTemplates } from '../hooks/useComponentTemplates';
@@ -81,8 +80,8 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
   });
 
   const containerStyle = useMemo(() => ({
-    left: component.position.x,
-    top: component.position.y,
+    left: component.position.x + 5000,
+    top: component.position.y + 5000,
     zIndex: isSelected ? 1000 : isDragging ? 999 : 1
   }), [component.position.x, component.position.y, isSelected, isDragging]);
 

@@ -107,7 +107,9 @@ export const CanvasContainer: React.FC = () => {
     pan,
     zoom,
     isDragOver,
-    isPanning
+    isPanning,
+    transformStyle,
+    canvasRect: canvasRef.current?.getBoundingClientRect()
   });
 
   return (
@@ -133,6 +135,17 @@ export const CanvasContainer: React.FC = () => {
         className="canvas-viewport"
         style={transformStyle}
       >
+        {/* Debug center indicator */}
+        <div 
+          className="absolute w-4 h-4 bg-red-500 rounded-full z-50"
+          style={{ 
+            left: '5000px', 
+            top: '5000px', 
+            transform: 'translate(-50%, -50%)' 
+          }}
+          title="Canvas Center (0,0)"
+        />
+        
         {/* Grid or pattern background can be added here if needed */}
         
         <ErrorBoundary>
@@ -156,7 +169,15 @@ export const CanvasContainer: React.FC = () => {
 
         {/* Components with absolute positioning - no conversion needed */}
         {components.map((component) => {
-          console.log('Rendering component:', component.id, component.position);
+          console.log('Rendering component:', {
+            id: component.id, 
+            position: component.position,
+            title: component.data.title,
+            worldPosition: {
+              x: component.position.x + 5000,
+              y: component.position.y + 5000
+            }
+          });
           
           return (
             <ErrorBoundary key={component.id}>

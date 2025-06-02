@@ -1,4 +1,3 @@
-
 import { useCallback, useState } from 'react';
 import { ComponentTemplate, FunnelComponent } from '../../types/funnel';
 
@@ -76,21 +75,27 @@ export const useCanvasDragDrop = ({
       console.log('Pan offset:', panOffset);
       console.log('Scale:', scale);
       
-      // Calculate position with proper scaling and panning
-      // Convert screen coordinates to canvas coordinates
-      const canvasX = (e.clientX - canvasRect.left - panOffset.x) / scale;
-      const canvasY = (e.clientY - canvasRect.top - panOffset.y) / scale;
+      // For infinite canvas, convert screen coordinates to world coordinates
+      // The canvas viewport is centered at (-5000, -5000) and transformed by pan/zoom
+      const screenX = e.clientX - canvasRect.left;
+      const screenY = e.clientY - canvasRect.top;
+      
+      // Convert screen position to world position accounting for pan and zoom
+      // Since our canvas center is at (-5000, -5000), we need to adjust accordingly
+      const worldX = (screenX - panOffset.x) / scale - 5000;
+      const worldY = (screenY - panOffset.y) / scale - 5000;
 
-      // Ensure minimum position is 0, but allow negative values for better UX
-      const x = Math.max(-100, canvasX);
-      const y = Math.max(-100, canvasY);
-
-      console.log('Calculated drop position:', { x, y, scale, panOffset });
+      console.log('Calculated drop position:', { 
+        screenX, screenY, 
+        worldX, worldY, 
+        scale, 
+        panOffset 
+      });
 
       const newComponent: FunnelComponent = {
         id: `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         type: template.type as FunnelComponent['type'],
-        position: { x, y },
+        position: { x: worldX, y: worldY },
         connections: [],
         data: {
           title: template.defaultProps.title || template.label,

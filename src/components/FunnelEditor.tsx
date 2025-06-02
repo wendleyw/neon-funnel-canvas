@@ -1,4 +1,3 @@
-
 import React, { useCallback, useState } from 'react';
 import { Sidebar } from './Sidebar';
 import { Canvas } from './Canvas';
@@ -72,7 +71,7 @@ export const FunnelEditor: React.FC<FunnelEditorProps> = ({
   });
 
   return (
-    <div className="h-screen w-full flex bg-black overflow-hidden">
+    <div className="h-screen w-screen flex bg-black overflow-hidden">
       {/* Sidebar */}
       <div className="w-80 flex-shrink-0 border-r border-gray-800">
         <Sidebar 
