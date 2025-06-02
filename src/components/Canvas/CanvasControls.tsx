@@ -1,63 +1,73 @@
-
 import React from 'react';
-import { ZoomIn, ZoomOut, RotateCcw, Maximize } from 'lucide-react';
+import { Button } from '../ui/button';
+import { ZoomIn, ZoomOut, Maximize2, Home } from 'lucide-react';
 
 interface CanvasControlsProps {
   zoom: number;
   onZoomIn: () => void;
   onZoomOut: () => void;
-  onResetView?: () => void;
-  onFitToScreen?: () => void;
+  onResetView: () => void;
+  onFitToScreen: () => void;
 }
 
-export const CanvasControls: React.FC<CanvasControlsProps> = ({ 
-  zoom, 
-  onZoomIn, 
+export const CanvasControls: React.FC<CanvasControlsProps> = ({
+  zoom,
+  onZoomIn,
   onZoomOut,
   onResetView,
   onFitToScreen
 }) => {
+  const zoomPercentage = Math.round(zoom * 100);
+  
   return (
-    <div className="absolute bottom-4 right-4 flex flex-col gap-1 z-20 bg-gray-900/90 backdrop-blur-sm rounded-lg p-1 border border-gray-700">
-      <button
-        onClick={onZoomIn}
-        className="w-8 h-8 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded flex items-center justify-center text-white text-sm transition-colors"
-        title="Zoom In (Ctrl + +)"
-      >
-        <ZoomIn size={14} />
-      </button>
-      
-      <div className="w-8 h-6 bg-gray-800 border border-gray-600 rounded flex items-center justify-center text-xs text-white">
-        {Math.round(zoom * 100)}%
+    <div className="absolute top-4 right-4 flex flex-col gap-2 z-50">
+      <div className="bg-gray-800/90 backdrop-blur-sm rounded-lg p-2 flex flex-col gap-1">
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={onZoomIn}
+          className="w-8 h-8 hover:bg-gray-700"
+          title="Zoom In"
+        >
+          <ZoomIn className="w-4 h-4" />
+        </Button>
+        
+        <div className="text-center text-xs text-gray-400 font-mono py-1">
+          {zoomPercentage}%
+        </div>
+        
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={onZoomOut}
+          className="w-8 h-8 hover:bg-gray-700"
+          title="Zoom Out"
+        >
+          <ZoomOut className="w-4 h-4" />
+        </Button>
       </div>
       
-      <button
-        onClick={onZoomOut}
-        className="w-8 h-8 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded flex items-center justify-center text-white text-sm transition-colors"
-        title="Zoom Out (Ctrl + -)"
-      >
-        <ZoomOut size={14} />
-      </button>
-
-      {onResetView && (
-        <button
+      <div className="bg-gray-800/90 backdrop-blur-sm rounded-lg p-2 flex flex-col gap-1">
+        <Button
+          size="icon"
+          variant="ghost"
           onClick={onResetView}
-          className="w-8 h-8 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded flex items-center justify-center text-white text-sm transition-colors"
-          title="Reset View (Ctrl + 0)"
+          className="w-8 h-8 hover:bg-gray-700"
+          title="Reset View"
         >
-          <RotateCcw size={14} />
-        </button>
-      )}
-
-      {onFitToScreen && (
-        <button
+          <Home className="w-4 h-4" />
+        </Button>
+        
+        <Button
+          size="icon"
+          variant="ghost"
           onClick={onFitToScreen}
-          className="w-8 h-8 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded flex items-center justify-center text-white text-sm transition-colors"
-          title="Fit to Screen (Ctrl + F)"
+          className="w-8 h-8 hover:bg-gray-700"
+          title="Fit to Screen"
         >
-          <Maximize size={14} />
-        </button>
-      )}
+          <Maximize2 className="w-4 h-4" />
+        </Button>
+      </div>
     </div>
   );
 };

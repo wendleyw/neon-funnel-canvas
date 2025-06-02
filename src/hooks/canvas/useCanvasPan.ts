@@ -1,4 +1,3 @@
-
 import { useCallback, useState, useMemo, useRef } from 'react';
 import { CanvasPosition } from '../../types/canvas';
 
@@ -25,6 +24,7 @@ export const useCanvasPan = () => {
       const isCanvasBackground = target === e.currentTarget || 
                                 target.classList.contains('canvas-background') ||
                                 target.classList.contains('canvas-container') ||
+                                target.classList.contains('canvas-viewport') ||
                                 target.tagName === 'svg';
       
       if (isCanvasBackground && !e.ctrlKey && !e.shiftKey) {
@@ -88,7 +88,8 @@ export const useCanvasPan = () => {
     handleMouseUp,
     handleMouseLeave,
     resetPan,
-    centerCanvas
+    centerCanvas,
+    setPan
   }), [handleMouseDown, handleMouseMove, handleMouseUp, handleMouseLeave, resetPan, centerCanvas]);
 
   return {

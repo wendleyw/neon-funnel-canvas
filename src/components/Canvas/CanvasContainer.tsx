@@ -1,4 +1,3 @@
-
 import React, { useMemo, useCallback } from 'react';
 import { FunnelComponent } from '../../types/funnel';
 import { ComponentNode } from '../ComponentNode';
@@ -57,7 +56,7 @@ export const CanvasContainer: React.FC = () => {
         },
         data: {
           ...originalComponent.data,
-          title: `${originalComponent.data.title} (Cópia)`
+          title: `${originalComponent.data.title} (Copy)`
         },
         connections: []
       };
@@ -71,17 +70,21 @@ export const CanvasContainer: React.FC = () => {
   }, [handleCanvasMouseDown, handleMouseDown]);
 
   const handleContextMenuInternal = useCallback((e: React.MouseEvent) => {
-    e.preventDefault(); // Always prevent context menu
+    e.preventDefault();
     handleContextMenu?.(e);
   }, [handleContextMenu]);
 
+  // Simple transform style for infinite canvas
   const transformStyle = useMemo(() => ({
     transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
     transformOrigin: '0 0',
-    width: '100%',
-    height: '100%',
-    minWidth: '200vw', // Allow components to be placed far to the right
-    minHeight: '200vh' // Allow components to be placed far down
+    // Use a very large canvas area to allow free movement
+    width: '10000px',
+    height: '10000px',
+    position: 'absolute' as const,
+    // Center the large canvas area
+    left: '-5000px',
+    top: '-5000px'
   }), [pan.x, pan.y, zoom]);
 
   const canvasStyle = useMemo(() => ({
@@ -90,7 +93,8 @@ export const CanvasContainer: React.FC = () => {
     width: '100%',
     height: '100%',
     overflow: 'hidden',
-    position: 'relative' as const
+    position: 'relative' as const,
+    backgroundColor: '#000000'
   }), [isPanning, isDragOver]);
 
   const handleConnectionDelete = useCallback((connectionId: string) => {
@@ -109,8 +113,8 @@ export const CanvasContainer: React.FC = () => {
   return (
     <div
       ref={canvasRef}
-      className={`canvas-container absolute inset-0 w-full h-full overflow-hidden ${
-        isDragOver ? 'bg-blue-900/10 border-2 border-blue-500 border-dashed' : ''
+      className={`canvas-container absolute inset-0 w-full h-full ${
+        isDragOver ? 'ring-4 ring-blue-500/50 ring-inset' : ''
       }`}
       onDrop={handleDrop}
       onDragOver={handleDragOver}
@@ -124,10 +128,13 @@ export const CanvasContainer: React.FC = () => {
       onContextMenu={handleContextMenuInternal}
       style={canvasStyle}
     >
+      {/* Infinite canvas viewport */}
       <div 
-        className="canvas-background absolute"
+        className="canvas-viewport"
         style={transformStyle}
       >
+        {/* Grid or pattern background can be added here if needed */}
+        
         <ErrorBoundary>
           <ConnectionManager
             components={components}
@@ -147,9 +154,10 @@ export const CanvasContainer: React.FC = () => {
           />
         </ErrorBoundary>
 
-        {/* Components */}
+        {/* Components with absolute positioning - no conversion needed */}
         {components.map((component) => {
           console.log('Rendering component:', component.id, component.position);
+          
           return (
             <ErrorBoundary key={component.id}>
               <ComponentNode

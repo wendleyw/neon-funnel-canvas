@@ -1,4 +1,3 @@
-
 import { useCallback, useMemo, useRef } from 'react';
 import { FunnelComponent } from '../../types/funnel';
 import { useCanvasDragDrop } from '../../hooks/canvas/useCanvasDragDrop';
@@ -21,9 +20,6 @@ export const useCanvasEventHandlers = ({
 }: UseCanvasEventHandlersProps) => {
   const canvasRef = useRef<HTMLDivElement>(null);
 
-  // Canvas zoom functionality
-  const { zoom, handleWheel, handleZoomIn, handleZoomOut, resetZoom, fitToScreen } = useCanvasZoom();
-
   // Canvas pan functionality
   const { 
     pan, 
@@ -33,8 +29,15 @@ export const useCanvasEventHandlers = ({
     handleMouseUp: panMouseUp,
     handleMouseLeave: panMouseLeave,
     resetPan,
-    centerCanvas
+    centerCanvas,
+    setPan
   } = useCanvasPan();
+
+  // Canvas zoom functionality with pan support
+  const { zoom, handleWheel, handleZoomIn, handleZoomOut, resetZoom, fitToScreen } = useCanvasZoom({
+    pan,
+    setPan
+  });
 
   // Canvas selection and connection functionality
   const selectionProps = useMemo(() => ({ 
@@ -57,16 +60,16 @@ export const useCanvasEventHandlers = ({
 
   // Enhanced mouse down handler that combines pan and selection
   const handleCanvasMouseDown = useCallback((e: React.MouseEvent) => {
-    // Primeiro tentar o pan
+    // First try pan
     panMouseDown(e);
     
-    // Se não está fazendo pan e clique foi diretamente no canvas, limpar seleção
+    // If not panning and click was directly on canvas, clear selection
     if (!isPanning && e.target === e.currentTarget) {
       selectionHooks.clearSelection();
     }
   }, [panMouseDown, isPanning, selectionHooks]);
 
-  // Mouse move handler que combina pan e outros comportamentos
+  // Mouse move handler that combines pan and other behaviors
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     panMouseMove(e);
   }, [panMouseMove]);
@@ -76,12 +79,10 @@ export const useCanvasEventHandlers = ({
     panMouseUp(e);
   }, [panMouseUp]);
 
-  // Context menu handler para prevenir menu padrão durante pan
+  // Context menu handler to prevent default menu during pan
   const handleContextMenu = useCallback((e: React.MouseEvent) => {
-    if (isPanning) {
-      e.preventDefault();
-    }
-  }, [isPanning]);
+    e.preventDefault(); // Always prevent context menu in canvas
+  }, []);
 
   // Reset view handler
   const handleResetView = useCallback(() => {

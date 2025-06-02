@@ -1,10 +1,10 @@
-
 import React, { useCallback, useState } from 'react';
 import { FunnelComponent, Connection } from '../types/funnel';
 import { CanvasGrid } from './Canvas/CanvasGrid';
 import { CanvasControls } from './Canvas/CanvasControls';
 import { CanvasHelpers } from './Canvas/CanvasHelpers';
 import { CanvasContainer } from './Canvas/CanvasContainer';
+import { CanvasNavigationHelp } from './Canvas/CanvasNavigationHelp';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useCanvasEventHandlers } from './Canvas/CanvasEventHandlers';
 import { CanvasProvider } from '../contexts/CanvasContext';
@@ -137,6 +137,8 @@ export const Canvas = React.memo<CanvasProps>(({
           />
 
           <MobilePreviewButton onClick={handleMobilePreviewClick} />
+
+          <CanvasNavigationHelp />
 
           <InstagramMockupModal
             isOpen={isInstagramModalOpen}
