@@ -73,26 +73,34 @@ export const FunnelEditor: React.FC<FunnelEditorProps> = ({
 
   return (
     <div className="h-screen w-full flex bg-black overflow-hidden">
-      <Sidebar 
-        onDragStart={handleDragStart} 
-        onAddCompleteTemplate={projectHandlers.handleAddCompleteTemplate}
-      />
-      
-      <div className="flex-1 flex flex-col min-w-0 lg:ml-0 ml-0">
-        <Toolbar 
-          onSave={projectHandlers.handleSave}
-          onLoad={handleLoad}
-          onExport={projectHandlers.handleExport}
-          onClear={projectHandlers.handleClear}
-          onBackToWorkspace={onBackToWorkspace}
-          projectName={project.name}
-          onProjectNameChange={handleProjectNameChange}
-          workspaceName={currentWorkspace?.name || ''}
-          componentsCount={project.components.length}
-          project={project}
+      {/* Sidebar */}
+      <div className="w-80 flex-shrink-0 border-r border-gray-800">
+        <Sidebar 
+          onDragStart={handleDragStart} 
+          onAddCompleteTemplate={projectHandlers.handleAddCompleteTemplate}
         />
+      </div>
+      
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Toolbar */}
+        <div className="flex-shrink-0 border-b border-gray-800">
+          <Toolbar 
+            onSave={projectHandlers.handleSave}
+            onLoad={handleLoad}
+            onExport={projectHandlers.handleExport}
+            onClear={projectHandlers.handleClear}
+            onBackToWorkspace={onBackToWorkspace}
+            projectName={project.name}
+            onProjectNameChange={handleProjectNameChange}
+            workspaceName={currentWorkspace?.name || ''}
+            componentsCount={project.components.length}
+            project={project}
+          />
+        </div>
         
-        <div className="flex-1 flex flex-col min-h-0">
+        {/* Canvas Area - Takes full remaining space */}
+        <div className="flex-1 relative overflow-hidden">
           <Canvas
             components={project.components}
             connections={project.connections}
@@ -105,10 +113,13 @@ export const FunnelEditor: React.FC<FunnelEditorProps> = ({
           />
         </div>
 
-        <StatusBar 
-          components={project.components}
-          connections={project.connections}
-        />
+        {/* Status Bar */}
+        <div className="flex-shrink-0 border-t border-gray-800">
+          <StatusBar 
+            components={project.components}
+            connections={project.connections}
+          />
+        </div>
       </div>
 
       <CreateProjectModal

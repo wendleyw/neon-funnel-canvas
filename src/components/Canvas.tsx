@@ -1,3 +1,4 @@
+
 import React, { useCallback, useState } from 'react';
 import { FunnelComponent, Connection } from '../types/funnel';
 import { CanvasGrid } from './Canvas/CanvasGrid';
@@ -106,7 +107,7 @@ export const Canvas = React.memo<CanvasProps>(({
   return (
     <ErrorBoundary>
       <CanvasProvider value={canvasContextValue}>
-        <div className="flex-1 relative overflow-hidden bg-black">
+        <div className="absolute inset-0 w-full h-full bg-black">
           <CanvasGrid 
             zoom={eventHandlers.zoom} 
             pan={eventHandlers.pan} 
@@ -124,6 +125,8 @@ export const Canvas = React.memo<CanvasProps>(({
             zoom={eventHandlers.zoom}
             onZoomIn={eventHandlers.handleZoomIn}
             onZoomOut={eventHandlers.handleZoomOut}
+            onResetView={eventHandlers.handleResetView}
+            onFitToScreen={eventHandlers.handleFitToScreen}
           />
 
           <MiniMap

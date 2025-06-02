@@ -22,7 +22,7 @@ export const useCanvasEventHandlers = ({
   const canvasRef = useRef<HTMLDivElement>(null);
 
   // Canvas zoom functionality
-  const { zoom, handleWheel, handleZoomIn, handleZoomOut } = useCanvasZoom();
+  const { zoom, handleWheel, handleZoomIn, handleZoomOut, resetZoom, fitToScreen } = useCanvasZoom();
 
   // Canvas pan functionality
   const { 
@@ -31,7 +31,9 @@ export const useCanvasEventHandlers = ({
     handleMouseDown: panMouseDown, 
     handleMouseMove: panMouseMove, 
     handleMouseUp: panMouseUp,
-    handleMouseLeave: panMouseLeave
+    handleMouseLeave: panMouseLeave,
+    resetPan,
+    centerCanvas
   } = useCanvasPan();
 
   // Canvas selection and connection functionality
@@ -81,6 +83,18 @@ export const useCanvasEventHandlers = ({
     }
   }, [isPanning]);
 
+  // Reset view handler
+  const handleResetView = useCallback(() => {
+    resetZoom();
+    resetPan();
+  }, [resetZoom, resetPan]);
+
+  // Fit to screen handler
+  const handleFitToScreen = useCallback(() => {
+    fitToScreen();
+    centerCanvas();
+  }, [fitToScreen, centerCanvas]);
+
   return {
     // Canvas ref
     canvasRef,
@@ -90,6 +104,8 @@ export const useCanvasEventHandlers = ({
     handleWheel,
     handleZoomIn,
     handleZoomOut,
+    handleResetView,
+    handleFitToScreen,
     
     // Pan
     pan,

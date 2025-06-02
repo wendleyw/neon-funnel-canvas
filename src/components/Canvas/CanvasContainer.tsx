@@ -96,7 +96,7 @@ export const CanvasContainer: React.FC = () => {
   return (
     <div
       ref={canvasRef}
-      className={`canvas-container w-full h-full relative overflow-hidden ${
+      className={`absolute inset-0 w-full h-full overflow-hidden ${
         isDragOver ? 'bg-blue-900/10 border-2 border-blue-500 border-dashed' : ''
       }`}
       onDrop={handleDrop}
@@ -112,7 +112,7 @@ export const CanvasContainer: React.FC = () => {
       style={canvasStyle}
     >
       <div 
-        className="absolute inset-0 canvas-background"
+        className="absolute w-full h-full"
         style={transformStyle}
       >
         <ErrorBoundary>
