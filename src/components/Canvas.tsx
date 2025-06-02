@@ -1,4 +1,3 @@
-
 import React, { useCallback, useState } from 'react';
 import { FunnelComponent, Connection } from '../types/funnel';
 import { CanvasGrid } from './Canvas/CanvasGrid';
@@ -10,7 +9,7 @@ import { useCanvasEventHandlers } from './Canvas/CanvasEventHandlers';
 import { CanvasProvider } from '../contexts/CanvasContext';
 import { MiniMap } from './MiniMap';
 import { MobilePreviewButton } from './Canvas/MobilePreviewButton';
-import { InstagramMockupModal } from './Instagram/InstagramMockupModal';
+import { InstagramMockupModal } from '../features/social-media/instagram/components/InstagramMockupModal';
 
 interface CanvasProps {
   components: FunnelComponent[];

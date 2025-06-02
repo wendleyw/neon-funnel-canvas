@@ -1,357 +1,49 @@
-import { useState, useCallback, useEffect } from 'react';
-import { supabase } from '../integrations/supabase/client';
-import { useAuth } from '../contexts/AuthContext';
-import { toast } from 'sonner';
-import { Database } from '../integrations/supabase/types';
 
-type Workspace = Database['public']['Tables']['workspaces']['Row'];
-type WorkspaceInsert = Database['public']['Tables']['workspaces']['Insert'];
-type WorkspaceProject = Database['public']['Tables']['workspace_projects']['Row'];
-type WorkspaceProjectInsert = Database['public']['Tables']['workspace_projects']['Insert'];
+import { useEffect } from 'react';
+import { useWorkspaces } from './useWorkspaces';
+import { useWorkspaceProjects } from './useWorkspaceProjects';
+import { useWorkspacePersistence } from './useWorkspacePersistence';
+import { useAuth } from '../contexts/AuthContext';
 
 export const useSupabaseWorkspace = () => {
   const { user } = useAuth();
-  const [currentWorkspace, setCurrentWorkspace] = useState<Workspace | null>(null);
-  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
-  const [workspaceProjects, setWorkspaceProjects] = useState<WorkspaceProject[]>([]);
-  const [loading, setLoading] = useState(false);
+  const { currentWorkspace, setCurrentWorkspace, loadSavedWorkspace } = useWorkspacePersistence();
+  
+  const { 
+    workspaces, 
+    createWorkspace, 
+    deleteWorkspace, 
+    loadWorkspaces,
+    loading: workspacesLoading 
+  } = useWorkspaces();
+  
+  const { 
+    workspaceProjects, 
+    addProjectToWorkspace, 
+    updateProjectName, 
+    deleteProject, 
+    loadProjects,
+    getWorkspaceProjects, 
+    loadProject,
+    loading: projectsLoading 
+  } = useWorkspaceProjects();
 
-  const createWorkspace = useCallback(async (name: string, description?: string) => {
-    if (!user) {
-      toast.error('Usuário não autenticado');
-      return null;
-    }
-
-    setLoading(true);
-    try {
-      const newWorkspace: WorkspaceInsert = {
-        name,
-        description,
-        user_id: user.id
-      };
-
-      const { data, error } = await supabase
-        .from('workspaces')
-        .insert(newWorkspace)
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Erro ao criar workspace:', error);
-        toast.error('Erro ao criar workspace');
-        return null;
-      }
-
-      setWorkspaces(prev => [...prev, data]);
-      toast.success('Workspace criado com sucesso!');
-      return data;
-    } catch (error) {
-      console.error('Erro ao criar workspace:', error);
-      toast.error('Erro ao criar workspace');
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
-
-  const deleteWorkspace = useCallback(async (workspaceId: string) => {
-    if (!user) return;
-
-    setLoading(true);
-    try {
-      const { error } = await supabase
-        .from('workspaces')
-        .delete()
-        .eq('id', workspaceId);
-
-      if (error) {
-        console.error('Erro ao deletar workspace:', error);
-        toast.error('Erro ao deletar workspace');
-        return;
-      }
-
-      setWorkspaces(prev => prev.filter(w => w.id !== workspaceId));
-      setWorkspaceProjects(prev => prev.filter(p => p.workspace_id !== workspaceId));
-      
-      if (currentWorkspace?.id === workspaceId) {
-        setCurrentWorkspace(null);
-        localStorage.removeItem(`current-workspace-${user.id}`);
-      }
-      
-      toast.success('Workspace deletado com sucesso!');
-    } catch (error) {
-      console.error('Erro ao deletar workspace:', error);
-      toast.error('Erro ao deletar workspace');
-    } finally {
-      setLoading(false);
-    }
-  }, [user, currentWorkspace]);
-
-  const addProjectToWorkspace = useCallback(async (project: any, workspaceId: string, projectId?: string) => {
-    if (!user) {
-      toast.error('Usuário não autenticado');
-      return { success: false };
-    }
-
-    setLoading(true);
-    try {
-      let result;
-      
-      if (projectId) {
-        // Atualizar projeto existente usando o ID fornecido
-        const { data, error } = await supabase
-          .from('workspace_projects')
-          .update({
-            name: project.name,
-            project_data: project,
-            components_count: project.components.length,
-            connections_count: project.connections.length,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', projectId)
-          .eq('user_id', user.id)
-          .select()
-          .single();
-
-        if (error) {
-          console.error('Erro ao atualizar projeto:', error);
-          toast.error('Erro ao salvar projeto');
-          return { success: false };
-        }
-
-        result = data;
-        console.log('Projeto atualizado:', project.name);
-      } else {
-        // Criar novo projeto
-        const workspaceProject: WorkspaceProjectInsert = {
-          name: project.name,
-          workspace_id: workspaceId,
-          project_data: project,
-          components_count: project.components.length,
-          connections_count: project.connections.length,
-          user_id: user.id
-        };
-
-        const { data, error } = await supabase
-          .from('workspace_projects')
-          .insert(workspaceProject)
-          .select()
-          .single();
-
-        if (error) {
-          console.error('Erro ao criar projeto:', error);
-          toast.error('Erro ao salvar projeto');
-          return { success: false };
-        }
-
-        result = data;
-        console.log('Novo projeto criado:', project.name);
-      }
-
-      // Atualizar o estado local
-      setWorkspaceProjects(prev => {
-        const filtered = prev.filter(p => p.id !== result.id);
-        return [...filtered, result];
-      });
-
-      return { success: true, projectId: result.id };
-    } catch (error) {
-      console.error('Erro ao salvar projeto:', error);
-      toast.error('Erro ao salvar projeto');
-      return { success: false };
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
-
-  const updateProjectName = useCallback(async (projectId: string, newName: string) => {
-    if (!user) {
-      toast.error('Usuário não autenticado');
-      return false;
-    }
-
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('workspace_projects')
-        .update({ name: newName, updated_at: new Date().toISOString() })
-        .eq('id', projectId)
-        .eq('user_id', user.id)
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Erro ao atualizar nome do projeto:', error);
-        toast.error('Erro ao atualizar nome do projeto');
-        return false;
-      }
-
-      // Atualizar o estado local
-      setWorkspaceProjects(prev => 
-        prev.map(p => p.id === projectId ? data : p)
-      );
-
-      toast.success('Nome do projeto atualizado!');
-      return true;
-    } catch (error) {
-      console.error('Erro ao atualizar nome do projeto:', error);
-      toast.error('Erro ao atualizar nome do projeto');
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
-
-  const deleteProject = useCallback(async (projectId: string) => {
-    if (!user) {
-      toast.error('Usuário não autenticado');
-      return false;
-    }
-
-    setLoading(true);
-    try {
-      const { error } = await supabase
-        .from('workspace_projects')
-        .delete()
-        .eq('id', projectId)
-        .eq('user_id', user.id);
-
-      if (error) {
-        console.error('Erro ao deletar projeto:', error);
-        toast.error('Erro ao deletar projeto');
-        return false;
-      }
-
-      // Atualizar o estado local
-      setWorkspaceProjects(prev => prev.filter(p => p.id !== projectId));
-      toast.success('Projeto deletado com sucesso!');
-      return true;
-    } catch (error) {
-      console.error('Erro ao deletar projeto:', error);
-      toast.error('Erro ao deletar projeto');
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
-
-  const loadWorkspaces = useCallback(async () => {
-    if (!user) {
-      setWorkspaces([]);
-      setWorkspaceProjects([]);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const { data: workspacesData, error: workspacesError } = await supabase
-        .from('workspaces')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (workspacesError) {
-        console.error('Erro ao carregar workspaces:', workspacesError);
-        toast.error('Erro ao carregar workspaces');
-        return;
-      }
-
-      const { data: projectsData, error: projectsError } = await supabase
-        .from('workspace_projects')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (projectsError) {
-        console.error('Erro ao carregar projetos:', projectsError);
-        toast.error('Erro ao carregar projetos');
-        return;
-      }
-
-      setWorkspaces(workspacesData || []);
-      setWorkspaceProjects(projectsData || []);
-    } catch (error) {
-      console.error('Erro ao carregar workspaces:', error);
-      toast.error('Erro ao carregar workspaces');
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
-
-  const getWorkspaceProjects = useCallback((workspaceId: string) => {
-    return workspaceProjects.filter(p => p.workspace_id === workspaceId);
-  }, [workspaceProjects]);
-
-  const loadProject = useCallback((projectId: string) => {
-    const project = workspaceProjects.find(p => p.id === projectId);
-    return project ? project.project_data : null;
-  }, [workspaceProjects]);
-
-  const setCurrentWorkspaceWithPersistence = useCallback((workspace: Workspace | null) => {
-    console.log('Setting current workspace:', workspace?.name || 'null');
-    setCurrentWorkspace(workspace);
-    
-    if (user && workspace) {
-      localStorage.setItem(`current-workspace-${user.id}`, JSON.stringify(workspace));
-    } else if (user) {
-      localStorage.removeItem(`current-workspace-${user.id}`);
-    }
-  }, [user]);
-
-  const clearOldLocalStorageWorkspaces = useCallback(() => {
-    if (!user) return;
-    
-    try {
-      const savedCurrentWorkspace = localStorage.getItem(`current-workspace-${user.id}`);
-      if (savedCurrentWorkspace) {
-        const workspace = JSON.parse(savedCurrentWorkspace);
-        if (workspace.id && !workspace.id.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)) {
-          console.log('Removing old workspace format from localStorage');
-          localStorage.removeItem(`current-workspace-${user.id}`);
-        }
-      }
-    } catch (error) {
-      console.error('Erro ao limpar localStorage:', error);
-      localStorage.removeItem(`current-workspace-${user.id}`);
-    }
-  }, [user]);
+  const loading = workspacesLoading || projectsLoading;
 
   useEffect(() => {
     if (user) {
-      clearOldLocalStorageWorkspaces();
       loadWorkspaces();
-    } else {
-      setWorkspaces([]);
-      setWorkspaceProjects([]);
-      setCurrentWorkspace(null);
+      loadProjects();
     }
-  }, [user, loadWorkspaces, clearOldLocalStorageWorkspaces]);
+  }, [user, loadWorkspaces, loadProjects]);
 
   useEffect(() => {
-    if (user && workspaces.length > 0) {
-      try {
-        const savedCurrentWorkspace = localStorage.getItem(`current-workspace-${user.id}`);
-        if (savedCurrentWorkspace) {
-          const workspace = JSON.parse(savedCurrentWorkspace);
-          const existingWorkspace = workspaces.find(w => w.id === workspace.id);
-          if (existingWorkspace) {
-            console.log('Loading saved current workspace:', existingWorkspace.name);
-            setCurrentWorkspace(existingWorkspace);
-          } else {
-            console.log('Saved workspace not found in Supabase, clearing');
-            localStorage.removeItem(`current-workspace-${user.id}`);
-          }
-        }
-      } catch (error) {
-        console.error('Erro ao carregar workspace atual:', error);
-        localStorage.removeItem(`current-workspace-${user.id}`);
-      }
-    }
-  }, [user, workspaces]);
+    loadSavedWorkspace(workspaces);
+  }, [workspaces, loadSavedWorkspace]);
 
   return {
     currentWorkspace,
-    setCurrentWorkspace: setCurrentWorkspaceWithPersistence,
+    setCurrentWorkspace,
     workspaces,
     workspaceProjects,
     createWorkspace,
