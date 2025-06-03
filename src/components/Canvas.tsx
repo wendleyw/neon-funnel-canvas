@@ -1,5 +1,6 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { FunnelComponent, Connection } from '../types/funnel';
+import { DrawingShape } from '../types/drawing';
 import { CanvasGrid } from './Canvas/CanvasGrid';
 import { CanvasControls } from './Canvas/CanvasControls';
 import { CanvasHelpers } from './Canvas/CanvasHelpers';
@@ -8,6 +9,7 @@ import { CanvasNavigationHelp } from './Canvas/CanvasNavigationHelp';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useCanvasEventHandlers } from './Canvas/CanvasEventHandlers';
 import { CanvasProvider } from '../contexts/CanvasContext';
+import { useSequenceAnimation } from '../contexts/SequenceAnimationContext';
 import { MiniMap } from './MiniMap';
 import { MobilePreviewButton } from './Canvas/MobilePreviewButton';
 import { InstagramMockupModal } from '../features/social-media/instagram/components/InstagramMockupModal';
@@ -21,6 +23,7 @@ interface CanvasProps {
   onConnectionAdd: (connection: Connection) => void;
   onConnectionDelete: (connectionId: string) => void;
   onConnectionUpdate?: (connectionId: string, updates: Partial<Connection>) => void;
+  onShapeAdd?: (shape: DrawingShape) => void;
 }
 
 export const Canvas = React.memo<CanvasProps>(({
@@ -31,9 +34,19 @@ export const Canvas = React.memo<CanvasProps>(({
   onComponentDelete,
   onConnectionAdd,
   onConnectionDelete,
-  onConnectionUpdate
+  onConnectionUpdate,
+  onShapeAdd
 }) => {
   const [isInstagramModalOpen, setIsInstagramModalOpen] = useState(false);
+  const { analyzeAndStartSequences } = useSequenceAnimation();
+
+  // Detecta mudanças nas conexões e analisa sequências
+  useEffect(() => {
+    if (connections.length > 0 && components.length > 0) {
+      console.log('[Canvas] Connections or components changed, analyzing sequences...');
+      analyzeAndStartSequences(connections, components);
+    }
+  }, [connections, components, analyzeAndStartSequences]);
 
   const eventHandlers = useCanvasEventHandlers({
     onComponentAdd,
@@ -52,6 +65,38 @@ export const Canvas = React.memo<CanvasProps>(({
   const handleMobilePreviewClick = useCallback(() => {
     setIsInstagramModalOpen(true);
   }, []);
+
+  // Handle shape addition
+  const handleShapeAdd = useCallback((shape: DrawingShape) => {
+    if (onShapeAdd) {
+      // Convert DrawingShape to FunnelComponent for now
+      // This is a temporary solution - ideally we'd have proper diagram integration
+      const funnelComponent: FunnelComponent = {
+        id: shape.id,
+        type: 'note', // Map to note component as it's more appropriate for diagram elements
+        position: shape.position,
+        data: {
+          title: shape.text || 'Diagram Element',
+          description: `${shape.type} shape added from diagrams`,
+          status: 'active' as const,
+          properties: {
+            shapeType: shape.type,
+            originalStyle: shape.style,
+            textStyle: shape.textStyle,
+            content: shape.text || '',
+            width: shape.size.width,
+            height: shape.size.height,
+            background: shape.style?.fill || '#FFFFFF',
+            border: `${shape.style?.strokeWidth || 1}px solid ${shape.style?.stroke || '#000000'}`,
+            borderRadius: shape.style?.borderRadius || 0,
+          },
+        },
+        connections: []
+      };
+      
+      onComponentAdd(funnelComponent);
+    }
+  }, [onComponentAdd, onShapeAdd]);
 
   // Criar o valor do context com todas as props e handlers
   const canvasContextValue = {

@@ -1,227 +1,325 @@
-
 import { ComponentTemplate } from '../types/funnel';
 
-export const componentTemplates: ComponentTemplate[] = [
+export const MARKETING_COMPONENT_TEMPLATES: ComponentTemplate[] = [
+  // ========================
+  // FONTES DE TRÁFEGO (ESSENCIAIS)
+  // ========================
   {
-    id: 'landing-page-template',
+    type: 'facebook-ads',
+    icon: '📘',
+    label: 'Facebook Ads',
+    color: '#1877F2',
+    category: 'traffic-sources',
+    title: 'Facebook Advertising',
+    description: 'Facebook ad campaigns',
+    defaultProps: {
+      title: 'Facebook Ads Campaign',
+      description: 'Targeted advertising on Facebook',
+      status: 'draft',
+      properties: {
+        budget_daily: 50,
+        target_audience: 'lookalike'
+      }
+    }
+  },
+  
+  {
+    type: 'google-ads',
+    icon: '🔍',
+    label: 'Google Ads',
+    color: '#4285F4',
+    category: 'traffic-sources',
+    title: 'Google Advertising',
+    description: 'Google search & display ads',
+    defaultProps: {
+      title: 'Google Ads Campaign',
+      description: 'Search and display advertising',
+      status: 'draft',
+      properties: {
+        campaign_type: 'search',
+        quality_score: 8
+      }
+    }
+  },
+
+  {
+    type: 'seo-organic',
+    icon: '🌱',
+    label: 'SEO Organic',
+    color: '#34D399',
+    category: 'traffic-sources',
+    title: 'Organic Traffic',
+    description: 'SEO organic traffic',
+    defaultProps: {
+      title: 'Organic SEO Traffic',
+      description: 'Natural search traffic',
+      status: 'active',
+      properties: {
+        search_volume: 'medium'
+      }
+    }
+  },
+
+  // ========================
+  // CAPTURA DE LEADS (ESSENCIAIS)
+  // ========================
+  {
     type: 'landing-page',
     icon: '🎯',
     label: 'Landing Page',
     color: '#3B82F6',
-    category: 'conversion',
+    category: 'lead-capture',
     title: 'Landing Page',
-    description: 'Página de aterrissagem para capturar leads',
+    description: 'High-converting landing page',
     defaultProps: {
       title: 'Landing Page',
-      description: 'Página de aterrissagem para capturar leads',
-      image: '',
-      url: '',
+      description: 'Focused page for conversions',
       status: 'draft',
-      properties: {}
+      properties: {
+        conversion_goal: 'lead_capture'
+      }
     }
   },
+
   {
-    id: 'quiz-template',
-    type: 'quiz',
-    icon: '❓',
-    label: 'Quiz',
-    color: '#8B5CF6',
-    category: 'engagement',
-    title: 'Quiz Interativo',
-    description: 'Quiz para engajar e qualificar leads',
-    defaultProps: {
-      title: 'Quiz Interativo',
-      description: 'Quiz para engajar e qualificar leads',
-      image: '',
-      url: '',
-      status: 'draft',
-      properties: {}
-    }
-  },
-  {
-    id: 'form-template',
-    type: 'form',
-    icon: '📝',
-    label: 'Formulário',
+    type: 'lead-magnet',
+    icon: '🧲',
+    label: 'Lead Magnet',
     color: '#10B981',
     category: 'lead-capture',
-    title: 'Formulário',
-    description: 'Formulário de captura de dados',
+    title: 'Lead Magnet',
+    description: 'Free content for leads',
     defaultProps: {
-      title: 'Formulário',
-      description: 'Formulário de captura de dados',
-      image: '',
-      url: '',
+      title: 'Lead Magnet',
+      description: 'Valuable free content',
       status: 'draft',
-      properties: {}
+      properties: {
+        magnet_type: 'ebook'
+      }
     }
   },
+
   {
-    id: 'email-sequence-template',
+    type: 'webinar',
+    icon: '🎥',
+    label: 'Webinar',
+    color: '#8B5CF6',
+    category: 'lead-capture',
+    title: 'Webinar',
+    description: 'Educational webinar',
+    defaultProps: {
+      title: 'Webinar',
+      description: 'Live educational session',
+      status: 'draft',
+      properties: {
+        duration_minutes: 60
+      }
+    }
+  },
+
+  // ========================
+  // NUTRIÇÃO (ESSENCIAIS)
+  // ========================
+  {
     type: 'email-sequence',
     icon: '📧',
-    label: 'E-mail Sequence',
-    color: '#F59E0B',
-    category: 'nurturing',
-    title: 'Sequência de E-mails',
-    description: 'Automação de e-mails para nutrição',
-    defaultProps: {
-      title: 'Sequência de E-mails',
-      description: 'Automação de e-mails para nutrição',
-      image: '',
-      url: '',
-      status: 'draft',
-      properties: {}
-    }
-  },
-  {
-    id: 'checkout-template',
-    type: 'checkout',
-    icon: '💳',
-    label: 'Checkout',
+    label: 'Email Sequence',
     color: '#EF4444',
-    category: 'conversion',
-    title: 'Página de Checkout',
-    description: 'Finalização da compra',
+    category: 'nurturing',
+    title: 'Email Sequence',
+    description: 'Automated email series',
     defaultProps: {
-      title: 'Página de Checkout',
-      description: 'Finalização da compra',
-      image: '',
-      url: '',
+      title: 'Email Sequence',
+      description: 'Automated nurturing emails',
       status: 'draft',
-      properties: {}
+      properties: {
+        email_count: 7
+      }
     }
   },
+
+  // ========================
+  // VENDAS (ESSENCIAIS)
+  // ========================
   {
-    id: 'webinar-vsl-template',
-    type: 'webinar-vsl',
-    icon: '🎥',
-    label: 'Webinar/VSL',
-    color: '#6366F1',
-    category: 'content',
-    title: 'Webinar/VSL',
-    description: 'Webinar ou Video Sales Letter',
-    defaultProps: {
-      title: 'Webinar/VSL',
-      description: 'Webinar ou Video Sales Letter',
-      image: '',
-      url: '',
-      status: 'draft',
-      properties: {}
-    }
-  },
-  {
-    id: 'sales-page-template',
     type: 'sales-page',
     icon: '💰',
     label: 'Sales Page',
     color: '#DC2626',
-    category: 'conversion',
-    title: 'Página de Vendas',
-    description: 'Página de vendas persuasiva',
+    category: 'sales-conversion',
+    title: 'Sales Page',
+    description: 'High-converting sales page',
     defaultProps: {
-      title: 'Página de Vendas',
-      description: 'Página de vendas persuasiva',
-      image: '',
-      url: '',
-      status: 'draft',
-      properties: {}
-    }
-  },
-  
-  // Visual Helper Components
-  {
-    id: 'note-template',
-    type: 'note',
-    icon: '📝',
-    label: 'Nota Adesiva',
-    color: '#FBBF24',
-    category: 'visual-helpers',
-    title: 'Nota',
-    description: 'Clique para adicionar uma nota...',
-    defaultProps: {
-      title: 'Nota',
-      description: 'Clique para adicionar uma nota...',
-      image: '',
-      url: '',
+      title: 'Sales Page',
+      description: 'Detailed sales page',
       status: 'draft',
       properties: {
-        color: 'yellow'
+        price_point: 'mid_ticket'
       }
     }
   },
+
   {
-    id: 'arrow-template',
-    type: 'arrow',
-    icon: '➡️',
-    label: 'Seta',
+    type: 'checkout',
+    icon: '🛒',
+    label: 'Checkout',
+    color: '#059669',
+    category: 'sales-conversion',
+    title: 'Checkout',
+    description: 'Checkout process',
+    defaultProps: {
+      title: 'Checkout',
+      description: 'Payment process',
+      status: 'draft',
+      properties: {
+        checkout_type: 'one_page'
+      }
+    }
+  },
+
+  // ========================
+  // FASE 2: DIAGRAMAS (MÍNIMOS)
+  // ========================
+  {
+    type: 'funnel-stage',
+    icon: '🎯',
+    label: 'Funnel Stage',
     color: '#3B82F6',
-    category: 'visual-helpers',
-    title: 'Seta Direcional',
-    description: 'Seta para indicar fluxo',
+    category: 'funnel-diagrams',
+    diagramType: 'marketing-funnel',
+    title: 'Funnel Stage',
+    description: 'Stage with metrics',
     defaultProps: {
-      title: 'Seta Direcional',
-      description: 'Seta para indicar fluxo',
-      image: '',
-      url: '',
-      status: 'draft',
+      title: 'Awareness Stage',
+      description: 'Top of funnel stage',
+      status: 'active',
+      metrics: {
+        visitors: 10000,
+        conversions: 1000,
+        conversionRate: 10
+      },
       properties: {
-        direction: 'right',
-        color: 'blue',
-        size: 'medium'
+        stage_type: 'awareness'
       }
     }
   },
+
   {
-    id: 'frame-template',
-    type: 'frame',
-    icon: '⬜',
-    label: 'Frame',
-    color: '#6B7280',
-    category: 'visual-helpers',
-    title: 'Frame',
-    description: 'Organize seus componentes aqui',
+    type: 'journey-stage',
+    icon: '🗺️',
+    label: 'Journey Stage',
+    color: '#8B5CF6',
+    category: 'journey-maps',
+    diagramType: 'customer-journey',
+    title: 'Journey Stage',
+    description: 'Customer journey stage',
     defaultProps: {
-      title: 'Frame',
-      description: 'Organize seus componentes aqui',
-      image: '',
-      url: '',
-      status: 'draft',
+      title: 'Awareness',
+      description: 'Customer becomes aware',
+      status: 'active',
+      journey: {
+        stage: 'awareness',
+        emotion: 'neutral',
+        intensity: 3
+      },
       properties: {
-        color: 'blue',
-        size: 'medium',
-        borderStyle: 'solid'
+        duration: '1-2 weeks'
+      }
+    }
+  },
+
+  {
+    type: 'flow-process',
+    icon: '⚙️',
+    label: 'Process Step',
+    color: '#3B82F6',
+    category: 'process-flows',
+    diagramType: 'process-flow',
+    title: 'Process Step',
+    description: 'Process action step',
+    defaultProps: {
+      title: 'Process Data',
+      description: 'Process and validate data',
+      status: 'active',
+      process: {
+        flowType: 'process',
+        responsible: 'system'
+      },
+      properties: {
+        automation_level: 'automated'
+      }
+    }
+  },
+
+  // ========================
+  // SOCIAL MEDIA (NOVO)
+  // ========================
+  {
+    type: 'instagram-grid',
+    icon: '📱',
+    label: 'Instagram Grid',
+    color: '#E4405F',
+    category: 'social-media',
+    title: 'Instagram Grid',
+    description: 'Preview and manage your Instagram posts before publishing',
+    defaultProps: {
+      title: 'Instagram Grid',
+      description: 'Visual content planner for Instagram',
+      status: 'active',
+      properties: {
+        posts_count: 9,
+        engagement_rate: 4.2,
+        upcoming_posts: 3,
+        grid_layout: '3x3'
       }
     }
   }
 ];
 
-// Group templates by category
-export const templatesByCategory = componentTemplates.reduce((acc, template) => {
-  if (!acc[template.category]) {
-    acc[template.category] = [];
+// Organizar templates por categoria SIMPLIFICADO
+export const TEMPLATE_CATEGORIES = {
+  'traffic-sources': {
+    label: '🚀 Traffic Sources',
+    description: 'Generate traffic',
+    color: '#3B82F6'
+  },
+  'lead-capture': {
+    label: '🎯 Lead Capture',
+    description: 'Capture leads',
+    color: '#10B981'
+  },
+  'nurturing': {
+    label: '🤝 Nurturing', 
+    description: 'Nurture relationships',
+    color: '#F59E0B'
+  },
+  'sales-conversion': {
+    label: '💰 Sales',
+    description: 'Convert to sales',
+    color: '#EF4444'
+  },
+  'social-media': {
+    label: '📱 Social Media',
+    description: 'Social media management',
+    color: '#E4405F'
+  },
+  
+  // Fase 2 - Apenas essenciais
+  'funnel-diagrams': {
+    label: '🎯 Funnel Diagrams',
+    description: 'Funnel with metrics',
+    color: '#3B82F6'
+  },
+  'journey-maps': {
+    label: '🗺️ Journey Maps',
+    description: 'Customer journey',
+    color: '#8B5CF6'
+  },
+  'process-flows': {
+    label: '⚡ Process Flows',
+    description: 'Process diagrams',
+    color: '#F59E0B'
   }
-  acc[template.category].push(template);
-  return acc;
-}, {} as Record<string, ComponentTemplate[]>);
-
-// Export with backward compatibility
-export const componentTemplatesByCategory = templatesByCategory;
-
-// Export category labels
-export const categoryLabels: Record<string, string> = {
-  'conversion': 'Conversão',
-  'engagement': 'Engajamento',
-  'lead-capture': 'Captura de Leads',
-  'nurturing': 'Nutrição',
-  'content': 'Conteúdo',
-  'visual-helpers': 'Helpers Visuais'
 };
 
-// Export individual categories for easier access
-export const conversionTemplates = templatesByCategory['conversion'] || [];
-export const engagementTemplates = templatesByCategory['engagement'] || [];
-export const leadCaptureTemplates = templatesByCategory['lead-capture'] || [];
-export const nurturingTemplates = templatesByCategory['nurturing'] || [];
-export const contentTemplates = templatesByCategory['content'] || [];
-export const visualHelpersTemplates = templatesByCategory['visual-helpers'] || [];
+export default MARKETING_COMPONENT_TEMPLATES;

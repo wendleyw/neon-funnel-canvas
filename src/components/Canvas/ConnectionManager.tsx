@@ -20,12 +20,6 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
   onConnectionUpdate,
   onConnectionDelete
 }) => {
-  console.log('🔗 ConnectionManager render:', {
-    connectionsCount: connections.length,
-    componentsCount: components.length,
-    connections: connections.map(c => ({ id: c.id, from: c.from, to: c.to }))
-  });
-
   return (
     <div className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 5 }}>
       {connections.map((connection) => {
@@ -33,7 +27,7 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
         const toComponent = components.find(c => c.id === connection.to);
         
         if (!fromComponent || !toComponent) {
-          console.warn(`❌ Conexão ${connection.id}: componente não encontrado`, {
+          console.warn(`[ConnectionManager] Connection ${connection.id}: component not found`, {
             from: connection.from,
             to: connection.to,
             fromFound: !!fromComponent,
@@ -41,38 +35,13 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
           });
           return null;
         }
-
-        console.log(`🎯 Renderizando conexão ${connection.id}:`, {
-          from: {
-            id: fromComponent.id,
-            position: fromComponent.position,
-            adjustedPosition: {
-              x: fromComponent.position.x + 5000,
-              y: fromComponent.position.y + 5000
-            }
-          },
-          to: {
-            id: toComponent.id,
-            position: toComponent.position,
-            adjustedPosition: {
-              x: toComponent.position.x + 5000,
-              y: toComponent.position.y + 5000
-            }
-          }
-        });
         
         return (
           <ConnectionLine
             key={connection.id}
             connection={connection}
-            fromPosition={{
-              x: fromComponent.position.x + 5000,
-              y: fromComponent.position.y + 5000
-            }}
-            toPosition={{
-              x: toComponent.position.x + 5000,
-              y: toComponent.position.y + 5000
-            }}
+            fromComponent={fromComponent}
+            toComponent={toComponent}
             isSelected={selectedConnection === connection.id}
             onSelect={() => onConnectionSelect(connection.id)}
             onUpdate={onConnectionUpdate}

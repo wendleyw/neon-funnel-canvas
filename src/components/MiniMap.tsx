@@ -1,4 +1,3 @@
-
 import React, { useMemo, useCallback } from 'react';
 import { FunnelComponent, Connection } from '../types/funnel';
 import { Card } from './ui/card';
@@ -169,10 +168,6 @@ export const MiniMap: React.FC<MiniMapProps> = ({
               top: mapSize.height / 2
             }}
           />
-        </div>
-        
-        <div className="mt-2 text-xs text-gray-400 text-center">
-          {components.length} componentes • {connections.length} conexões
         </div>
       </div>
     </Card>

@@ -1,11 +1,14 @@
 import React from 'react';
-import { Connection } from '../types/funnel';
+import { Connection, FunnelComponent } from '../types/funnel';
 import { ConnectionEditor } from './ConnectionEditor';
+import { calculateBestConnectionPoints, createOptimizedConnectionPath } from '../utils/connectionUtils';
+import { useNeonAnimation } from '../contexts/NeonAnimationContext';
+import { useSequenceAnimation } from '../contexts/SequenceAnimationContext';
 
 interface ConnectionLineProps {
   connection: Connection;
-  fromPosition: { x: number; y: number };
-  toPosition: { x: number; y: number };
+  fromComponent: FunnelComponent;
+  toComponent: FunnelComponent;
   isSelected?: boolean;
   onSelect?: () => void;
   onUpdate?: (connectionId: string, updates: Partial<Connection>) => void;
@@ -14,50 +17,88 @@ interface ConnectionLineProps {
 
 export const ConnectionLine: React.FC<ConnectionLineProps> = ({
   connection,
-  fromPosition,
-  toPosition,
+  fromComponent,
+  toComponent,
   isSelected = false,
   onSelect,
   onUpdate,
   onDelete
 }) => {
-  // Ajustar pontos de conexão para o centro-direita do componente de origem
-  // e centro-esquerda do componente de destino
-  const startX = fromPosition.x + 272; // Largura do componente (272px)
-  const startY = fromPosition.y + 80;  // Centro vertical do componente
-  const endX = toPosition.x;           // Borda esquerda do componente de destino
-  const endY = toPosition.y + 80;      // Centro vertical do componente
+  const { isGlobalAnimationEnabled } = useNeonAnimation();
+  const { isSequenceMode, getConnectionDelay, isConnectionInActiveSequence } = useSequenceAnimation();
+  
+  // Calculate intelligent connection points
+  const connectionPoints = calculateBestConnectionPoints(fromComponent, toComponent);
+  
+  // Adjust for canvas coordinate system
+  const startX = connectionPoints.from.x + 5000;
+  const startY = connectionPoints.from.y + 5000;
+  const endX = connectionPoints.to.x + 5000;
+  const endY = connectionPoints.to.y + 5000;
 
-  console.log(`🎨 Renderizando linha de conexão ${connection.id}:`, {
-    from: { x: startX, y: startY },
-    to: { x: endX, y: endY },
+  // Determine animation mode
+  const inSequence = isConnectionInActiveSequence(connection.id);
+  const sequenceDelay = getConnectionDelay(connection.id);
+  
+  // Combine individual animation setting with global toggle and sequence mode
+  const isAnimated = connection.animated === true && isGlobalAnimationEnabled;
+  const isSequenceAnimated = isSequenceMode && inSequence && isAnimated;
+
+  console.log(`🎨 Connection ${connection.id}:`, {
+    from: { 
+      side: connectionPoints.from.side, 
+      x: startX, 
+      y: startY,
+      component: fromComponent.data.title 
+    },
+    to: { 
+      side: connectionPoints.to.side, 
+      x: endX, 
+      y: endY,
+      component: toComponent.data.title 
+    },
     isSelected,
-    type: connection.type
+    type: connection.type,
+    individualAnimated: connection.animated,
+    globalAnimationEnabled: isGlobalAnimationEnabled,
+    sequenceMode: isSequenceMode,
+    inSequence,
+    sequenceDelay: sequenceDelay / 1000 + 's'
   });
 
   const getConnectionColor = () => {
-    // Prioriza cor customizada
+    // Prioritize custom color
     if (connection.customColor) {
       return connection.customColor;
     }
     
-    // Cores padrão por tipo com maior intensidade
+    // Default colors by type with higher intensity
     switch (connection.type) {
       case 'success': return '#10B981';
       case 'failure': return '#EF4444';
       case 'conditional': return '#F59E0B';
-      default: return '#06B6D4'; // Cyan para conexões padrão
+      default: return '#06B6D4'; // Cyan for default connections
     }
   };
 
-  // Criar uma curva suave em vez de linha reta
-  const controlPointX = startX + (endX - startX) * 0.5;
-  const pathData = `M ${startX} ${startY} Q ${controlPointX} ${startY} ${endX} ${endY}`;
+  // Create optimized path based on intelligent points
+  const pathData = createOptimizedConnectionPath(
+    { x: startX, y: startY, side: connectionPoints.from.side },
+    { x: endX, y: endY, side: connectionPoints.to.side },
+    'curved' // Can be 'straight', 'curved', or 'stepped'
+  );
   
   const color = getConnectionColor();
   const gradientId = `gradient-${connection.id}`;
+  const neonGradientId = `neon-gradient-${connection.id}`;
   const glowId = `glow-${connection.id}`;
-  const isAnimated = connection.animated === true;
+  const neonGlowId = `neon-glow-${connection.id}`;
+
+  // Calculate gradient direction based on connection direction
+  const deltaX = endX - startX;
+  const deltaY = endY - startY;
+  const angle = Math.atan2(deltaY, deltaX);
+  const gradientAngle = (angle * 180) / Math.PI;
 
   const editorPosition = {
     x: (startX + endX) / 2,
@@ -70,31 +111,79 @@ export const ConnectionLine: React.FC<ConnectionLineProps> = ({
         className="absolute inset-0 w-full h-full pointer-events-none"
         style={{ zIndex: 10 }}
       >
-        {/* Definições avançadas */}
+        {/* Advanced definitions */}
         <defs>
-          {/* Gradiente para linha animada */}
-          <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor={color} stopOpacity="0.3" />
-            <stop offset="50%" stopColor={color} stopOpacity="1" />
-            <stop offset="100%" stopColor={color} stopOpacity="0.3" />
+          {/* Neon gradient for animated line with proper direction and transparent edges */}
+          <linearGradient 
+            id={neonGradientId} 
+            x1="0%" y1="0%" x2="100%" y2="0%"
+            gradientTransform={`rotate(${gradientAngle} 0.5 0.5)`}
+          >
+            <stop offset="0%" stopColor={color} stopOpacity="0">
+              <animate attributeName="stop-opacity" values="0;0.3;0" dur="3s" repeatCount="indefinite" begin={isSequenceAnimated ? `${sequenceDelay}ms` : '0s'} />
+            </stop>
+            <stop offset="20%" stopColor={color} stopOpacity="0.4">
+              <animate attributeName="stop-opacity" values="0.4;0.8;0.4" dur="3s" repeatCount="indefinite" begin={isSequenceAnimated ? `${sequenceDelay}ms` : '0s'} />
+            </stop>
+            <stop offset="40%" stopColor="#ffffff" stopOpacity="0.6">
+              <animate attributeName="stop-opacity" values="0.6;0.9;0.6" dur="3s" repeatCount="indefinite" begin={isSequenceAnimated ? `${sequenceDelay}ms` : '0s'} />
+            </stop>
+            <stop offset="50%" stopColor={color} stopOpacity="0.8">
+              <animate attributeName="stop-opacity" values="0.8;1;0.8" dur="3s" repeatCount="indefinite" begin={isSequenceAnimated ? `${sequenceDelay}ms` : '0s'} />
+            </stop>
+            <stop offset="60%" stopColor="#ffffff" stopOpacity="0.6">
+              <animate attributeName="stop-opacity" values="0.6;0.9;0.6" dur="3s" repeatCount="indefinite" begin={isSequenceAnimated ? `${sequenceDelay}ms` : '0s'} />
+            </stop>
+            <stop offset="80%" stopColor={color} stopOpacity="0.4">
+              <animate attributeName="stop-opacity" values="0.4;0.8;0.4" dur="3s" repeatCount="indefinite" begin={isSequenceAnimated ? `${sequenceDelay}ms` : '0s'} />
+            </stop>
+            <stop offset="100%" stopColor={color} stopOpacity="0">
+              <animate attributeName="stop-opacity" values="0;0.3;0" dur="3s" repeatCount="indefinite" begin={isSequenceAnimated ? `${sequenceDelay}ms` : '0s'} />
+            </stop>
           </linearGradient>
           
-          {/* Filtro de glow mais intenso */}
-          <filter id={glowId} x="-50%" y="-50%" width="200%" height="200%">
+          {/* Regular gradient for line with transparent edges */}
+          <linearGradient 
+            id={gradientId} 
+            x1="0%" y1="0%" x2="100%" y2="0%"
+            gradientTransform={`rotate(${gradientAngle} 0.5 0.5)`}
+          >
+            <stop offset="0%" stopColor={color} stopOpacity="0.1" />
+            <stop offset="20%" stopColor={color} stopOpacity="0.6" />
+            <stop offset="50%" stopColor={color} stopOpacity="1" />
+            <stop offset="80%" stopColor={color} stopOpacity="0.6" />
+            <stop offset="100%" stopColor={color} stopOpacity="0.1" />
+          </linearGradient>
+          
+          {/* Reduced intensity neon glow filter */}
+          <filter id={neonGlowId} x="-100%" y="-100%" width="300%" height="300%">
             <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+            <feGaussianBlur stdDeviation="8" result="bigBlur"/>
+            <feGaussianBlur stdDeviation="12" result="hugeBlur"/>
+            <feMerge> 
+              <feMergeNode in="hugeBlur"/>
+              <feMergeNode in="bigBlur"/>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+
+          {/* Regular glow filter */}
+          <filter id={glowId} x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
             <feMerge> 
               <feMergeNode in="coloredBlur"/>
               <feMergeNode in="SourceGraphic"/>
             </feMerge>
           </filter>
 
-          {/* Sombra mais suave */}
+          {/* Shadow filter */}
           <filter id={`shadow-${connection.id}`} x="-50%" y="-50%" width="200%" height="200%">
-            <feDropShadow dx="0" dy="2" stdDeviation="6" floodColor={color} floodOpacity="0.4"/>
+            <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor={color} floodOpacity="0.2"/>
           </filter>
         </defs>
 
-        {/* Área clicável invisível mais ampla */}
+        {/* Clickable invisible area */}
         <path
           d={pathData}
           stroke="transparent"
@@ -103,12 +192,23 @@ export const ConnectionLine: React.FC<ConnectionLineProps> = ({
           className="pointer-events-auto cursor-pointer"
           onClick={(e) => {
             e.stopPropagation();
-            console.log(`🖱️ Clique na conexão ${connection.id}`);
+            console.log(`[ConnectionLine] Click on connection ${connection.id}`);
             onSelect?.();
           }}
         />
         
-        {/* Linha base com glow */}
+        {/* Base neon glow layer */}
+        <path
+          d={pathData}
+          stroke={color}
+          strokeWidth="6"
+          fill="none"
+          filter={`url(#${neonGlowId})`}
+          className="pointer-events-none"
+          opacity={isSequenceAnimated ? "0.2" : "0.15"}
+        />
+        
+        {/* Secondary glow layer */}
         <path
           d={pathData}
           stroke={color}
@@ -116,97 +216,257 @@ export const ConnectionLine: React.FC<ConnectionLineProps> = ({
           fill="none"
           filter={`url(#${glowId})`}
           className="pointer-events-none"
-          opacity="0.8"
+          opacity={isSequenceAnimated ? "0.5" : "0.4"}
         />
         
-        {/* Linha principal animada */}
+        {/* Main neon line */}
         <path
           d={pathData}
-          stroke={isAnimated ? `url(#${gradientId})` : color}
+          stroke={isAnimated ? `url(#${neonGradientId})` : `url(#${gradientId})`}
           strokeWidth="2"
           fill="none"
-          className={`pointer-events-none ${isAnimated ? 'animate-pulse' : ''}`}
-          strokeDasharray={isAnimated ? "10,5" : "none"}
+          className="pointer-events-none"
+          strokeDasharray={isAnimated ? "12,8" : "none"}
           style={{
-            animation: isAnimated ? 'dashMove 2s linear infinite' : 'none'
+            animation: isAnimated && !isSequenceAnimated ? 'neonDashFlow 4s linear infinite' : 'none'
           }}
         />
         
-        {/* Pontos nas extremidades */}
+        {/* Core bright line */}
+        <path
+          d={pathData}
+          stroke="#ffffff"
+          strokeWidth="0.5"
+          fill="none"
+          className="pointer-events-none"
+          opacity="0.7"
+        />
+        
+        {/* Connection points with neon effect - smaller and more precise */}
         <circle
           cx={startX}
           cy={startY}
-          r="4"
+          r="3"
           fill={color}
           className="pointer-events-none"
-          filter={`url(#${glowId})`}
+          filter={`url(#${neonGlowId})`}
+          opacity="0.5"
+        />
+        <circle
+          cx={startX}
+          cy={startY}
+          r="1.5"
+          fill="#ffffff"
+          className="pointer-events-none"
+          opacity="0.9"
+        />
+        
+        <circle
+          cx={endX}
+          cy={endY}
+          r="3"
+          fill={color}
+          className="pointer-events-none"
+          filter={`url(#${neonGlowId})`}
+          opacity="0.5"
         />
         <circle
           cx={endX}
           cy={endY}
-          r="4"
-          fill={color}
+          r="1.5"
+          fill="#ffffff"
           className="pointer-events-none"
-          filter={`url(#${glowId})`}
+          opacity="0.9"
         />
         
-        {/* Indicador de fluxo - seta animada no meio */}
+        {/* Enhanced animated lead orb traveling along path */}
         {isAnimated && (
           <g className="pointer-events-none">
+            {/* Main lead orb with enhanced effects */}
             <circle
-              cx={controlPointX}
-              cy={(startY + endY) / 2}
-              r="6"
+              r="8"
               fill={color}
-              className="animate-pulse"
-              opacity="0.9"
-              filter={`url(#${glowId})`}
-            />
-            <polygon
-              points={`${controlPointX-3},${(startY + endY) / 2 - 2} ${controlPointX+3},${(startY + endY) / 2} ${controlPointX-3},${(startY + endY) / 2 + 2}`}
-              fill="white"
-              className="animate-bounce"
-            />
+              filter={`url(#${neonGlowId})`}
+              opacity="0.8"
+            >
+              <animateMotion 
+                dur="4s" 
+                repeatCount="indefinite" 
+                rotate="auto"
+                begin={isSequenceAnimated ? `${sequenceDelay}ms` : '0s'}
+              >
+                <mpath href={`#path-${connection.id}`}/>
+              </animateMotion>
+              <animate 
+                attributeName="opacity" 
+                values="0;0.8;0.8;0.8;0" 
+                dur="4s" 
+                repeatCount="indefinite" 
+                begin={isSequenceAnimated ? `${sequenceDelay}ms` : '0s'}
+              />
+              <animate 
+                attributeName="r" 
+                values="5;12;8;12;5" 
+                dur="4s" 
+                repeatCount="indefinite" 
+                begin={isSequenceAnimated ? `${sequenceDelay}ms` : '0s'}
+              />
+            </circle>
+            
+            {/* Core bright orb */}
+            <circle
+              r="4"
+              fill="#ffffff"
+              opacity="1"
+            >
+              <animateMotion 
+                dur="4s" 
+                repeatCount="indefinite" 
+                rotate="auto"
+                begin={isSequenceAnimated ? `${sequenceDelay}ms` : '0s'}
+              >
+                <mpath href={`#path-${connection.id}`}/>
+              </animateMotion>
+              <animate 
+                attributeName="opacity" 
+                values="0;1;1;1;0" 
+                dur="4s" 
+                repeatCount="indefinite" 
+                begin={isSequenceAnimated ? `${sequenceDelay}ms` : '0s'}
+              />
+              <animate 
+                attributeName="r" 
+                values="2;6;4;6;2" 
+                dur="4s" 
+                repeatCount="indefinite" 
+                begin={isSequenceAnimated ? `${sequenceDelay}ms` : '0s'}
+              />
+            </circle>
+            
+            {/* Enhanced trailing particles */}
+            <circle
+              r="3"
+              fill={color}
+              opacity="0.6"
+            >
+              <animateMotion 
+                dur="4s" 
+                repeatCount="indefinite" 
+                rotate="auto" 
+                begin={isSequenceAnimated ? `${sequenceDelay + 500}ms` : '0.5s'}
+              >
+                <mpath href={`#path-${connection.id}`}/>
+              </animateMotion>
+              <animate 
+                attributeName="opacity" 
+                values="0;0.6;0.6;0.6;0" 
+                dur="4s" 
+                repeatCount="indefinite" 
+                begin={isSequenceAnimated ? `${sequenceDelay + 500}ms` : '0.5s'}
+              />
+              <animate 
+                attributeName="r" 
+                values="1;6;3;6;1" 
+                dur="4s" 
+                repeatCount="indefinite" 
+                begin={isSequenceAnimated ? `${sequenceDelay + 500}ms` : '0.5s'}
+              />
+            </circle>
+            
+            <circle
+              r="2"
+              fill={color}
+              opacity="0.4"
+            >
+              <animateMotion 
+                dur="4s" 
+                repeatCount="indefinite" 
+                rotate="auto" 
+                begin={isSequenceAnimated ? `${sequenceDelay + 1000}ms` : '1s'}
+              >
+                <mpath href={`#path-${connection.id}`}/>
+              </animateMotion>
+              <animate 
+                attributeName="opacity" 
+                values="0;0.4;0.4;0.4;0" 
+                dur="4s" 
+                repeatCount="indefinite" 
+                begin={isSequenceAnimated ? `${sequenceDelay + 1000}ms` : '1s'}
+              />
+              <animate 
+                attributeName="r" 
+                values="1;4;2;4;1" 
+                dur="4s" 
+                repeatCount="indefinite" 
+                begin={isSequenceAnimated ? `${sequenceDelay + 1000}ms` : '1s'}
+              />
+            </circle>
           </g>
         )}
         
-        {/* Indicador visual quando selecionado */}
+        {/* Hidden path for animation reference */}
+        <path
+          id={`path-${connection.id}`}
+          d={pathData}
+          stroke="none"
+          fill="none"
+          className="pointer-events-none"
+          style={{ display: 'none' }}
+        />
+        
+        {/* Selection indicator with enhanced neon effect */}
         {isSelected && (
           <>
             <path
               d={pathData}
               stroke={color}
-              strokeWidth="6"
+              strokeWidth="12"
               fill="none"
-              strokeDasharray="12,6"
-              opacity="0.6"
-              className="pointer-events-none animate-pulse"
-              filter={`url(#${glowId})`}
+              strokeDasharray="20,10"
+              opacity="0.4"
+              className="pointer-events-none"
+              filter={`url(#${neonGlowId})`}
+              style={{
+                animation: 'selectionPulse 1.5s ease-in-out infinite'
+              }}
             />
             <path
               d={pathData}
-              stroke="white"
-              strokeWidth="1"
+              stroke="#ffffff"
+              strokeWidth="2"
               fill="none"
-              strokeDasharray="8,4"
-              opacity="0.8"
-              className="pointer-events-none animate-pulse"
+              strokeDasharray="15,8"
+              opacity="0.9"
+              className="pointer-events-none"
+              style={{
+                animation: 'selectionFlow 2s linear infinite'
+              }}
             />
           </>
         )}
       </svg>
 
-      {/* CSS para animação de dash */}
+      {/* Enhanced CSS animations */}
       <style>
         {`
-          @keyframes dashMove {
+          @keyframes neonDashFlow {
             0% { stroke-dashoffset: 0; }
-            100% { stroke-dashoffset: 30; }
+            100% { stroke-dashoffset: 50; }
+          }
+          
+          @keyframes selectionPulse {
+            0%, 100% { opacity: 0.2; stroke-width: 8px; }
+            50% { opacity: 0.6; stroke-width: 16px; }
+          }
+          
+          @keyframes selectionFlow {
+            0% { stroke-dashoffset: 0; }
+            100% { stroke-dashoffset: 46; }
           }
         `}
       </style>
 
-      {/* Editor de conexão quando selecionado */}
+      {/* Connection editor when selected */}
       {isSelected && (
         <ConnectionEditor
           connection={connection}

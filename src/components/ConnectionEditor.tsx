@@ -1,8 +1,6 @@
-
 import React, { useState } from 'react';
 import { Connection } from '../types/funnel';
 import { Button } from './ui/button';
-import { Switch } from './ui/switch';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Trash2, Palette } from 'lucide-react';
 
@@ -15,14 +13,14 @@ interface ConnectionEditorProps {
 }
 
 const predefinedColors = [
-  { name: 'Sucesso', value: '#10B981', type: 'success' },
-  { name: 'Falha', value: '#EF4444', type: 'failure' },
-  { name: 'Condicional', value: '#F59E0B', type: 'conditional' },
-  { name: 'Azul', value: '#3B82F6', type: 'custom' },
-  { name: 'Roxo', value: '#8B5CF6', type: 'custom' },
-  { name: 'Rosa', value: '#EC4899', type: 'custom' },
-  { name: 'Verde Claro', value: '#22C55E', type: 'custom' },
-  { name: 'Laranja', value: '#F97316', type: 'custom' },
+  { name: 'Success', value: '#10B981', type: 'success' },
+  { name: 'Failure', value: '#EF4444', type: 'failure' },
+  { name: 'Conditional', value: '#F59E0B', type: 'conditional' },
+  { name: 'Blue', value: '#3B82F6', type: 'custom' },
+  { name: 'Purple', value: '#8B5CF6', type: 'custom' },
+  { name: 'Pink', value: '#EC4899', type: 'custom' },
+  { name: 'Light Green', value: '#22C55E', type: 'custom' },
+  { name: 'Orange', value: '#F97316', type: 'custom' },
 ];
 
 export const ConnectionEditor: React.FC<ConnectionEditorProps> = ({
@@ -33,7 +31,6 @@ export const ConnectionEditor: React.FC<ConnectionEditorProps> = ({
   onClose
 }) => {
   const [customColor, setCustomColor] = useState(connection.customColor || '#6B7280');
-  const [animated, setAnimated] = useState(connection.animated || false);
 
   const getCurrentColor = () => {
     if (connection.customColor) return connection.customColor;
@@ -68,11 +65,6 @@ export const ConnectionEditor: React.FC<ConnectionEditorProps> = ({
     });
   };
 
-  const handleAnimationToggle = (enabled: boolean) => {
-    setAnimated(enabled);
-    onUpdate(connection.id, { animated: enabled });
-  };
-
   const handleDelete = () => {
     onDelete(connection.id);
     onClose();
@@ -90,7 +82,7 @@ export const ConnectionEditor: React.FC<ConnectionEditorProps> = ({
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-white font-semibold text-lg">Alterar Linha</h3>
+        <h3 className="text-white font-semibold text-lg">Edit Connection</h3>
         <button
           onClick={onClose}
           className="text-gray-400 hover:text-white transition-colors p-1 hover:bg-gray-800 rounded"
@@ -99,23 +91,26 @@ export const ConnectionEditor: React.FC<ConnectionEditorProps> = ({
         </button>
       </div>
 
-      {/* Preview da cor atual */}
+      {/* Current color preview with neon effect */}
       <div className="mb-6">
         <label className="text-sm text-gray-300 mb-2 block font-medium">Preview</label>
         <div className="flex items-center gap-3">
           <div
-            className={`w-20 h-3 rounded-full ${animated ? 'animate-pulse' : ''}`}
-            style={{ backgroundColor: getCurrentColor() }}
+            className="w-20 h-3 rounded-full transition-all duration-300 animate-pulse shadow-lg"
+            style={{ 
+              backgroundColor: getCurrentColor(),
+              boxShadow: `0 0 15px ${getCurrentColor()}`
+            }}
           />
-          <span className="text-xs text-gray-400">
-            {animated ? 'Animado' : 'Estático'}
+          <span className="text-xs text-cyan-400">
+            ⚡ Neon Active (Global Control)
           </span>
         </div>
       </div>
 
-      {/* Cores predefinidas */}
+      {/* Predefined colors */}
       <div className="mb-4">
-        <label className="text-sm text-gray-300 mb-3 block font-medium">Cores Predefinidas</label>
+        <label className="text-sm text-gray-300 mb-3 block font-medium">Predefined Colors</label>
         <div className="grid grid-cols-4 gap-2">
           {predefinedColors.map((color) => (
             <button
@@ -136,9 +131,9 @@ export const ConnectionEditor: React.FC<ConnectionEditorProps> = ({
         </div>
       </div>
 
-      {/* Seletor de cor customizada */}
-      <div className="mb-4">
-        <label className="text-sm text-gray-300 mb-2 block font-medium">Cor Personalizada</label>
+      {/* Custom color selector */}
+      <div className="mb-6">
+        <label className="text-sm text-gray-300 mb-2 block font-medium">Custom Color</label>
         <Popover>
           <PopoverTrigger asChild>
             <Button
@@ -175,21 +170,17 @@ export const ConnectionEditor: React.FC<ConnectionEditorProps> = ({
         </Popover>
       </div>
 
-      {/* Controle de animação */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
-          <label className="text-sm text-gray-300 font-medium">Animação</label>
-          <Switch
-            checked={animated}
-            onCheckedChange={handleAnimationToggle}
-          />
+      {/* Global Animation Info */}
+      <div className="mb-6 p-4 bg-cyan-900/20 border border-cyan-700/30 rounded-lg">
+        <div className="text-sm text-cyan-300 font-medium mb-1">
+          ⚡ Neon Animation
         </div>
-        <p className="text-xs text-gray-400 mt-1">
-          Ativa o efeito pulsante na linha de conexão
+        <p className="text-xs text-cyan-400">
+          Animations are controlled globally via the toggle in the top toolbar. All connections have neon effects enabled by default.
         </p>
       </div>
 
-      {/* Ações */}
+      {/* Actions */}
       <div className="flex gap-2">
         <Button
           onClick={handleDelete}
@@ -198,7 +189,7 @@ export const ConnectionEditor: React.FC<ConnectionEditorProps> = ({
           className="flex-1"
         >
           <Trash2 size={14} className="mr-1" />
-          Deletar
+          Delete
         </Button>
         <Button
           onClick={onClose}
@@ -206,7 +197,7 @@ export const ConnectionEditor: React.FC<ConnectionEditorProps> = ({
           size="sm"
           className="flex-1 border-gray-600 bg-gray-800 hover:bg-gray-700 text-white"
         >
-          Fechar
+          Close
         </Button>
       </div>
     </div>

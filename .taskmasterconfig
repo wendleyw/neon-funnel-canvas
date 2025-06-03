@@ -1,0 +1,21 @@
+{
+  "name": "neon-funnel-canvas",
+  "description": "Neon Funnel Canvas - React TypeScript project with funnel building capabilities",
+  "version": "1.0.0",
+  "tasks": [],
+  "contexts": {
+    "development": {
+      "description": "Development context for the funnel canvas project"
+    },
+    "components": {
+      "description": "Component development and diagram integration"
+    },
+    "canvas": {
+      "description": "Canvas functionality and drag & drop features"
+    }
+  },
+  "integrations": {
+    "git": true,
+    "npm": true
+  }
+} 

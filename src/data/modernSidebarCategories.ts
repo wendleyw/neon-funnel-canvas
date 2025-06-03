@@ -1,6 +1,5 @@
-
 import { ComponentTemplate } from '../types/funnel';
-import { componentTemplates } from './componentTemplates';
+import { MARKETING_COMPONENT_TEMPLATES } from './componentTemplates';
 
 export interface SidebarCategory {
   id: string;
@@ -14,7 +13,7 @@ export interface SidebarCategory {
 // Helper function to get templates by type
 const getTemplatesByTypes = (types: string[]): ComponentTemplate[] => {
   return types.map(type => 
-    componentTemplates.find(template => template.type === type)
+    MARKETING_COMPONENT_TEMPLATES.find(template => template.type === type)
   ).filter(Boolean) as ComponentTemplate[];
 };
 
@@ -131,7 +130,7 @@ export const modernSidebarCategories: SidebarCategory[] = [
 // Helper function for searching templates - EXPORTADA AQUI
 export const searchModernTemplates = (query: string): ComponentTemplate[] => {
   const lowerQuery = query.toLowerCase();
-  return componentTemplates.filter(template => 
+  return MARKETING_COMPONENT_TEMPLATES.filter(template => 
     template.label.toLowerCase().includes(lowerQuery) ||
     template.type.toLowerCase().includes(lowerQuery) ||
     template.defaultProps.description?.toLowerCase().includes(lowerQuery)

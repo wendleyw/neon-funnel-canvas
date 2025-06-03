@@ -2,17 +2,21 @@ import React, { useCallback } from 'react';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { CreateContent } from './CreateContent';
 import { CustomFunnelContent } from './CustomFunnelContent';
+import { DiagramContent } from './DiagramContent';
 import { ReadyTemplatesModal } from '../ReadyTemplates/ReadyTemplatesModal';
 import { ProfileModal } from '../Profile/ProfileModal';
 import { ComponentTemplate } from '../../types/funnel';
 import { FunnelComponent, Connection } from '../../types/funnel';
-import { Layers, Library, Search, Compass, Bell, Sparkles, Crown } from 'lucide-react';
+import { DrawingShape } from '../../types/drawing';
+import { Layers, Library, Search, Compass, Bell, Sparkles, Crown, PenTool } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
 import { useModernSidebar } from '../../hooks/useModernSidebar';
 
 interface ModernSidebarProps {
   onDragStart: (template: ComponentTemplate) => void;
   onAddCompleteTemplate?: (components: FunnelComponent[], connections: Connection[]) => void;
+  onShapeAdd?: (shape: DrawingShape) => void;
+  onTemplateClick?: (template: ComponentTemplate) => void;
   componentCount?: number;
   connectionCount?: number;
 }
@@ -28,6 +32,8 @@ const menuItems = [
 export const ModernSidebar: React.FC<ModernSidebarProps> = ({
   onDragStart,
   onAddCompleteTemplate,
+  onShapeAdd,
+  onTemplateClick,
   componentCount = 0,
   connectionCount = 0
 }) => {
@@ -72,12 +78,14 @@ export const ModernSidebar: React.FC<ModernSidebarProps> = ({
             onSearchChange={setSearchQuery}
             onDragStart={handleDragStart}
             onToggleFavorite={toggleFavorite}
+            onShapeAdd={onShapeAdd}
+            onTemplateClick={onTemplateClick}
           />
         );
 
       case 'library':
         return (
-          <ScrollArea className="flex-1">
+          <div className="flex-1 flex flex-col h-full">
             <div className="p-4">
               <div className="text-center py-8">
                 <Library className="w-12 h-12 text-gray-600 mx-auto mb-4" />
@@ -93,12 +101,12 @@ export const ModernSidebar: React.FC<ModernSidebarProps> = ({
                 </button>
               </div>
             </div>
-          </ScrollArea>
+          </div>
         );
 
       case 'explore':
         return (
-          <ScrollArea className="flex-1">
+          <div className="flex-1 flex flex-col h-full">
             <div className="p-4">
               <div className="text-center py-8">
                 <Compass className="w-12 h-12 text-gray-600 mx-auto mb-4" />
@@ -111,7 +119,7 @@ export const ModernSidebar: React.FC<ModernSidebarProps> = ({
                 </button>
               </div>
             </div>
-          </ScrollArea>
+          </div>
         );
 
       case 'custom':
@@ -119,7 +127,7 @@ export const ModernSidebar: React.FC<ModernSidebarProps> = ({
 
       case 'notifications':
         return (
-          <ScrollArea className="flex-1">
+          <div className="flex-1 flex flex-col h-full">
             <div className="p-4">
               <div className="text-center py-8">
                 <Bell className="w-12 h-12 text-gray-600 mx-auto mb-4" />
@@ -139,7 +147,7 @@ export const ModernSidebar: React.FC<ModernSidebarProps> = ({
                 </div>
               </div>
             </div>
-          </ScrollArea>
+          </div>
         );
 
       default:
@@ -149,9 +157,9 @@ export const ModernSidebar: React.FC<ModernSidebarProps> = ({
 
   return (
     <ErrorBoundary>
-      <div className="w-80 h-full bg-black flex flex-col">
+      <div className="w-80 h-screen bg-black flex flex-col overflow-hidden">
         {/* Header with logo and personalized greeting */}
-        <div className="p-6 border-b border-gray-800">
+        <div className="p-6 border-b border-gray-800 flex-shrink-0">
           <h1 className="text-white text-2xl font-bold tracking-wider">Funnel Board</h1>
           <button 
             onClick={() => setIsProfileOpen(true)}
@@ -169,7 +177,7 @@ export const ModernSidebar: React.FC<ModernSidebarProps> = ({
         </div>
 
         {/* Main Menu */}
-        <div className="px-4 py-6">
+        <div className="px-4 py-6 flex-shrink-0">
           <nav className="space-y-2">
             {menuItems.map((item) => (
               <button
@@ -195,11 +203,13 @@ export const ModernSidebar: React.FC<ModernSidebarProps> = ({
           </nav>
         </div>
 
-        {/* Dynamic content based on active item */}
-        {renderContent()}
+        {/* Dynamic content based on active item - with proper scroll */}
+        <div className="flex-1 min-h-0 overflow-hidden">
+          {renderContent()}
+        </div>
 
         {/* Footer with invites and news */}
-        <div className="p-4 border-t border-gray-800 space-y-2">
+        <div className="p-4 border-t border-gray-800 space-y-2 flex-shrink-0">
           <button className="w-full flex items-center gap-3 px-4 py-2 text-gray-400 hover:text-gray-300 transition-colors">
             <span className="text-sm">Invite friends</span>
           </button>

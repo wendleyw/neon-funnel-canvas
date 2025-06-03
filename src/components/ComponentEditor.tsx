@@ -1,8 +1,8 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { X, Sparkles, Maximize2, Minimize2 } from 'lucide-react';
+import { X, Sparkles, Maximize2, Minimize2, ChevronDown, ChevronUp } from 'lucide-react';
 import { FunnelComponent } from '../types/funnel';
 import { BasicInfoForm } from './ComponentEditor/BasicInfoForm';
 import { SocialMediaSpecs } from './ComponentEditor/SocialMediaSpecs';
@@ -29,6 +29,9 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
     status: component.data.status
   });
   const [isMaximized, setIsMaximized] = useState(false);
+  const [canScrollDown, setCanScrollDown] = useState(false);
+  const [canScrollUp, setCanScrollUp] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const {
     image,
@@ -43,24 +46,23 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
     }
   });
 
-  // Debug logging
-  useEffect(() => {
-    console.log('🎭 ComponentEditor state:', { isOpen, component: component.id });
-  }, [isOpen, component.id]);
+  // Check scroll position and update indicators
+  const checkScroll = useCallback(() => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      setCanScrollUp(scrollTop > 10);
+      setCanScrollDown(scrollTop < scrollHeight - clientHeight - 10);
+    }
+  }, []);
 
-  // Prevent body scroll when modal is open
+  // Update scroll indicators when content changes
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      console.log('🚫 Body scroll disabled');
-    } else {
-      document.body.style.overflow = 'unset';
-      console.log('✅ Body scroll enabled');
+      const timer = setTimeout(checkScroll, 100);
+      return () => clearTimeout(timer);
     }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
+  }, [isOpen, isMaximized, checkScroll]);
 
   const handleInputChange = useCallback((field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -68,8 +70,6 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
-    
-    console.log('💾 Saving data:', { ...formData, image });
     
     onUpdate({
       data: {
@@ -87,7 +87,6 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape') {
-      console.log('⌨️ ESC pressed - closing modal');
       onClose();
     }
   }, [onClose]);
@@ -114,13 +113,10 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
     return 'Dimensions not specified';
   };
 
-  // Early return with logging
+  // Early return
   if (!isOpen) {
-    console.log('❌ Modal not open, not rendering');
     return null;
   }
-
-  console.log('✅ Rendering ComponentEditor modal with Portal');
 
   const modalContent = (
     <div 
@@ -135,15 +131,7 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
         pointerEvents: 'auto'
       }}
     >
-      {/* Debug indicator - remove after testing */}
-      <div 
-        className="fixed top-4 right-4 bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-bold animate-pulse"
-        style={{ zIndex: 1000002 }}
-      >
-        MODAL ACTIVE - {component.id}
-      </div>
-
-      {/* Ultra high z-index background overlay */}
+      {/* Backdrop overlay */}
       <div
         className="fixed inset-0 bg-black/80 backdrop-blur-lg transition-all duration-300"
         style={{ 
@@ -154,15 +142,15 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
           right: 0,
           bottom: 0
         }}
-        onClick={() => {
-          console.log('🖱️ Background clicked - closing modal');
+        onClick={(e) => {
+          e.stopPropagation();
           onClose();
         }}
       />
       
-      {/* Modal container with extreme z-index */}
+      {/* Modal container - melhor centralização e dimensionamento */}
       <div
-        className="fixed inset-0 flex items-center justify-center p-4"
+        className="fixed inset-0 flex items-center justify-center p-2 sm:p-4 lg:p-8"
         style={{ 
           zIndex: 1000000,
           position: 'fixed',
@@ -174,17 +162,17 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
         }}
         onClick={(e) => {
           if (e.target === e.currentTarget) {
-            console.log('🖱️ Modal container clicked - closing modal');
+            e.stopPropagation();
             onClose();
           }
         }}
       >
         <div 
-          className={`relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl border border-gray-700/50 shadow-2xl overflow-hidden backdrop-blur-md transition-all duration-300 ${
+          className={`relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl border border-gray-700/50 shadow-2xl backdrop-blur-md transition-all duration-300 ${
             isMaximized 
-              ? 'w-[95vw] h-[95vh]' 
-              : 'w-full max-w-2xl max-h-[85vh]'
-          }`}
+              ? 'w-[98vw] h-[98vh]' 
+              : 'w-full max-w-3xl h-[90vh] max-h-[800px]'
+          } flex flex-col`}
           style={{ 
             pointerEvents: 'auto',
             position: 'relative',
@@ -192,26 +180,25 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
           }}
           onClick={(e) => {
             e.stopPropagation();
-            console.log('🖱️ Modal content clicked - preventing close');
           }}
         >
           {/* Enhanced neon border glow */}
-          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-500/30 via-purple-500/30 to-pink-500/30 opacity-70 blur-xl animate-pulse" />
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-pink-500/20 opacity-70 blur-xl animate-pulse" />
           <div className="absolute inset-[1px] rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900" />
           
-          {/* Content container */}
-          <div className="relative z-10 flex flex-col h-full">
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-700/50 bg-gradient-to-r from-gray-800/90 to-gray-900/90 backdrop-blur-sm">
+          {/* Content container with flex layout */}
+          <div className="relative z-10 flex flex-col h-full min-h-0">
+            {/* Header - fixed height */}
+            <div className="flex-shrink-0 flex items-center justify-between p-3 sm:p-4 border-b border-gray-700/50 bg-gradient-to-r from-gray-800/90 to-gray-900/90 backdrop-blur-sm rounded-t-2xl">
               <div className="flex items-center gap-3 min-w-0 flex-1">
                 <div className="p-2 bg-gradient-to-r from-cyan-500/30 to-purple-500/30 rounded-xl flex-shrink-0">
-                  <Sparkles className="w-5 h-5 text-cyan-400" />
+                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h2 className="text-lg font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent truncate">
+                  <h2 className="text-sm sm:text-lg font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent truncate">
                     Edit Component
                   </h2>
-                  <p className="text-xs text-gray-400">Customize your component settings</p>
+                  <p className="text-xs text-gray-400 hidden sm:block">Customize your component settings</p>
                 </div>
                 <Badge 
                   variant="outline" 
@@ -222,99 +209,119 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
               </div>
               
               {/* Action buttons */}
-              <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+              <div className="flex items-center gap-1 sm:gap-2 ml-2 sm:ml-4 flex-shrink-0">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    console.log('🔄 Toggle maximize:', !isMaximized);
                     setIsMaximized(!isMaximized);
                   }}
-                  className="group p-2 text-gray-400 hover:text-white transition-all duration-200 hover:bg-gray-700/50 rounded-xl"
+                  className="group p-1.5 sm:p-2 text-gray-400 hover:text-white transition-all duration-200 hover:bg-gray-700/50 rounded-xl"
                   title={isMaximized ? "Restore" : "Maximize"}
                 >
                   {isMaximized ? (
-                    <Minimize2 className="h-4 w-4 group-hover:scale-110 transition-transform duration-200" />
+                    <Minimize2 className="h-3 w-3 sm:h-4 sm:w-4 group-hover:scale-110 transition-transform duration-200" />
                   ) : (
-                    <Maximize2 className="h-4 w-4 group-hover:scale-110 transition-transform duration-200" />
+                    <Maximize2 className="h-3 w-3 sm:h-4 sm:w-4 group-hover:scale-110 transition-transform duration-200" />
                   )}
                 </button>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    console.log('❌ Close button clicked');
                     onClose();
                   }}
-                  className="group p-2 text-gray-400 hover:text-white transition-all duration-200 hover:bg-gray-700/50 rounded-xl"
+                  className="group p-1.5 sm:p-2 text-gray-400 hover:text-white transition-all duration-200 hover:bg-gray-700/50 rounded-xl"
                   title="Close (Esc)"
                 >
-                  <X className="h-4 w-4 group-hover:rotate-90 transition-transform duration-200" />
+                  <X className="h-3 w-3 sm:h-4 sm:w-4 group-hover:rotate-90 transition-transform duration-200" />
                 </button>
               </div>
             </div>
 
-            {/* Scrollable Content */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-6">
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Basic Info Section */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-1 h-6 bg-gradient-to-b from-cyan-400 to-purple-500 rounded-full" />
-                    <h3 className="text-base font-semibold text-white">Basic Information</h3>
-                  </div>
-                  <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 border border-gray-700/30">
-                    <BasicInfoForm
-                      formData={formData}
-                      onInputChange={handleInputChange}
-                    />
-                  </div>
+            {/* Scrollable Content - flex-1 com overflow controlado */}
+            <div className="flex-1 min-h-0 overflow-hidden relative">
+              {/* Scroll indicator at top */}
+              {canScrollUp && (
+                <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-gray-800/90 to-transparent z-20 flex items-center justify-center">
+                  <ChevronUp className="w-4 h-4 text-cyan-400 animate-bounce" />
                 </div>
-
-                {/* Social Media Specs Section */}
-                {isSocialMediaComponent && (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-1 h-6 bg-gradient-to-b from-purple-400 to-pink-500 rounded-full" />
-                      <h3 className="text-base font-semibold text-white">Social Media Specifications</h3>
+              )}
+              
+              <div 
+                ref={scrollContainerRef}
+                className="h-full overflow-y-auto p-3 sm:p-4 lg:p-6 scrollbar-thin scrollbar-track-gray-800 scrollbar-thumb-gray-600 hover:scrollbar-thumb-gray-500"
+                onScroll={checkScroll}
+              >
+                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                  {/* Basic Info Section */}
+                  <div className="space-y-3 sm:space-y-4">
+                    <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                      <div className="w-1 h-4 sm:h-6 bg-gradient-to-b from-cyan-400 to-purple-500 rounded-full" />
+                      <h3 className="text-sm sm:text-base font-semibold text-white">Basic Information</h3>
                     </div>
-                    <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 border border-gray-700/30">
-                      <SocialMediaSpecs component={component} />
+                    <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-gray-700/30">
+                      <BasicInfoForm
+                        formData={formData}
+                        onInputChange={handleInputChange}
+                      />
                     </div>
                   </div>
-                )}
 
-                {/* Image Upload Section */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-1 h-6 bg-gradient-to-b from-pink-400 to-rose-500 rounded-full" />
-                    <h3 className="text-base font-semibold text-white">Media & Assets</h3>
+                  {/* Social Media Specs Section */}
+                  {isSocialMediaComponent && (
+                    <div className="space-y-3 sm:space-y-4">
+                      <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                        <div className="w-1 h-4 sm:h-6 bg-gradient-to-b from-purple-400 to-pink-500 rounded-full" />
+                        <h3 className="text-sm sm:text-base font-semibold text-white">Social Media Specifications</h3>
+                      </div>
+                      <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-gray-700/30">
+                        <SocialMediaSpecs component={component} />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Image Upload Section */}
+                  <div className="space-y-3 sm:space-y-4">
+                    <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                      <div className="w-1 h-4 sm:h-6 bg-gradient-to-b from-pink-400 to-rose-500 rounded-full" />
+                      <h3 className="text-sm sm:text-base font-semibold text-white">Media & Assets</h3>
+                    </div>
+                    <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-gray-700/30">
+                      <ImageUploadSection
+                        image={image}
+                        isUploading={isUploading}
+                        isSocialMediaComponent={isSocialMediaComponent}
+                        dimensionsInfo={getDimensionsInfo()}
+                        onImageChange={handleImageUrlChange}
+                        onImageUpload={handleImageUpload}
+                        onRemoveImage={handleRemoveImage}
+                      />
+                    </div>
                   </div>
-                  <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 border border-gray-700/30">
-                    <ImageUploadSection
-                      image={image}
-                      isUploading={isUploading}
-                      isSocialMediaComponent={isSocialMediaComponent}
-                      dimensionsInfo={getDimensionsInfo()}
-                      onImageChange={handleImageUrlChange}
-                      onImageUpload={handleImageUpload}
-                      onRemoveImage={handleRemoveImage}
-                    />
-                  </div>
+
+                  {/* Espaço extra para scroll confortável */}
+                  <div className="h-4"></div>
+                </form>
+              </div>
+
+              {/* Scroll indicator at bottom */}
+              {canScrollDown && (
+                <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-gray-800/90 to-transparent z-20 flex items-center justify-center">
+                  <ChevronDown className="w-4 h-4 text-purple-400 animate-bounce" />
                 </div>
-              </form>
+              )}
             </div>
 
-            {/* Footer Actions */}
-            <div className="flex justify-end items-center gap-3 p-4 border-t border-gray-700/50 bg-gradient-to-r from-gray-800/50 to-gray-900/50 backdrop-blur-sm">
+            {/* Footer Actions - fixed height */}
+            <div className="flex-shrink-0 flex justify-end items-center gap-2 sm:gap-3 p-3 sm:p-4 border-t border-gray-700/50 bg-gradient-to-r from-gray-800/50 to-gray-900/50 backdrop-blur-sm rounded-b-2xl">
               <Button 
                 type="button" 
                 variant="outline" 
                 onClick={(e) => {
                   e.stopPropagation();
-                  console.log('🚫 Cancel button clicked');
                   onClose();
                 }}
                 disabled={isUploading}
-                className="bg-gray-800/50 border-gray-600/50 text-gray-300 hover:bg-gray-700/50 hover:text-white hover:border-gray-500 transition-all duration-200"
+                className="bg-gray-800/50 border-gray-600/50 text-gray-300 hover:bg-gray-700/50 hover:text-white hover:border-gray-500 transition-all duration-200 text-xs sm:text-sm px-3 sm:px-4 py-2"
               >
                 Cancel
               </Button>
@@ -322,16 +329,16 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
                 type="submit" 
                 onClick={(e) => {
                   e.stopPropagation();
-                  console.log('💾 Save button clicked');
                   handleSubmit(e as any);
                 }}
                 disabled={isUploading}
-                className="bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white border-0 shadow-lg hover:shadow-cyan-500/25 transition-all duration-200 hover:scale-105"
+                className="bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white border-0 shadow-lg hover:shadow-cyan-500/25 transition-all duration-200 hover:scale-105 text-xs sm:text-sm px-3 sm:px-4 py-2"
               >
                 {isUploading ? (
                   <div className="flex items-center justify-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Processing...
+                    <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span className="hidden sm:inline">Processing...</span>
+                    <span className="sm:hidden">...</span>
                   </div>
                 ) : (
                   'Save Changes'

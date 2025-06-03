@@ -35,7 +35,7 @@ export const useCanvasSelection = ({
       from: connectingFrom,
       to: toComponentId,
       type: 'success' as const,
-      animated: false
+      animated: true
     };
     
     console.log('📦 Nova conexão criada:', newConnection);

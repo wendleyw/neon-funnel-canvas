@@ -40,7 +40,6 @@ export const CanvasContainer: React.FC = () => {
   } = useCanvas();
 
   const handleComponentDrag = useCallback((id: string, position: { x: number; y: number }) => {
-    console.log('Component dragged to position:', position);
     onComponentUpdate(id, { position });
   }, [onComponentUpdate]);
 
@@ -74,19 +73,22 @@ export const CanvasContainer: React.FC = () => {
     handleContextMenu?.(e);
   }, [handleContextMenu]);
 
-  // Simple transform style for infinite canvas
+  const handleConnectionDelete = useCallback((connectionId: string) => {
+    onConnectionSelect(connectionId);
+  }, [onConnectionSelect]);
+
+  // Optimized transform style - memoized to prevent unnecessary recalculations
   const transformStyle = useMemo(() => ({
     transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
     transformOrigin: '0 0',
-    // Use a very large canvas area to allow free movement
     width: '10000px',
     height: '10000px',
     position: 'absolute' as const,
-    // Center the large canvas area
     left: '-5000px',
     top: '-5000px'
   }), [pan.x, pan.y, zoom]);
 
+  // Optimized canvas style - memoized
   const canvasStyle = useMemo(() => ({
     cursor: isPanning ? 'grabbing' : isDragOver ? 'copy' : 'default',
     userSelect: (isPanning ? 'none' : 'auto') as 'none' | 'auto',
@@ -97,20 +99,37 @@ export const CanvasContainer: React.FC = () => {
     backgroundColor: '#000000'
   }), [isPanning, isDragOver]);
 
-  const handleConnectionDelete = useCallback((connectionId: string) => {
-    onConnectionSelect(connectionId);
-  }, [onConnectionSelect]);
-
-  console.log('CanvasContainer render:', {
-    componentsCount: components.length,
-    connectionsCount: connections.length,
-    pan,
-    zoom,
-    isDragOver,
-    isPanning,
-    transformStyle,
-    canvasRect: canvasRef.current?.getBoundingClientRect()
-  });
+  // Memoized component list to prevent unnecessary re-renders
+  const componentNodes = useMemo(() => {
+    return components.map((component) => (
+      <ErrorBoundary key={component.id}>
+        <ComponentNode
+          component={component}
+          isSelected={selectedComponent === component.id}
+          isConnecting={connectingFrom !== null}
+          canConnect={connectingFrom !== null && connectingFrom !== component.id}
+          onSelect={() => onComponentSelect(component.id)}
+          onStartConnection={() => startConnection(component.id)}
+          onConnect={() => handleComponentConnect(component.id)}
+          onDrag={handleComponentDrag}
+          onDelete={() => onComponentDelete(component.id)}
+          onUpdate={onComponentUpdate}
+          onDuplicate={() => handleComponentDuplicate(component.id)}
+        />
+      </ErrorBoundary>
+    ));
+  }, [
+    components,
+    selectedComponent,
+    connectingFrom,
+    onComponentSelect,
+    startConnection,
+    handleComponentConnect,
+    handleComponentDrag,
+    onComponentDelete,
+    onComponentUpdate,
+    handleComponentDuplicate
+  ]);
 
   return (
     <div
@@ -135,8 +154,6 @@ export const CanvasContainer: React.FC = () => {
         className="canvas-viewport"
         style={transformStyle}
       >
-        {/* Grid or pattern background can be added here if needed */}
-        
         <ErrorBoundary>
           <ConnectionManager
             components={components}
@@ -156,36 +173,8 @@ export const CanvasContainer: React.FC = () => {
           />
         </ErrorBoundary>
 
-        {/* Components with absolute positioning - no conversion needed */}
-        {components.map((component) => {
-          console.log('Rendering component:', {
-            id: component.id, 
-            position: component.position,
-            title: component.data.title,
-            worldPosition: {
-              x: component.position.x + 5000,
-              y: component.position.y + 5000
-            }
-          });
-          
-          return (
-            <ErrorBoundary key={component.id}>
-              <ComponentNode
-                component={component}
-                isSelected={selectedComponent === component.id}
-                isConnecting={connectingFrom !== null}
-                canConnect={connectingFrom !== null && connectingFrom !== component.id}
-                onSelect={() => onComponentSelect(component.id)}
-                onStartConnection={() => startConnection(component.id)}
-                onConnect={() => handleComponentConnect(component.id)}
-                onDrag={handleComponentDrag}
-                onDelete={() => onComponentDelete(component.id)}
-                onUpdate={onComponentUpdate}
-                onDuplicate={() => handleComponentDuplicate(component.id)}
-              />
-            </ErrorBoundary>
-          );
-        })}
+        {/* Optimized component rendering */}
+        {componentNodes}
       </div>
     </div>
   );

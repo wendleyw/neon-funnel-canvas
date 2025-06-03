@@ -25,12 +25,10 @@ export const useCanvasDragDrop = ({
   const handleDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(true);
-    console.log('Drag enter canvas');
   }, []);
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
-    // Only set isDragOver to false if we're leaving the canvas container
     const rect = canvasRef.current?.getBoundingClientRect();
     if (rect && (
       e.clientX < rect.left || 
@@ -39,7 +37,6 @@ export const useCanvasDragDrop = ({
       e.clientY > rect.bottom
     )) {
       setIsDragOver(false);
-      console.log('Drag leave canvas');
     }
   }, [canvasRef]);
 
@@ -47,49 +44,42 @@ export const useCanvasDragDrop = ({
     e.preventDefault();
     setIsDragOver(false);
     
-    console.log('Drop event triggered on canvas');
+    console.log('[CanvasDragDrop] Drop event triggered');
     
     try {
       const templateData = e.dataTransfer.getData('application/json');
-      console.log('Template data from drag:', templateData);
       
       if (!templateData) {
-        console.warn('No template data found in drag event');
+        console.warn('[CanvasDragDrop] No template data found');
         return;
       }
       
       const template: ComponentTemplate = JSON.parse(templateData);
-      console.log('Parsed template:', template);
+      console.log('[CanvasDragDrop] Template:', template.label);
       
-      // Get the canvas container element
       const canvasContainer = canvasRef.current;
-      
       if (!canvasContainer) {
-        console.error('Canvas container not found');
+        console.error('[CanvasDragDrop] Canvas container not found');
         return;
       }
       
       const canvasRect = canvasContainer.getBoundingClientRect();
-      console.log('Canvas rect:', canvasRect);
-      console.log('Mouse position:', { clientX: e.clientX, clientY: e.clientY });
-      console.log('Pan offset:', panOffset);
-      console.log('Scale:', scale);
       
-      // For infinite canvas, convert screen coordinates to world coordinates
-      // The canvas viewport is centered at (-5000, -5000) and transformed by pan/zoom
+      // Calculate screen position relative to canvas
       const screenX = e.clientX - canvasRect.left;
       const screenY = e.clientY - canvasRect.top;
       
-      // Convert screen position to world position accounting for pan and zoom
-      // Since our canvas center is at (-5000, -5000), we need to adjust accordingly
-      const worldX = (screenX - panOffset.x) / scale - 5000;
-      const worldY = (screenY - panOffset.y) / scale - 5000;
+      // Simple coordinate conversion for the infinite canvas
+      // The canvas viewport has transform: translate(panX, panY) scale(scale)
+      // To get world coordinates: (screen - pan) / scale
+      const worldX = (screenX - panOffset.x) / scale;
+      const worldY = (screenY - panOffset.y) / scale;
 
-      console.log('Calculated drop position:', { 
-        screenX, screenY, 
-        worldX, worldY, 
-        scale, 
-        panOffset 
+      console.log('[CanvasDragDrop] Position:', { 
+        screen: { x: screenX, y: screenY },
+        world: { x: worldX, y: worldY },
+        pan: panOffset,
+        scale 
       });
 
       const newComponent: FunnelComponent = {
@@ -107,11 +97,10 @@ export const useCanvasDragDrop = ({
         }
       };
 
-      console.log('Creating new component:', newComponent);
+      console.log('[CanvasDragDrop] Creating component at:', newComponent.position);
       onAddComponent(newComponent);
-      console.log('Component added successfully');
     } catch (error) {
-      console.error('Error adding component:', error);
+      console.error('[CanvasDragDrop] Error:', error);
     }
   }, [onAddComponent, canvasRef, scale, panOffset]);
 

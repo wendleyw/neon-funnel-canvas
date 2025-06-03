@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import { StickyNote, Edit3, Trash2 } from 'lucide-react';
 import { FunnelComponent } from '../../types/funnel';
@@ -64,10 +63,34 @@ export const NoteComponent: React.FC<NoteComponentProps> = ({
     });
   }, [component.id, component.data, onUpdate]);
 
+  const handleResize = useCallback((newWidth: number, newHeight: number) => {
+    onUpdate(component.id, {
+      data: {
+        ...component.data,
+        properties: {
+          ...component.data.properties,
+          width: newWidth,
+          height: newHeight
+        }
+      }
+    });
+  }, [component.id, component.data, onUpdate]);
+
+  // Size presets for notes
+  const sizePresets = [
+    { label: 'P', width: 120, height: 120 },
+    { label: 'M', width: 180, height: 180 },
+    { label: 'G', width: 240, height: 240 }
+  ];
+
+  // Get current size or use defaults
+  const currentWidth = component.data.properties?.width || 192; // w-48 = 192px
+  const currentHeight = component.data.properties?.height || 192; // h-48 = 192px
+
   return (
     <div
       className={`
-        relative w-48 h-48 cursor-pointer transition-all duration-300 transform
+        relative cursor-pointer transition-all duration-300 transform
         ${colorClasses[noteColor as keyof typeof colorClasses]} 
         ${neonGlow[noteColor as keyof typeof neonGlow]}
         border-2 rounded-lg shadow-lg
@@ -76,13 +99,35 @@ export const NoteComponent: React.FC<NoteComponentProps> = ({
       `}
       onClick={onSelect}
       style={{
-        fontFamily: 'Comic Sans MS, cursive'
+        fontFamily: 'Comic Sans MS, cursive',
+        width: currentWidth,
+        height: currentHeight
       }}
     >
       {/* Sticky note pin */}
       <div className="absolute -top-2 left-4 w-4 h-4 bg-red-500 rounded-full shadow-lg">
         <div className="absolute inset-1 bg-red-300 rounded-full"></div>
       </div>
+
+      {/* Size controls */}
+      {isSelected && (
+        <div className="absolute -top-8 left-0 right-0 flex justify-center space-x-1">
+          <div className="flex bg-black rounded px-1 space-x-1">
+            {sizePresets.map((preset, idx) => (
+              <button
+                key={idx}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleResize(preset.width, preset.height);
+                }}
+                className="w-6 h-6 text-xs bg-gray-700 hover:bg-gray-600 text-white rounded"
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Color picker dots */}
       <div className="absolute top-2 right-2 flex space-x-1">

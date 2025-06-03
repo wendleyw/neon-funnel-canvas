@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface CanvasHelpersProps {
@@ -15,13 +14,13 @@ export const CanvasHelpers: React.FC<CanvasHelpersProps> = ({
       {/* Helper text */}
       {connectingFrom && (
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse">
-          Clique em outro componente para conectar
+          Click another component to connect
         </div>
       )}
       
       {selectedConnection && (
         <div className="absolute top-16 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse">
-          Clique novamente na conexão ou no X para deletar
+          Click the connection again or X to delete
         </div>
       )}
     </>

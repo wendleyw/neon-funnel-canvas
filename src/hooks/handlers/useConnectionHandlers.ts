@@ -1,4 +1,3 @@
-
 import { useCallback } from 'react';
 import { Connection } from '../../types/funnel';
 
@@ -8,30 +7,38 @@ interface UseConnectionHandlersProps {
 
 export const useConnectionHandlers = ({ setProject }: UseConnectionHandlersProps) => {
   const handleConnectionAdd = useCallback((connection: Connection) => {
-    console.log('Adding connection:', connection);
+    console.log('[ConnectionHandlers] Adding connection:', connection);
+    
+    // Auto-enable neon animation for new connections
+    const animatedConnection = {
+      ...connection,
+      animated: true // Always enable neon animation by default
+    };
+    
     setProject(prev => {
       const updatedProject = {
         ...prev,
-        connections: [...prev.connections, connection],
+        connections: [...prev.connections, animatedConnection],
         updatedAt: new Date().toISOString()
       };
-      console.log('Project after connection add:', {
+      console.log('[ConnectionHandlers] Project after connection add:', {
         connectionsCount: updatedProject.connections.length,
-        newConnection: `${connection.from} -> ${connection.to}`
+        newConnection: `${connection.from} -> ${connection.to}`,
+        animated: animatedConnection.animated
       });
       return updatedProject;
     });
   }, [setProject]);
 
   const handleConnectionDelete = useCallback((connectionId: string) => {
-    console.log('Deleting connection:', connectionId);
+    console.log('[ConnectionHandlers] Deleting connection:', connectionId);
     setProject(prev => {
       const updatedProject = {
         ...prev,
         connections: prev.connections.filter(connection => connection.id !== connectionId),
         updatedAt: new Date().toISOString()
       };
-      console.log('Project after connection delete:', {
+      console.log('[ConnectionHandlers] Project after connection delete:', {
         connectionsCount: updatedProject.connections.length,
         deletedConnection: connectionId
       });
@@ -40,7 +47,7 @@ export const useConnectionHandlers = ({ setProject }: UseConnectionHandlersProps
   }, [setProject]);
 
   const handleConnectionUpdate = useCallback((connectionId: string, updates: Partial<Connection>) => {
-    console.log('Updating connection:', connectionId, updates);
+    console.log('[ConnectionHandlers] Updating connection:', connectionId, updates);
     setProject(prev => {
       const updatedProject = {
         ...prev,
@@ -49,9 +56,10 @@ export const useConnectionHandlers = ({ setProject }: UseConnectionHandlersProps
         ),
         updatedAt: new Date().toISOString()
       };
-      console.log('Project after connection update:', {
+      console.log('[ConnectionHandlers] Project after connection update:', {
         connectionsCount: updatedProject.connections.length,
-        updatedConnection: connectionId
+        updatedConnection: connectionId,
+        updateData: updates
       });
       return updatedProject;
     });

@@ -1,0 +1,281 @@
+{
+  "name": "neon-funnel-canvas",
+  "description": "Funnel Board - Visual platform for marketing funnel creation based on PRD v1.0",
+  "version": "1.0.0",
+  "prd": {
+    "document": "scripts/PRD.md",
+    "version": "1.0",
+    "lastAnalyzed": "2025-06-02T18:00:00Z"
+  },
+  "tasks": [
+    {
+      "id": "prd-analysis",
+      "title": "PRD Analysis & System Audit",
+      "description": "Analyze current system against PRD requirements and identify gaps",
+      "status": "in-progress", 
+      "priority": "critical",
+      "context": "architecture",
+      "tags": ["prd", "analysis", "audit", "requirements"],
+      "created": "2025-06-02T18:00:00Z",
+      "steps": [
+        "🔄 Read and analyze PRD.md thoroughly",
+        "⏳ Map current features to PRD user stories",
+        "⏳ Identify missing core features", 
+        "⏳ Assess current architecture vs PRD requirements",
+        "⏳ Create priority matrix for implementation"
+      ],
+      "prdMapping": {
+        "currentFeatures": {
+          "US3.1": "✅ Drag components from sidebar - WORKING",
+          "US3.2": "✅ Move components on canvas - WORKING", 
+          "US3.3": "✅ Connect components with lines - WORKING",
+          "US3.4": "✅ Zoom/pan canvas - WORKING",
+          "US3.8": "✅ Clear canvas - WORKING",
+          "US4.1": "✅ Component library - WORKING",
+          "US4.2": "✅ Select components - WORKING",
+          "US8.1": "✅ Main toolbar - WORKING"
+        },
+        "missingCritical": [
+          "US1.x - User Authentication (Supabase)",
+          "US2.x - Workspace & Project Management", 
+          "US4.3 - Component property editing modal",
+          "US5.3 - Connection property editing",
+          "US6.1 - Full-funnel templates",
+          "US7.x - Export functionality"
+        ],
+        "partialFeatures": [
+          "US4.1 - Component library (needs categorization)",
+          "US3.5 - Background grid (missing)",
+          "US3.6 - Mini-map (missing)",
+          "US6.3 - Component search/favorites"
+        ]
+      }
+    },
+    {
+      "id": "fix-current-issues", 
+      "title": "Fix Current Canvas Addition Issues",
+      "description": "Resolve the ongoing component/diagram addition problems before major refactor",
+      "status": "in-progress",
+      "priority": "high", 
+      "context": "canvas",
+      "tags": ["bug", "components", "diagrams", "canvas"],
+      "created": "2025-06-02T18:00:00Z",
+      "updated": "2025-06-02T18:15:00Z",
+      "steps": [
+        "✅ Created CanvasAddService",
+        "✅ Enhanced shape mapping", 
+        "✅ Added debug panel",
+        "🔄 User still reporting issues - investigating deeper",
+        "✅ Added enhanced debugging with state checks",
+        "✅ Added multiple test buttons for different component types",
+        "🔄 Testing component state persistence and canvas rendering"
+      ],
+      "investigation": {
+        "findings": [
+          "✅ CanvasAddService logs show components being created successfully",
+          "✅ Project state updates show component count increasing",
+          "✅ Canvas logs show components being rendered to DOM",
+          "❓ User still experiencing issues - need to identify specific problem",
+          "🔍 Added timeout checks to verify state persistence",
+          "🔍 Added debug state button to inspect current project"
+        ],
+        "nextSteps": [
+          "Test with multiple component types systematically",
+          "Check if components are visible but positioned incorrectly",
+          "Verify visual rendering vs logical addition",
+          "Test canvas viewport and positioning logic"
+        ]
+      },
+      "notes": [
+        "System shows all green lights in logs but user reports problems",
+        "Components appear to be added to state and rendered to canvas",
+        "May be visual positioning or viewport issue rather than addition issue",
+        "Need user to test with enhanced debug panel and report specific symptoms"
+      ]
+    },
+    {
+      "id": "user-auth-system",
+      "title": "US1.x - Implement User Authentication & Profile Management",
+      "description": "Implement complete user authentication system using Supabase",
+      "status": "planned",
+      "priority": "high",
+      "context": "auth",
+      "tags": ["auth", "supabase", "user-management"],
+      "created": "2025-06-02T18:00:00Z",
+      "prdRequirements": [
+        "US1.1: Create account with email/password",
+        "US1.2: Login with email/password", 
+        "US1.3: View/update profile information",
+        "US1.4: Secure logout"
+      ],
+      "steps": [
+        "⏳ Setup Supabase authentication", 
+        "⏳ Create login/register components",
+        "⏳ Implement profile management",
+        "⏳ Add auth state management",
+        "⏳ Protect routes with auth guards"
+      ]
+    },
+    {
+      "id": "workspace-project-mgmt",
+      "title": "US2.x - Workspace & Project Management System", 
+      "description": "Implement workspace and project management with Supabase persistence",
+      "status": "planned",
+      "priority": "high",
+      "context": "data-management", 
+      "tags": ["workspace", "projects", "supabase", "persistence"],
+      "created": "2025-06-02T18:00:00Z",
+      "prdRequirements": [
+        "US2.1: Create/manage multiple workspaces",
+        "US2.2: Name, describe, select, delete workspaces",
+        "US2.3: Create funnel projects from scratch/templates", 
+        "US2.4: Name, save, load, delete projects",
+        "US2.5: Persistent project data to Supabase"
+      ],
+      "steps": [
+        "⏳ Design workspace/project data models",
+        "⏳ Create Supabase tables and RLS policies", 
+        "⏳ Implement workspace management UI",
+        "⏳ Implement project management UI",
+        "⏳ Add auto-save functionality"
+      ]
+    },
+    {
+      "id": "component-property-editor",
+      "title": "US4.3 - Component Property Editor Modal",
+      "description": "Create comprehensive component property editing system",
+      "status": "planned",
+      "priority": "medium",
+      "context": "components",
+      "tags": ["editor", "properties", "modal", "components"],
+      "created": "2025-06-02T18:00:00Z", 
+      "prdRequirements": [
+        "US4.3: Edit common properties (title, description, URL, status, image)",
+        "US4.3: Edit type-specific properties",
+        "US4.6: Visual helper controls (color, size, direction, text, border)"
+      ],
+      "steps": [
+        "⏳ Design property editor modal UI",
+        "⏳ Create property forms for each component type",
+        "⏳ Implement visual helper specific controls", 
+        "⏳ Add property validation",
+        "⏳ Integrate with component selection system"
+      ]
+    },
+    {
+      "id": "template-system",
+      "title": "US6.x - Templates & Component Library Enhancement",
+      "description": "Enhance component library and implement full-funnel templates",
+      "status": "planned", 
+      "priority": "medium",
+      "context": "templates",
+      "tags": ["templates", "library", "categories", "search"],
+      "created": "2025-06-02T18:00:00Z",
+      "prdRequirements": [
+        "US6.1: Pre-built full-funnel templates by use case",
+        "US6.2: Load full-funnel templates",
+        "US6.3: Organized categories and search",
+        "US6.4: Favorite templates system"
+      ],
+      "steps": [
+        "⏳ Create full-funnel template data structure",
+        "⏳ Design template browser UI",
+        "⏳ Implement template loading system",
+        "⏳ Add search and filtering",
+        "⏳ Implement favorites system"
+      ]
+    },
+    {
+      "id": "export-system", 
+      "title": "US7.x - Export & Documentation Features",
+      "description": "Implement comprehensive export system for multiple formats",
+      "status": "planned",
+      "priority": "low",
+      "context": "export",
+      "tags": ["export", "documentation", "json", "figma", "miro"],
+      "created": "2025-06-02T18:00:00Z",
+      "prdRequirements": [
+        "US7.1: Export as JSON",
+        "US7.2: Export to Figma, Miro, LucidChart, Draw.io", 
+        "US7.3: Generate project documentation",
+        "US7.4: Git-compatible format export"
+      ],
+      "steps": [
+        "⏳ Implement JSON export/import",
+        "⏳ Create export adapters for external tools",
+        "⏳ Build documentation generator",
+        "⏳ Add Git integration support"
+      ]
+    },
+    {
+      "id": "performance-optimization",
+      "title": "NFR1 - Performance Optimization", 
+      "description": "Optimize canvas performance to meet PRD requirements (60 FPS, 50-100 components)",
+      "status": "planned",
+      "priority": "medium",
+      "context": "performance",
+      "tags": ["performance", "canvas", "optimization", "60fps"],
+      "created": "2025-06-02T18:00:00Z",
+      "requirements": [
+        "60 FPS with 50-100 components",
+        "< 3 seconds LCP on fast 3G",
+        "2-3 seconds save/load operations"
+      ],
+      "steps": [
+        "⏳ Implement canvas virtualization",
+        "⏳ Optimize component rendering",
+        "⏳ Add performance monitoring",
+        "⏳ Implement lazy loading",
+        "⏳ Bundle size optimization"
+      ]
+    }
+  ],
+  "contexts": {
+    "architecture": {
+      "description": "System architecture and design decisions"
+    },
+    "auth": {
+      "description": "Authentication and authorization"
+    },
+    "canvas": {
+      "description": "Canvas functionality and interactions"
+    },
+    "components": {
+      "description": "Component system and management"
+    },
+    "data-management": {
+      "description": "Data persistence and management"
+    },
+    "templates": {
+      "description": "Template system and library"
+    },
+    "export": {
+      "description": "Export and integration features"
+    },
+    "performance": {
+      "description": "Performance optimization and monitoring"
+    }
+  },
+  "integrations": {
+    "git": true,
+    "npm": true,
+    "supabase": true
+  },
+  "roadmap": {
+    "phase1": {
+      "name": "Core Stability & Essential Features",
+      "tasks": ["fix-current-issues", "user-auth-system", "workspace-project-mgmt", "component-property-editor"],
+      "target": "Q2 2025"
+    },
+    "phase2": {
+      "name": "Enhanced UX & Templates", 
+      "tasks": ["template-system", "performance-optimization"],
+      "target": "Q3 2025"
+    },
+    "phase3": {
+      "name": "Export & Integration",
+      "tasks": ["export-system"],
+      "target": "Q4 2025"
+    }
+  }
+} 

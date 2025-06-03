@@ -1,10 +1,10 @@
-
 import React from 'react';
 import { FunnelComponent } from '../../types/funnel';
 import { ComponentEditor } from '../ComponentEditor';
 import { NoteComponent } from '../VisualHelpers/NoteComponent';
 import { ArrowComponent } from '../VisualHelpers/ArrowComponent';
 import { FrameComponent } from '../VisualHelpers/FrameComponent';
+import { DiagramComponent } from '../VisualHelpers/DiagramComponent';
 
 interface ComponentNodeSpecialRendererProps {
   component: FunnelComponent;
@@ -37,7 +37,37 @@ export const ComponentNodeSpecialRenderer: React.FC<ComponentNodeSpecialRenderer
   onUpdateComponent,
   onCloseEditor
 }) => {
-  // Render note component
+  // FIRST: Check if it's a diagram shape (takes priority over component type)
+  if (component.data.properties?.isDiagramShape) {
+    return (
+      <>
+        <div
+          ref={nodeRef}
+          className={containerClassName}
+          style={containerStyle}
+          onMouseDown={onMouseDown}
+          onDoubleClick={onDoubleClick}
+        >
+          <DiagramComponent
+            component={component}
+            isSelected={isSelected}
+            onUpdate={onUpdate}
+            onDelete={onDelete}
+            onSelect={onSelect}
+          />
+        </div>
+        
+        <ComponentEditor
+          component={component}
+          onUpdate={onUpdateComponent}
+          onClose={onCloseEditor}
+          isOpen={isEditing}
+        />
+      </>
+    );
+  }
+
+  // SECOND: Render regular note component (for user-created notes)
   if (component.type === 'note') {
     return (
       <>

@@ -1,6 +1,5 @@
-
 import React, { useCallback, useState } from 'react';
-import { Square, Edit3, Trash2, Maximize2, Minimize2 } from 'lucide-react';
+import { Square, Edit3, Trash2, Maximize2, Minimize2, ChevronUp, ChevronDown } from 'lucide-react';
 import { FunnelComponent } from '../../types/funnel';
 import { Input } from '../ui/input';
 
@@ -58,6 +57,23 @@ export const FrameComponent: React.FC<FrameComponentProps> = ({
     dotted: 'border-2 border-dotted'
   };
 
+  // Get current size or use defaults
+  const currentWidth = component.data.properties?.width || 256; // w-64 = 256px
+  const currentHeight = component.data.properties?.height || 192; // h-48 = 192px
+
+  const handleResize = useCallback((newWidth: number, newHeight: number) => {
+    onUpdate(component.id, {
+      data: {
+        ...component.data,
+        properties: {
+          ...component.data.properties,
+          width: newWidth,
+          height: newHeight
+        }
+      }
+    });
+  }, [component.id, component.data, onUpdate]);
+
   const handleTitleSave = useCallback(() => {
     onUpdate(component.id, {
       data: {
@@ -80,17 +96,39 @@ export const FrameComponent: React.FC<FrameComponentProps> = ({
     });
   }, [component.id, component.data, onUpdate]);
 
+  const handleZIndexChange = useCallback((direction: 'front' | 'back') => {
+    const currentZIndex = component.data.properties?.zIndex || 1;
+    const newZIndex = direction === 'front' ? currentZIndex + 10 : Math.max(0, currentZIndex - 10);
+    
+    onUpdate(component.id, {
+      data: {
+        ...component.data,
+        properties: {
+          ...component.data.properties,
+          zIndex: newZIndex
+        }
+      }
+    });
+  }, [component.id, component.data, onUpdate]);
+
+  // Get current z-index
+  const currentZIndex = component.data.properties?.zIndex || 1;
+
   return (
     <div
       className={`
         relative cursor-pointer transition-all duration-300 rounded-lg backdrop-blur-sm
-        ${sizes[frameSize as keyof typeof sizes]}
         ${colors[frameColor as keyof typeof colors]}
         ${glows[frameColor as keyof typeof glows]}
         ${borderStyles[borderStyle as keyof typeof borderStyles]}
         ${isSelected ? 'scale-105 ring-2 ring-white ring-opacity-50' : 'hover:scale-102'}
       `}
       onClick={onSelect}
+      style={{
+        width: currentWidth,
+        height: currentHeight,
+        zIndex: currentZIndex
+      }}
     >
       {/* Frame title */}
       <div className="absolute -top-6 left-2">
@@ -130,6 +168,87 @@ export const FrameComponent: React.FC<FrameComponentProps> = ({
           <p className="text-xs mt-1">{component.data.description || 'Organize seus componentes aqui'}</p>
         </div>
       </div>
+
+      {/* Resize Handles - só aparecem quando selecionado */}
+      {isSelected && (
+        <>
+          {/* Right handle */}
+          <div
+            className="absolute top-0 -right-1 w-2 h-full cursor-ew-resize bg-blue-500 bg-opacity-0 hover:bg-opacity-50 transition-colors"
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              const startX = e.clientX;
+              const startWidth = currentWidth;
+
+              const handleMouseMove = (e: MouseEvent) => {
+                const deltaX = e.clientX - startX;
+                const newWidth = Math.max(100, startWidth + deltaX);
+                handleResize(newWidth, currentHeight);
+              };
+
+              const handleMouseUp = () => {
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+              };
+
+              document.addEventListener('mousemove', handleMouseMove);
+              document.addEventListener('mouseup', handleMouseUp);
+            }}
+          />
+
+          {/* Bottom handle */}
+          <div
+            className="absolute -bottom-1 left-0 w-full h-2 cursor-ns-resize bg-blue-500 bg-opacity-0 hover:bg-opacity-50 transition-colors"
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              const startY = e.clientY;
+              const startHeight = currentHeight;
+
+              const handleMouseMove = (e: MouseEvent) => {
+                const deltaY = e.clientY - startY;
+                const newHeight = Math.max(80, startHeight + deltaY);
+                handleResize(currentWidth, newHeight);
+              };
+
+              const handleMouseUp = () => {
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+              };
+
+              document.addEventListener('mousemove', handleMouseMove);
+              document.addEventListener('mouseup', handleMouseUp);
+            }}
+          />
+
+          {/* Bottom-right corner handle */}
+          <div
+            className="absolute -bottom-1 -right-1 w-3 h-3 cursor-nwse-resize bg-blue-500 bg-opacity-0 hover:bg-opacity-50 transition-colors"
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              const startX = e.clientX;
+              const startY = e.clientY;
+              const startWidth = currentWidth;
+              const startHeight = currentHeight;
+
+              const handleMouseMove = (e: MouseEvent) => {
+                const deltaX = e.clientX - startX;
+                const deltaY = e.clientY - startY;
+                const newWidth = Math.max(100, startWidth + deltaX);
+                const newHeight = Math.max(80, startHeight + deltaY);
+                handleResize(newWidth, newHeight);
+              };
+
+              const handleMouseUp = () => {
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+              };
+
+              document.addEventListener('mousemove', handleMouseMove);
+              document.addEventListener('mouseup', handleMouseUp);
+            }}
+          />
+        </>
+      )}
 
       {/* Controls */}
       {isSelected && (
@@ -206,6 +325,30 @@ export const FrameComponent: React.FC<FrameComponentProps> = ({
           >
             <Trash2 className="w-3 h-3 text-white" />
           </button>
+
+          {/* Layer Controls */}
+          <div className="flex flex-col">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleZIndexChange('front');
+              }}
+              className="w-6 h-3 bg-gray-600 hover:bg-gray-500 rounded-t flex items-center justify-center"
+              title="Trazer para Frente"
+            >
+              <ChevronUp className="w-3 h-3 text-white" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleZIndexChange('back');
+              }}
+              className="w-6 h-3 bg-gray-700 hover:bg-gray-600 rounded-b flex items-center justify-center"
+              title="Enviar para Trás"
+            >
+              <ChevronDown className="w-3 h-3 text-white" />
+            </button>
+          </div>
         </div>
       )}
     </div>

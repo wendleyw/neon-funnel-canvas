@@ -1,9 +1,19 @@
-import React from 'react';
-import { ArrowRight, Settings, Trash2, MoreVertical } from 'lucide-react';
-import { ComponentNodeHeader } from './ComponentNodeHeader';
-import { ComponentNodeContent } from './ComponentNodeContent';
-import { ComponentNodeConnectionPoints } from './ComponentNodeConnectionPoints';
+import React, { useState } from 'react';
 import { FunnelComponent, ComponentTemplate } from '../../types/funnel';
+import { 
+  Edit2, 
+  Trash2, 
+  Link, 
+  Copy, 
+  MoreHorizontal, 
+  Play,
+  Pause,
+  BarChart3,
+  TrendingUp,
+  Eye,
+  Settings,
+  Zap
+} from 'lucide-react';
 
 interface ComponentNodeCardProps {
   component: FunnelComponent;
@@ -11,10 +21,10 @@ interface ComponentNodeCardProps {
   isSelected: boolean;
   isConnecting: boolean;
   canConnect: boolean;
-  onEditClick: (e: React.MouseEvent) => void;
-  onDeleteClick: (e: React.MouseEvent) => void;
-  onConnectionClick: (e: React.MouseEvent) => void;
-  onDuplicateClick: (e: React.MouseEvent) => void;
+  onEditClick: () => void;
+  onDeleteClick: () => void;
+  onConnectionClick: () => void;
+  onDuplicateClick?: () => void;
 }
 
 export const ComponentNodeCard: React.FC<ComponentNodeCardProps> = ({
@@ -28,198 +38,273 @@ export const ComponentNodeCard: React.FC<ComponentNodeCardProps> = ({
   onConnectionClick,
   onDuplicateClick
 }) => {
-  const getStatusColor = (status: string) => {
+  const [showActions, setShowActions] = useState(false);
+
+  // Get status info with better design
+  const getStatusInfo = () => {
+    const status = component.data.status;
     switch (status) {
       case 'active':
-        return 'bg-green-500';
-      case 'test':
-        return 'bg-yellow-500';
-      case 'published':
-        return 'bg-blue-500';
-      case 'inactive':
-        return 'bg-red-500';
+        return { color: '#10B981', bgColor: '#10B98115', icon: Play, text: 'Live' };
+      case 'paused':
+        return { color: '#F59E0B', bgColor: '#F59E0B15', icon: Pause, text: 'Paused' };
+      case 'draft':
+        return { color: '#6B7280', bgColor: '#6B728015', icon: Settings, text: 'Draft' };
       default:
-        return 'bg-gray-500';
+        return { color: '#8B5CF6', bgColor: '#8B5CF615', icon: Zap, text: 'Ready' };
     }
   };
 
-  const getStatusGlow = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'shadow-green-500/50';
-      case 'test':
-        return 'shadow-yellow-500/50';
-      case 'published':
-        return 'shadow-blue-500/50';
-      case 'inactive':
-        return 'shadow-red-500/50';
-      default:
-        return 'shadow-gray-500/50';
+  const statusInfo = getStatusInfo();
+  const StatusIcon = statusInfo.icon;
+
+  // Get metrics based on component type
+  const getMetrics = () => {
+    const props = component.data.properties;
+    if (template.category === 'traffic-sources') {
+      return {
+        primary: props?.impressions || '12.5K',
+        secondary: props?.clicks || '856',
+        primaryLabel: 'Impressions',
+        secondaryLabel: 'Clicks'
+      };
     }
+    if (template.category === 'lead-capture') {
+      return {
+        primary: props?.conversion_rate || '24%',
+        secondary: props?.leads || '205',
+        primaryLabel: 'Conv. Rate',
+        secondaryLabel: 'Leads'
+      };
+    }
+    if (template.category === 'sales-conversion') {
+      return {
+        primary: props?.revenue || '$12.4K',
+        secondary: props?.orders || '42',
+        primaryLabel: 'Revenue',
+        secondaryLabel: 'Orders'
+      };
+    }
+    return {
+      primary: props?.value || '100%',
+      secondary: props?.count || '—',
+      primaryLabel: 'Performance',
+      secondaryLabel: 'Volume'
+    };
   };
+
+  const metrics = getMetrics();
 
   return (
-    <div className={`w-72 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl border shadow-2xl hover:shadow-3xl transition-all duration-500 relative group overflow-hidden backdrop-blur-sm ${
-      canConnect 
-        ? 'border-green-400/70 animate-pulse cursor-pointer hover:border-green-300 hover:shadow-green-500/30' 
-        : isSelected 
-          ? 'border-cyan-400/70 hover:border-cyan-300' 
-          : 'border-gray-700/50 hover:border-gray-600/70'
-    }`}>
-      {/* Neon border effect */}
-      <div 
-        className={`absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none ${
-          canConnect ? 'from-green-500/20 via-green-400/10 to-green-500/20' : ''
-        }`}
-        style={{
-          background: canConnect 
-            ? `linear-gradient(45deg, transparent, rgba(34, 197, 94, 0.3), transparent)`
-            : `linear-gradient(45deg, transparent, ${template.color}30, transparent)`
-        }}
-      />
-      
-      {/* Inner glow effect */}
-      <div 
-        className={`absolute inset-[1px] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none ${
-          canConnect ? 'opacity-100' : ''
-        }`}
-        style={{
-          background: canConnect 
-            ? `linear-gradient(135deg, rgba(34, 197, 94, 0.2), transparent, rgba(34, 197, 94, 0.2))`
-            : `linear-gradient(135deg, ${template.color}10, transparent, ${template.color}10)`,
-          boxShadow: canConnect 
-            ? `inset 0 0 20px rgba(34, 197, 94, 0.3)`
-            : `inset 0 0 20px ${template.color}20`
-        }}
-      />
-
-      {/* Header com gradiente neon baseado na cor do template */}
-      <div 
-        className="h-4 w-full relative overflow-hidden"
-        style={{ 
-          background: `linear-gradient(135deg, ${template.color}, ${template.color}80, ${template.color}60)` 
-        }}
+    <div className="group relative">
+      {/* Main Card - Funnellytics Style */}
+      <div
+        className={`
+          relative w-72 bg-white rounded-xl shadow-sm border-2 overflow-hidden component-card-modern
+          transition-all duration-300 ease-out hover:shadow-lg hover:-translate-y-0.5
+          ${isSelected ? 'border-blue-500 shadow-blue-500/20 ring-4 ring-blue-500/10' : 'border-gray-200 hover:border-gray-300'}
+          ${canConnect ? 'border-green-500 border-4 shadow-green-500/30 animate-pulse' : ''}
+          ${isConnecting ? 'ring-2 ring-blue-500/50' : ''}
+        `}
+        onMouseEnter={() => setShowActions(true)}
+        onMouseLeave={() => setShowActions(false)}
       >
-        {/* Animated light streak */}
+        {/* Header Strip with Gradient */}
         <div 
-          className="absolute top-0 left-0 w-full h-full opacity-50 group-hover:opacity-100 transition-opacity duration-500"
-          style={{
-            background: `linear-gradient(90deg, transparent, ${template.color}40, transparent)`,
-            animation: 'shimmer 3s infinite'
+          className="h-2 w-full relative overflow-hidden"
+          style={{ 
+            background: `linear-gradient(90deg, ${template.color}, ${template.color}CC, ${template.color}99)`
           }}
-        />
-        
-        {/* Status indicator no canto superior direito com glow */}
-        <div className="absolute top-1 right-3">
-          <div className={`w-3 h-3 rounded-full ${getStatusColor(component.data.status)} border border-white/50 shadow-lg ${getStatusGlow(component.data.status)} animate-pulse`} />
+        >
+          <div 
+            className="absolute inset-0 opacity-50"
+            style={{
+              background: `linear-gradient(90deg, transparent, ${template.color}40, transparent)`,
+              animation: 'shimmer 3s infinite'
+            }}
+          />
         </div>
-      </div>
-      
-      {/* Header do componente melhorado */}
-      <div className="p-4 pb-2 relative z-10">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-3">
-            <div 
-              className="w-12 h-12 rounded-xl flex items-center justify-center text-lg shadow-lg relative overflow-hidden group/icon"
-              style={{ 
-                backgroundColor: `${template.color}20`, 
-                color: template.color,
-                boxShadow: `0 0 20px ${template.color}20`
-              }}
-            >
-              {/* Icon glow effect */}
-              <div 
-                className="absolute inset-0 rounded-xl opacity-0 group-hover/icon:opacity-100 transition-opacity duration-300"
-                style={{
-                  background: `radial-gradient(circle, ${template.color}30, transparent)`,
-                  filter: 'blur(8px)'
-                }}
-              />
-              <span className="relative z-10">{template.icon}</span>
+
+        {/* Content */}
+        <div className="p-5">
+          {/* Header Row */}
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              {/* Enhanced Icon */}
+              <div className="relative">
+                <div 
+                  className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-medium shadow-sm border"
+                  style={{ 
+                    backgroundColor: `${template.color}10`,
+                    borderColor: `${template.color}20`,
+                    color: template.color
+                  }}
+                >
+                  {template.icon}
+                </div>
+                {/* Status indicator on icon */}
+                <div 
+                  className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center"
+                  style={{ backgroundColor: statusInfo.color }}
+                >
+                  <StatusIcon className="w-2.5 h-2.5 text-white" />
+                </div>
+              </div>
+              
+              {/* Title and Category */}
+              <div className="min-w-0 flex-1">
+                <h3 className="font-semibold text-gray-900 text-base leading-tight truncate">
+                  {component.data.title || template.label}
+                </h3>
+                <div className="flex items-center gap-2 mt-1">
+                  <span 
+                    className="text-xs px-2 py-1 rounded-full font-medium border"
+                    style={{ 
+                      backgroundColor: statusInfo.bgColor,
+                      color: statusInfo.color,
+                      borderColor: `${statusInfo.color}30`
+                    }}
+                  >
+                    {statusInfo.text}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {template.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                  </span>
+                </div>
+              </div>
             </div>
-            <div>
-              <h3 className="text-white font-semibold text-sm mb-1 group-hover:text-white/90 transition-colors">
-                {template.label}
-              </h3>
-              <p className="text-gray-400 text-xs uppercase tracking-wider font-medium">
-                {component.type}
-              </p>
+
+            {/* Enhanced Actions */}
+            <div className={`transition-all duration-200 ${showActions || isSelected ? 'opacity-100' : 'opacity-0'}`}>
+              <div className="flex items-center gap-1">
+                {/* Quick Stats Button */}
+                <button
+                  className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 hover:scale-105 action-button"
+                  title="View Analytics"
+                >
+                  <BarChart3 className="w-4 h-4" />
+                </button>
+
+                {/* Primary Actions */}
+                <div className="flex items-center bg-gray-50 rounded-lg p-1 border">
+                  <button
+                    onClick={onEditClick}
+                    className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-white rounded-md transition-all duration-200 hover:scale-105 action-button"
+                    title="Edit Component"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={onConnectionClick}
+                    className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all duration-200 hover:scale-105 action-button"
+                    title="Connect"
+                  >
+                    <Link className="w-4 h-4" />
+                  </button>
+                  {onDuplicateClick && (
+                    <button
+                      onClick={onDuplicateClick}
+                      className="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-md transition-all duration-200 hover:scale-105 action-button"
+                      title="Duplicate"
+                    >
+                      <Copy className="w-4 h-4" />
+                    </button>
+                  )}
+                  <button
+                    onClick={onDeleteClick}
+                    className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-all duration-200 hover:scale-105 action-button"
+                    title="Delete"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-      
-      {/* Enhanced indicator para modo de conexão */}
-      {canConnect && (
-        <>
-          <div className="absolute -top-4 -right-4 w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg z-20">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 animate-ping opacity-75" />
-            <ArrowRight className="w-6 h-6 relative z-10" />
-          </div>
-          
-          {/* Floating connection hint */}
-          <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-3 py-1 rounded-lg text-xs font-medium shadow-lg animate-bounce z-20">
-            Click to Connect
-          </div>
-        </>
-      )}
-      
-      {/* Conteúdo do componente */}
-      <div className="px-4 pb-4 relative z-10">
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 mb-3 border border-gray-700/30 group-hover:border-gray-600/30 transition-colors duration-300">
-          <h4 className="text-white font-medium text-sm mb-2 leading-tight">
-            {component.data.title}
-          </h4>
+
+          {/* Description */}
           {component.data.description && (
-            <p className="text-gray-400 text-xs line-clamp-2 leading-relaxed">
+            <p className="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed">
               {component.data.description}
             </p>
           )}
-        </div>
-        
-        {/* Status e informações */}
-        <div className="flex justify-between items-center text-xs">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1">
-              <div 
-                className="w-2 h-2 rounded-full animate-pulse shadow-sm"
-                style={{ 
-                  backgroundColor: template.color,
-                  boxShadow: `0 0 6px ${template.color}50`
-                }}
-              />
-              <span className="text-gray-400 font-medium">Online</span>
+
+          {/* Metrics Dashboard */}
+          <div className="bg-gray-50 rounded-lg p-3 border">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center">
+                <div className="text-lg font-semibold text-gray-900">{metrics.primary}</div>
+                <div className="text-xs text-gray-500 uppercase tracking-wide">{metrics.primaryLabel}</div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-semibold text-gray-900">{metrics.secondary}</div>
+                <div className="text-xs text-gray-500 uppercase tracking-wide">{metrics.secondaryLabel}</div>
+              </div>
+            </div>
+            
+            {/* Performance Indicator */}
+            <div className="mt-3 pt-3 border-t border-gray-200">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-gray-500">Performance</span>
+                <div className="flex items-center gap-1 text-green-600">
+                  <TrendingUp className="w-3 h-3" />
+                  <span className="font-medium">+12.5%</span>
+                </div>
+              </div>
+              <div className="mt-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                <div 
+                  className="h-full rounded-full transition-all duration-300 performance-bar"
+                  style={{ 
+                    width: '68%',
+                    background: `linear-gradient(90deg, ${template.color}, ${template.color}CC)`
+                  }}
+                />
+              </div>
             </div>
           </div>
-          <div className="text-gray-500 text-xs bg-gray-800/30 px-2 py-1 rounded-md">
-            {component.data.status}
+
+          {/* Quick Info Tags */}
+          <div className="flex items-center justify-between mt-3">
+            <div className="flex items-center gap-2">
+              <Eye className="w-3 h-3 text-gray-400" />
+              <span className="text-xs text-gray-500">Live tracking</span>
+            </div>
+            <div className="text-xs text-gray-400">
+              ID: {component.id.slice(-6)}
+            </div>
           </div>
         </div>
+
+        {/* Connection Indicator Overlay */}
+        {canConnect && (
+          <div className="absolute inset-0 rounded-xl bg-green-500/5 border-4 border-green-500 animate-pulse flex items-center justify-center">
+            <div className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+              Click to Connect
+            </div>
+          </div>
+        )}
+
+        {/* Selection Glow */}
+        {isSelected && !canConnect && (
+          <div 
+            className="absolute inset-0 rounded-xl pointer-events-none"
+            style={{
+              background: `linear-gradient(135deg, ${template.color}05, transparent 70%)`,
+              boxShadow: `inset 0 0 0 1px ${template.color}20`
+            }}
+          />
+        )}
       </div>
-      
-      {/* Pontos de conexão */}
-      <ComponentNodeConnectionPoints />
-      
-      {/* Enhanced glow effect quando selecionado */}
-      {isSelected && (
-        <>
-          {/* Main selection glow */}
-          <div 
-            className="absolute inset-0 rounded-2xl pointer-events-none animate-pulse"
-            style={{
-              boxShadow: `0 0 0 2px ${template.color}60, 0 0 30px ${template.color}30, 0 0 60px ${template.color}20`
-            }}
-          />
-          
-          {/* Inner rim glow */}
-          <div 
-            className="absolute inset-[2px] rounded-2xl pointer-events-none"
-            style={{
-              boxShadow: `inset 0 0 20px ${template.color}20`
-            }}
-          />
-        </>
-      )}
+
+      {/* Enhanced Connection Points */}
+      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 rounded-full border-2 border-white shadow-sm opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-125 connection-point" 
+           style={{ backgroundColor: template.color }} />
+      <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-4 rounded-full border-2 border-white shadow-sm opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-125 connection-point"
+           style={{ backgroundColor: template.color }} />
+      <div className="absolute -left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 rounded-full border-2 border-white shadow-sm opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-125 connection-point"
+           style={{ backgroundColor: template.color }} />
+      <div className="absolute -right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 rounded-full border-2 border-white shadow-sm opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-125 connection-point"
+           style={{ backgroundColor: template.color }} />
     </div>
   );
 };

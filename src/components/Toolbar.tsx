@@ -1,7 +1,7 @@
-
 import React, { useState } from 'react';
 import { ArrowLeft, Download } from 'lucide-react';
 import { AdvancedExportModal } from './AdvancedExportModal';
+import { NeonAnimationToggle } from './NeonAnimationToggle';
 import { FunnelProject } from '../types/funnel';
 
 interface ToolbarProps {
@@ -30,6 +30,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   project
 }) => {
   const [showAdvancedExport, setShowAdvancedExport] = useState(false);
+
+  const animatedConnectionsCount = project.connections.filter(c => c.animated).length;
 
   return (
     <>
@@ -101,10 +103,12 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         </div>
 
         {/* Right Section */}
-        <div className="hidden lg:flex items-center space-x-3">
-          <div className="text-gray-400 text-xs">
-            Componentes: <span className="text-white font-medium">{componentsCount}</span>
-          </div>
+        <div className="flex items-center space-x-3">
+          {/* Neon Animation Toggle */}
+          <NeonAnimationToggle 
+            connectionsCount={project.connections.length}
+            animatedConnectionsCount={animatedConnectionsCount}
+          />
         </div>
       </div>
 

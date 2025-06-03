@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Copy, Link, Edit, Trash2 } from 'lucide-react';
 import { FunnelComponent } from '../../types/funnel';
 
@@ -25,14 +25,16 @@ export const ComponentNodeActions: React.FC<ComponentNodeActionsProps> = ({
     return null;
   }
 
+  const actionStyle = useMemo(() => ({
+    left: component.position.x + 5000 + 220, // Position to the right of the component
+    top: component.position.y + 5000,
+    zIndex: 10000 // Always above components
+  }), [component.position.x, component.position.y]);
+
   return (
     <div 
       className="absolute flex items-center justify-center gap-2 pointer-events-auto"
-      style={{
-        left: (component.position.x + 5000) + 136, // Centraliza ao lado direito do card (272px/2 = 136px)
-        top: (component.position.y + 5000) - 10, // Ligeiramente acima do card
-        zIndex: 1001
-      }}
+      style={actionStyle}
     >
       {/* Botão de Editar */}
       {onEditClick && (

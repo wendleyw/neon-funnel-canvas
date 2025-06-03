@@ -82,18 +82,28 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
   const containerStyle = useMemo(() => ({
     left: component.position.x + 5000,
     top: component.position.y + 5000,
-    zIndex: isSelected ? 1000 : isDragging ? 999 : 1
+    zIndex: isDragging ? 9999 : isSelected ? 1000 : 1,
+    willChange: isDragging ? 'transform' : 'auto',
+    transform: isDragging ? 'translateZ(0)' : 'none'
   }), [component.position.x, component.position.y, isSelected, isDragging]);
 
   const containerClassName = useMemo(() => {
-    let classes = `absolute select-none transition-all duration-200 ${
-      isDragging ? 'cursor-grabbing scale-105' : 'cursor-grab'
+    let classes = `absolute select-none component-node ${
+      isDragging ? 'cursor-grabbing dragging' : 'cursor-grab'
     }`;
+    
+    if (!isDragging) {
+      classes += ' transition-all duration-200';
+    }
+    
+    if (isDragging) {
+      classes += ' scale-105';
+    }
     
     if (canConnect) {
       classes += ' ring-4 ring-green-500 ring-opacity-70 animate-pulse cursor-pointer';
-    } else if (isSelected) {
-      classes += ' ring-2 ring-blue-400 ring-opacity-50';
+    } else if (isSelected && !isDragging) {
+      classes += ' selection-ring ring-2 ring-blue-400 ring-opacity-50';
     }
     
     return classes;
