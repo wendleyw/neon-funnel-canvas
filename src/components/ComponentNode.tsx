@@ -4,7 +4,7 @@ import { useComponentTemplates } from '../hooks/useComponentTemplates';
 import { useComponentDrag } from '../hooks/canvas/useComponentDrag';
 import { useComponentNodeHandlers } from '../hooks/useComponentNodeHandlers';
 import { ComponentEditor } from './ComponentEditor';
-import { ComponentNodeCard } from './ComponentNode/ComponentNodeCard';
+import { ComponentNodeCardSimple } from './ComponentNode/ComponentNodeCardSimple';
 import { ComponentNodeSpecialRenderer } from './ComponentNode/ComponentNodeSpecialRenderer';
 import { ComponentNodeActions } from './ComponentNode/ComponentNodeActions';
 
@@ -141,7 +141,7 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
         onDoubleClick={handlers.handleDoubleClick}
         onClick={handlers.handleClick}
       >
-        <ComponentNodeCard
+        <ComponentNodeCardSimple
           component={component}
           template={template}
           isSelected={isSelected}

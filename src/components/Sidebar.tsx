@@ -24,10 +24,18 @@ export const Sidebar = React.memo<SidebarProps>(({
   connectionCount = 0,
   onPanelStateChange
 }) => {
+  
+  // FIXED: Simple pass-through adapter - just pass the template directly
+  const handleDragStartAdapter = useCallback((template: ComponentTemplate) => {
+    console.log('[Sidebar] Drag start adapter called with template:', template.label);
+    // Just pass the template directly - no synthetic events needed
+    onDragStart(template);
+  }, [onDragStart]);
+
   return (
     <ErrorBoundary>
       <IconSidebar
-        onDragStart={onDragStart}
+        onDragStart={handleDragStartAdapter}
         onAddCompleteTemplate={onAddCompleteTemplate}
         onShapeAdd={onShapeAdd}
         onTemplateClick={onTemplateClick}

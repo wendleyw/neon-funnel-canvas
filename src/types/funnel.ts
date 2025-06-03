@@ -1,9 +1,37 @@
 export interface FunnelComponent {
   id: string;
   type: 
-    // Fontes de Tráfego
-    | 'social-ads' | 'facebook-ads' | 'instagram-ads' | 'tiktok-ads' | 'google-ads' | 'google-search' | 'google-display' | 'youtube-ads' 
-    | 'seo-organic' | 'email-traffic' | 'content-blog' | 'content-video' | 'content-podcast'
+    // Fontes de Tráfego - Paid
+    | 'facebook-ads' | 'instagram-ads' | 'google-ads' | 'bing-ads' | 'youtube-ads' | 'linkedin-ads' 
+    | 'tiktok-ads' | 'twitter-ads' | 'pinterest-ads' | 'snapchat-ads' | 'reddit-ads'
+    // Fontes de Tráfego - Search
+    | 'google-organic' | 'bing-organic' | 'youtube-organic' | 'all-search'
+    // Fontes de Tráfego - Social
+    | 'facebook-organic' | 'instagram-organic' | 'pinterest-organic' | 'reddit-organic' 
+    | 'linkedin-organic' | 'tiktok-organic' | 'x-organic'
+    // Fontes de Tráfego - Messaging
+    | 'whatsapp-business' | 'telegram-marketing' | 'facebook-messenger' | 'slack-marketing' 
+    | 'sms-marketing' | 'chatbot-marketing'
+    // Fontes de Tráfego - CRM
+    | 'ontraport-crm' | 'keap-crm' | 'hubspot-crm' | 'salesforce-crm' | 'pipedrive-crm' | 'mailchimp-crm'
+    | 'intercom-crm' | 'marketo-crm' | 'constant-contact-crm' | 'activecampaign-crm' | 'drip-crm'
+    // Fontes de Tráfego - Other Sites
+    | 'zoho-site' | 'yelp-site' | 'zendesk-site' | 'drift-site' | 'gotomeeting-site' | 'amazon-site'
+    | 'zoom-site' | 'gmail-site' | 'spotify-site' | 'snapchat-site' | 'clutch-site' | 'googlemaps-site'
+    // Fontes de Tráfego - Offline
+    | 'job-interview' | 'print-advertising' | 'event-marketing' | 'online-meeting' | 'banner-advertising'
+    | 'direct-mail' | 'tv-advertising' | 'biz-directory' | 'workshop-seminar' | 'radio-advertising'
+    | 'guest-blog' | 'job-site' | 'meeting-networking' | 'billboard-advertising' | 'business-card'
+    | 'career-site' | 'phone-marketing' | 'report-marketing' | 'qr-code'
+    // Fontes de Tráfego - Content & Events
+    | 'webinar-traffic' | 'podcast-marketing' | 'content-marketing' | 'influencer-marketing' | 'referral-traffic'
+    // Fontes de Tráfego - Other
+    | 'email-marketing' | 'direct-traffic' | 'affiliate-marketing'
+    // Custom Icons
+    | 'custom-uploaded-icon'
+    // Legacy types (manter compatibilidade)
+    | 'social-ads' | 'google-search' | 'google-display' | 'seo-organic' | 'email-traffic' 
+    | 'content-blog' | 'content-video' | 'content-podcast'
     // Captura de Leads e Engajamento
     | 'landing-page' | 'quiz' | 'form' | 'cta-button' | 'lead-magnet' | 'ebook' | 'checklist' | 'webinar' | 'template-offer'
     // Nutrição e Relacionamento
@@ -22,6 +50,16 @@ export interface FunnelComponent {
     | 'content-piece' | 'keyword' | 'distribution-channel'
     // MarTech Stack
     | 'crm-tool' | 'automation-tool' | 'ads-tool' | 'analytics-tool' | 'content-tool' | 'sales-tool' | 'communication-tool'
+    
+    // === USER ACTIONS (Ações do Usuário) ===
+    // Conversion Actions
+    | 'purchase' | 'form-completion' | 'schedule-meeting' | 'deal-won'
+    // Engagement Actions  
+    | 'watch-video' | 'link-click' | 'scroll' | 'button-click' | 'deal-status'
+    // Integration Actions
+    | 'ghl-appointment' | 'ghl-order' | 'ghl-opportunity-orange' | 'ghl-opportunity-green' | 'hubspot-deal' | 'hubspot-deal-status'
+    // Custom Actions
+    | 'add-to-list' | 'contact' | 'request-content' | 'request-info' | 'popup' | 'add-to-cart' | 'add-tag'
     
     // === FASE 2: DIAGRAMAS ESPECIALIZADOS ===
     

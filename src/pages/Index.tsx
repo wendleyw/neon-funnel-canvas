@@ -1,5 +1,5 @@
-
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { WorkspaceSelector } from '../components/WorkspaceSelector';
 import { FunnelEditor } from '../components/FunnelEditor';
 import { useWorkspace } from '../hooks/useWorkspace';
@@ -34,26 +34,30 @@ const Index = () => {
 
   if (!isInEditor) {
     return (
-      <WorkspaceSelector
-        onProjectSelect={projectHandlers.handleProjectSelect}
-        onNewProject={projectHandlers.handleNewProject}
-      />
+      <div className="relative">
+        <WorkspaceSelector
+          onProjectSelect={projectHandlers.handleProjectSelect}
+          onNewProject={projectHandlers.handleNewProject}
+        />
+      </div>
     );
   }
 
   return (
-    <FunnelEditor
-      project={project}
-      setProject={setProject}
-      currentProjectId={currentProjectId}
-      setCurrentProjectId={setCurrentProjectId}
-      loadProjectData={loadProjectData}
-      resetProject={resetProject}
-      enterEditor={enterEditor}
-      onBackToWorkspace={exitEditor}
-      handleProjectNameChange={handleProjectNameChange}
-      currentWorkspace={currentWorkspace}
-    />
+    <div className="relative">
+      <FunnelEditor
+        project={project}
+        setProject={setProject}
+        currentProjectId={currentProjectId}
+        setCurrentProjectId={setCurrentProjectId}
+        loadProjectData={loadProjectData}
+        resetProject={resetProject}
+        enterEditor={enterEditor}
+        onBackToWorkspace={exitEditor}
+        handleProjectNameChange={handleProjectNameChange}
+        currentWorkspace={currentWorkspace}
+      />
+    </div>
   );
 };
 

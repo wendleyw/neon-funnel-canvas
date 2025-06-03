@@ -1009,3 +1009,478 @@ html {
   backface-visibility: hidden;
   perspective: 1000px;
 }
+
+/* React Flow Dark Theme Customizations */
+.react-flow-dark {
+  background: #000000;
+}
+
+.react-flow-controls-dark .react-flow__controls-button {
+  background: #374151 !important;
+  border: 1px solid #4B5563 !important;
+  fill: #F3F4F6 !important;
+}
+
+.react-flow-controls-dark .react-flow__controls-button:hover {
+  background: #4B5563 !important;
+}
+
+.react-flow-minimap-dark {
+  background: #1F2937 !important;
+  border: 1px solid #374151 !important;
+  border-radius: 0.5rem;
+}
+
+.react-flow-minimap-dark .react-flow__minimap-mask {
+  fill: rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Custom Node Styles */
+.react-flow__node {
+  background: #1F2937;
+  border: 2px solid #374151;
+  border-radius: 0.5rem;
+  color: #F3F4F6;
+  padding: 10px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+.react-flow__node:hover {
+  border-color: #6B7280;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
+.react-flow__node.selected {
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+/* Custom Edge Styles */
+.react-flow__edge-path {
+  stroke: #6B7280;
+  stroke-width: 2;
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: #3B82F6;
+  stroke-width: 3;
+}
+
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke: #9CA3AF;
+}
+
+/* Handle Styles */
+.react-flow__handle {
+  background: #4B5563;
+  border: 2px solid #6B7280;
+  width: 8px;
+  height: 8px;
+}
+
+.react-flow__handle:hover {
+  background: #6B7280;
+  border-color: #9CA3AF;
+}
+
+.react-flow__handle-connecting {
+  background: #3B82F6 !important;
+  border-color: #1D4ED8 !important;
+}
+
+/* Attribution */
+.react-flow__attribution {
+  background: rgba(31, 41, 55, 0.8) !important;
+  color: #9CA3AF !important;
+  border: 1px solid #374151 !important;
+  border-radius: 0.25rem;
+}
+
+/* Custom React Flow Styles */
+.react-flow__edge-path {
+  transition: stroke 0.2s ease-in-out;
+}
+
+/* Animated edge dash effect */
+@keyframes dash {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
+
+.animated-edge {
+  stroke-dasharray: 5,5;
+  animation: dash 1s linear infinite;
+}
+
+/* Connection mode styles */
+.connection-mode {
+  cursor: crosshair !important;
+}
+
+.connection-source {
+  filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5));
+}
+
+.connection-target {
+  transition: all 0.2s ease-in-out;
+}
+
+.connection-target:hover {
+  transform: scale(1.02);
+  filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.4));
+}
+
+/* Enhanced handle styles */
+.react-flow__handle {
+  transition: all 0.2s ease-in-out;
+}
+
+.react-flow__handle:hover {
+  transform: scale(1.3);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+/* Custom scrollbar for better UX */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #374151;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #6B7280;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}
+
+/* Neon edge animation */
+@keyframes neon-dash {
+  to {
+    stroke-dashoffset: -30;
+  }
+}
+
+/* Enhanced neon glow effect for edges */
+.react-flow__edge.neon-edge .react-flow__edge-path {
+  filter: drop-shadow(0 0 8px currentColor);
+  stroke-width: 3;
+}
+
+.react-flow__edge.neon-edge:hover .react-flow__edge-path {
+  filter: drop-shadow(0 0 12px currentColor);
+  stroke-width: 4;
+}
+
+/* Lead Animation Styles - ENHANCED */
+@keyframes leadFlow {
+  0% {
+    transform: translateX(-100%) scale(0.8);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+    transform: translateX(-80%) scale(1);
+  }
+  90% {
+    opacity: 1;
+    transform: translateX(80%) scale(1);
+  }
+  100% {
+    transform: translateX(100%) scale(0.8);
+    opacity: 0;
+  }
+}
+
+@keyframes leadPulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.9);
+    transform: scale(1.1);
+  }
+}
+
+@keyframes leadTrail {
+  0% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+@keyframes leadGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 4px rgba(34, 197, 94, 0.6));
+  }
+  50% {
+    filter: drop-shadow(0 0 12px rgba(34, 197, 94, 0.8));
+  }
+}
+
+/* Animated Lead Components */
+.animated-lead {
+  animation: leadPulse 1.5s ease-in-out infinite, leadGlow 2s ease-in-out infinite;
+}
+
+.lead-trail {
+  animation: leadTrail 0.8s ease-out forwards;
+}
+
+/* Enhanced edge path following */
+.react-flow__edge.path-following .react-flow__edge-path {
+  stroke-dasharray: 8,4;
+  animation: dashdraw 2s linear infinite;
+  filter: drop-shadow(0 0 6px currentColor);
+}
+
+/* Lead label enhanced styling */
+.lead-label {
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.95), rgba(55, 65, 81, 0.95));
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.4), 
+    0 0 30px rgba(34, 197, 94, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.lead-label:hover {
+  transform: scale(1.05);
+  box-shadow: 
+    0 6px 20px rgba(0, 0, 0, 0.5), 
+    0 0 40px rgba(34, 197, 94, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Path indicator animations */
+@keyframes indicatorPulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.2);
+  }
+}
+
+.path-indicator.active {
+  animation: indicatorPulse 1s ease-in-out infinite;
+}
+
+/* Trail dot animations */
+@keyframes trailDot {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+.trail-dot {
+  animation: trailDot 0.6s ease-out forwards;
+}
+
+/* Enhanced connection line effects */
+.react-flow__edge.enhanced-connection .react-flow__edge-path {
+  stroke-dasharray: 8,4;
+  animation: dashdraw 3s linear infinite;
+  filter: drop-shadow(0 0 8px currentColor);
+  transition: all 0.3s ease;
+}
+
+.react-flow__edge.enhanced-connection:hover .react-flow__edge-path {
+  stroke-width: 4;
+  filter: drop-shadow(0 0 12px currentColor);
+  animation-duration: 1.5s;
+}
+
+/* Smooth lead movement along curves */
+@keyframes leadMovement {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  10% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  90% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+/* Enhanced glow effects for lead */
+.lead-glow {
+  filter: 
+    drop-shadow(0 0 4px rgba(34, 197, 94, 0.6))
+    drop-shadow(0 0 8px rgba(34, 197, 94, 0.4))
+    drop-shadow(0 0 12px rgba(34, 197, 94, 0.2));
+  animation: leadGlow 2s ease-in-out infinite;
+}
+
+/* Enhanced connection system styles - FIXED for complete invisibility */
+.react-flow__handle {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transform: scale(0) !important;
+  pointer-events: none !important;
+  z-index: -1 !important;
+}
+
+/* Show handles only when node is selected or in connection mode */
+.react-flow__node.selected .react-flow__handle {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: scale(1) !important;
+  pointer-events: all !important;
+  z-index: 1000 !important;
+}
+
+/* Show handles during connection process */
+.react-flow__node.connecting-source .react-flow__handle,
+.react-flow__node.connecting-target .react-flow__handle,
+.react-flow__handle.react-flow__handle-connecting {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: scale(1) !important;
+  pointer-events: all !important;
+  z-index: 1000 !important;
+}
+
+/* Enhanced hover effect only when visible */
+.react-flow__node.selected .react-flow__handle:hover,
+.react-flow__handle.react-flow__handle-connecting:hover {
+  opacity: 1 !important;
+  transform: scale(1.2) !important;
+  box-shadow: 0 0 25px currentColor !important;
+}
+
+/* Smart connection routing feedback */
+.react-flow__node.connecting-source {
+  border-color: #10B981 !important;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4) !important;
+  transform: scale(1.02) !important;
+}
+
+.react-flow__node.connecting-target {
+  border-color: #3B82F6 !important;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4) !important;
+  transform: scale(1.02) !important;
+  animation: connectionPulse 1s ease-in-out infinite;
+}
+
+@keyframes connectionPulse {
+  0%, 100% {
+    transform: scale(1.02);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+}
+
+/* Improved handle grouping visual feedback */
+.react-flow__handle[data-handlepos="top"] {
+  border-radius: 50% 50% 20% 20% !important;
+}
+
+.react-flow__handle[data-handlepos="bottom"] {
+  border-radius: 20% 20% 50% 50% !important;
+}
+
+.react-flow__handle[data-handlepos="left"] {
+  border-radius: 50% 20% 20% 50% !important;
+}
+
+.react-flow__handle[data-handlepos="right"] {
+  border-radius: 20% 50% 50% 20% !important;
+}
+
+/* Connection line preview */
+.react-flow__connection-line {
+  stroke: #10B981 !important;
+  stroke-width: 3 !important;
+  stroke-dasharray: 8,4 !important;
+  animation: connectionLineFlow 1s linear infinite !important;
+}
+
+@keyframes connectionLineFlow {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 12;
+  }
+}
+
+/* Enhanced edge routing visual feedback */
+.react-flow__edge.smart-routed {
+  filter: drop-shadow(0 0 8px currentColor) !important;
+}
+
+.react-flow__edge.smart-routed .react-flow__edge-path {
+  stroke-width: 4 !important;
+  stroke-dasharray: 8,4 !important;
+  animation: smartRouteFlow 2s linear infinite !important;
+}
+
+@keyframes smartRouteFlow {
+  0% {
+    stroke-dashoffset: 0;
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: -12;
+    opacity: 0.8;
+  }
+}
+
+/* Enhanced slide animations for action buttons */
+@keyframes slide-in-from-bottom {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-in-from-bottom {
+  animation-name: slide-in-from-bottom;
+  animation-duration: 0.3s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: both;
+}

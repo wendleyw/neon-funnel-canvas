@@ -7,12 +7,20 @@ import { NeonAnimationProvider } from './contexts/NeonAnimationContext';
 import { SequenceAnimationProvider, useSequenceAnimation } from './contexts/SequenceAnimationContext';
 import Index from './pages/Index';
 import NotFound from './pages/NotFound';
+import ReactFlowTest from './pages/ReactFlowTest';
 import './App.css';
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
+      staleTime: 1000 * 60 * 10, // 10 minutos (aumentado de 5)
+      gcTime: 1000 * 60 * 30, // 30 minutos de cache
+      retry: 1,
+      refetchOnWindowFocus: false, // Evitar refetch desnecessário ao focar janela
+      refetchOnMount: false, // Não refetch automático ao montar
+      refetchOnReconnect: 'always', // Apenas reconectar quando perder conexão
+    },
+    mutations: {
       retry: 1,
     },
   },
@@ -28,6 +36,7 @@ const AppWithContexts: React.FC = () => {
         <div className="h-screen w-screen bg-black text-white overflow-hidden">
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/reactflow-test" element={<ReactFlowTest />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Toaster richColors position="top-right" />

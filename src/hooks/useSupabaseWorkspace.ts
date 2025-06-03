@@ -1,7 +1,6 @@
-
 import { useEffect } from 'react';
 import { useWorkspaces } from './useWorkspaces';
-import { useWorkspaceProjects } from './useWorkspaceProjects';
+import { useOptimizedWorkspaceProjects } from './useOptimizedWorkspaceProjects';
 import { useWorkspacePersistence } from './useWorkspacePersistence';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -25,21 +24,31 @@ export const useSupabaseWorkspace = () => {
     loadProjects,
     getWorkspaceProjects, 
     loadProject,
-    loading: projectsLoading 
-  } = useWorkspaceProjects();
+    loading: projectsLoading,
+    cacheStats,
+    cancelSave
+  } = useOptimizedWorkspaceProjects();
 
   const loading = workspacesLoading || projectsLoading;
 
   useEffect(() => {
     if (user) {
+      // Carregar dados apenas uma vez por sessão, usando cache depois
       loadWorkspaces();
-      loadProjects();
+      loadProjects(false); // false = não forçar refresh se já tem cache
     }
   }, [user, loadWorkspaces, loadProjects]);
 
   useEffect(() => {
     loadSavedWorkspace(workspaces);
   }, [workspaces, loadSavedWorkspace]);
+
+  // Cleanup quando componente desmonta
+  useEffect(() => {
+    return () => {
+      cancelSave(); // Cancelar saves pendentes ao desmontar
+    };
+  }, [cancelSave]);
 
   return {
     currentWorkspace,
@@ -54,6 +63,9 @@ export const useSupabaseWorkspace = () => {
     loadWorkspaces,
     getWorkspaceProjects,
     loadProject,
-    loading
+    loading,
+    cacheStats, // Estatísticas do cache para debugging
+    cancelSave,
+    refreshProjects: () => loadProjects(true) // Função para forçar refresh quando necessário
   };
 };

@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ComponentTemplate } from '../../../types/funnel';
 import { DrawingShape, DrawingTool } from '../../../types/drawing';
 import { useIsMobile } from '../../../hooks/use-mobile';
-import MARKETING_COMPONENT_TEMPLATES from '../../../data/componentTemplates';
-import { Square, Circle, ArrowRight, Type, Minus, Diamond, Triangle, Star } from 'lucide-react';
+import { actionSections, UserAction } from '../../../data/userActions';
+import { UserActionItem } from '../components/UserActionItem';
+import { Square, Circle, ArrowRight, Type, Minus, Diamond, Triangle, Star, ChevronDown, ChevronRight } from 'lucide-react';
 
 interface ActionsTabProps {
   onDragStart: (template: ComponentTemplate) => void;
@@ -17,11 +18,22 @@ export const ActionsTab: React.FC<ActionsTabProps> = ({
   onTemplateClick
 }) => {
   const isMobile = useIsMobile();
+  const [expandedSections, setExpandedSections] = useState<string[]>(['conversion']);
 
-  // Filter for action-related components
-  const actionComponents = MARKETING_COMPONENT_TEMPLATES.filter(
-    template => template.category === 'sales-conversion' || template.category === 'lead-capture'
-  );
+  const toggleSection = (sectionId: string) => {
+    console.log('🔄 Toggle section:', sectionId);
+    try {
+      setExpandedSections(prev => {
+        const newExpanded = prev.includes(sectionId) 
+          ? prev.filter(id => id !== sectionId)
+          : [...prev, sectionId];
+        console.log('📝 New expanded sections:', newExpanded);
+        return newExpanded;
+      });
+    } catch (error) {
+      console.error('❌ Error toggling section:', error);
+    }
+  };
 
   // Simplified drawing tools
   const drawingTools = [
@@ -35,82 +47,128 @@ export const ActionsTab: React.FC<ActionsTabProps> = ({
     { icon: Minus, label: 'Line', type: 'line' as DrawingTool, color: '#059669' },
   ];
 
-  const handleDragStart = (e: React.DragEvent, template: ComponentTemplate) => {
-    e.dataTransfer.setData('application/json', JSON.stringify(template));
-    e.dataTransfer.effectAllowed = 'copy';
-    onDragStart(template);
+  const handleShapeAdd = (shapeType: DrawingTool) => {
+    console.log('🎨 Adding shape:', shapeType);
+    try {
+      if (onShapeAdd) {
+        const shape: DrawingShape = {
+          id: `shape-${Date.now()}`,
+          type: shapeType,
+          position: { x: 100, y: 100 },
+          size: { width: 100, height: 60 },
+          style: {
+            fill: 'transparent',
+            stroke: '#3B82F6',
+            strokeWidth: 2,
+          },
+          text: shapeType === 'text' ? 'Your text here' : undefined,
+        };
+        onShapeAdd(shape);
+        console.log('✅ Shape added successfully:', shape);
+      }
+    } catch (error) {
+      console.error('❌ Error adding shape:', error);
+    }
   };
 
-  const handleShapeAdd = (shapeType: DrawingTool) => {
-    if (onShapeAdd) {
-      const shape: DrawingShape = {
-        id: `shape-${Date.now()}`,
-        type: shapeType,
-        position: { x: 100, y: 100 },
-        size: { width: 100, height: 60 },
-        style: {
-          fill: 'transparent',
-          stroke: '#3B82F6',
-          strokeWidth: 2,
-        },
-        text: shapeType === 'text' ? 'Your text here' : undefined,
-      };
-      onShapeAdd(shape);
+  const handleActionClick = (action: UserAction) => {
+    console.log('🎯 Action clicked:', action.type, action.label);
+    try {
+      if (onTemplateClick) {
+        onTemplateClick(action);
+        console.log('✅ Template click handled successfully');
+      }
+    } catch (error) {
+      console.error('❌ Error handling action click:', error);
+    }
+  };
+
+  const handleActionDragStart = (template: ComponentTemplate) => {
+    console.log('🖱️ Action drag started:', template.type, template.label);
+    try {
+      onDragStart(template);
+      console.log('✅ Drag start handled successfully');
+    } catch (error) {
+      console.error('❌ Error handling drag start:', error);
     }
   };
 
   return (
     <div className="h-full flex flex-col">
-      {/* Action Components */}
+      {/* User Actions */}
       <div className="flex-1 overflow-y-auto">
         <div className="p-4 space-y-4">
-          {/* Action Components Section */}
-          <div>
-            <h3 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
-              <span>⚡</span>
-              Action Components
-            </h3>
-            <div className="space-y-2">
-              {actionComponents.map((template) => (
-                <div
-                  key={template.type}
-                  className="bg-gray-900 border border-gray-700 rounded-lg p-3 hover:border-gray-600 transition-all duration-200 cursor-pointer group"
-                  draggable={!isMobile}
-                  onDragStart={(e) => !isMobile && handleDragStart(e, template)}
-                  onClick={() => onTemplateClick?.(template)}
+          
+          {/* Header */}
+          <div className="text-center pb-2">
+            <h2 className="text-lg font-semibold text-white mb-1">User Actions</h2>
+            <p className="text-xs text-gray-400">Ações que o usuário pode realizar</p>
+          </div>
+
+          {/* Action Sections */}
+          {Object.entries(actionSections).map(([sectionId, section]) => {
+            const isExpanded = expandedSections.includes(sectionId);
+            
+            return (
+              <div key={sectionId} className="space-y-2">
+                {/* Section Header */}
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleSection(sectionId);
+                  }}
+                  className="w-full flex items-center justify-between p-3 bg-gray-800/50 hover:bg-gray-800/70 rounded-lg border border-gray-700/50 transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                  type="button"
                 >
                   <div className="flex items-center gap-3">
                     <div 
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold"
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0"
                       style={{ 
-                        backgroundColor: `${template.color}20`, 
-                        color: template.color,
-                        border: `1px solid ${template.color}40`
+                        backgroundColor: `${section.color}20`, 
+                        color: section.color,
+                        border: `1px solid ${section.color}40`
                       }}
                     >
-                      {template.icon}
+                      {section.icon}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-white text-sm truncate">
-                        {template.label}
-                      </h4>
-                      <p className="text-xs text-gray-400 truncate">
-                        {template.description}
+                    <div className="text-left">
+                      <h3 className="text-sm font-medium text-white group-hover:text-blue-300 transition-colors">
+                        {section.title}
+                      </h3>
+                      <p className="text-xs text-gray-400 group-hover:text-gray-300 transition-colors">
+                        {section.subtitle}
                       </p>
                     </div>
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                      <div className="w-6 h-6 bg-blue-600 rounded-lg flex items-center justify-center">
-                        <span className="text-white text-xs font-bold">+</span>
-                      </div>
-                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
+                  <div className="text-gray-400 group-hover:text-white transition-colors flex-shrink-0">
+                    {isExpanded ? (
+                      <ChevronDown className="w-4 h-4" />
+                    ) : (
+                      <ChevronRight className="w-4 h-4" />
+                    )}
+                  </div>
+                </button>
+
+                {/* Section Content */}
+                {isExpanded && (
+                  <div className="space-y-3 ml-2 border-l-2 border-gray-700/50 pl-4">
+                    {section.actions.map((action) => (
+                      <UserActionItem
+                        key={action.type}
+                        action={action}
+                        onDragStart={handleActionDragStart}
+                        onTemplateClick={handleActionClick}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
 
           {/* Drawing Tools Section */}
-          <div>
+          <div className="pt-4 border-t border-gray-700/50">
             <h3 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
               <span>🎨</span>
               Drawing Tools
@@ -119,11 +177,16 @@ export const ActionsTab: React.FC<ActionsTabProps> = ({
               {drawingTools.map((tool) => (
                 <button
                   key={tool.type}
-                  onClick={() => handleShapeAdd(tool.type)}
-                  className="bg-gray-900 border border-gray-700 rounded-lg p-3 hover:border-gray-600 transition-all duration-200 group flex flex-col items-center gap-2"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleShapeAdd(tool.type);
+                  }}
+                  className="bg-gray-900/60 border border-gray-700/60 rounded-lg p-3 hover:border-gray-600 hover:bg-gray-800/80 transition-all duration-200 group flex flex-col items-center gap-2 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                  type="button"
                 >
                   <div 
-                    className="w-8 h-8 rounded-lg flex items-center justify-center"
+                    className="w-8 h-8 rounded-lg flex items-center justify-center transition-transform group-hover:scale-105"
                     style={{ 
                       backgroundColor: `${tool.color}20`, 
                       color: tool.color,

@@ -17,6 +17,7 @@ import {
   Settings,
   Plus
 } from 'lucide-react';
+import { FunnelboardLogo } from '../ui/FunnelboardLogo';
 
 interface IconSidebarProps {
   onDragStart: (template: ComponentTemplate) => void;
@@ -115,9 +116,7 @@ export const IconSidebar: React.FC<IconSidebarProps> = ({
         `}>
           {/* Logo */}
           <div className="h-16 flex items-center justify-center border-b border-gray-800">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
-              <span className="text-white text-sm font-bold">F</span>
-            </div>
+            <FunnelboardLogo size={60} />
           </div>
 
           {/* Main Menu Items */}

@@ -35,8 +35,29 @@ export class CanvasAddService {
     options: AddToCanvasOptions = {}
   ): boolean {
     this.log('Adding component template via projectHandlers', { template, options });
+    this.log('Template validation:');
+    this.log('  - Template exists:', !!template);
+    this.log('  - Template.type:', template?.type);
+    this.log('  - Template.label:', template?.label);
+    this.log('  - Template.defaultProps:', template?.defaultProps);
+    this.log('  - onComponentAdd function exists:', typeof onComponentAdd);
 
     try {
+      if (!template) {
+        this.log('❌ Template is null or undefined');
+        return false;
+      }
+
+      if (!template.type) {
+        this.log('❌ Template missing type field');
+        return false;
+      }
+
+      if (typeof onComponentAdd !== 'function') {
+        this.log('❌ onComponentAdd is not a function');
+        return false;
+      }
+
       const position = options.position || { x: 400, y: 300 };
       
       const newComponent: FunnelComponent = {
@@ -56,10 +77,17 @@ export class CanvasAddService {
         connections: []
       };
 
-      this.log('Created component', newComponent);
+      this.log('Created component successfully:', {
+        id: newComponent.id,
+        type: newComponent.type,
+        title: newComponent.data.title,
+        position: newComponent.position
+      });
       
       // Use projectHandlers for consistent state management
+      this.log('Calling onComponentAdd with component...');
       onComponentAdd(newComponent);
+      this.log('onComponentAdd called successfully');
 
       this.log('✅ Component template added via projectHandlers');
       return true;

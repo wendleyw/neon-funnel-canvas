@@ -1,5 +1,4 @@
-
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { FunnelProject } from '../../types/funnel';
 import { useWorkspace } from '../useWorkspace';
 import { toast } from 'sonner';
@@ -24,6 +23,14 @@ export const useProjectManagementHandlers = ({
   enterEditor
 }: UseProjectManagementHandlersProps) => {
   const { currentWorkspace, addProjectToWorkspace, workspaceProjects } = useWorkspace();
+
+  // Auto-save quando o projeto é modificado (debounced)
+  useEffect(() => {
+    if (currentWorkspace && currentProjectId && project.components.length > 0) {
+      console.log('🔄 Project changed, triggering auto-save...');
+      addProjectToWorkspace(project, currentWorkspace.id, currentProjectId, true); // true = isAutoSave
+    }
+  }, [project.components, project.connections, project.name, currentWorkspace, currentProjectId, addProjectToWorkspace]);
 
   const handleProjectSelect = useCallback((projectId: string) => {
     try {
@@ -79,27 +86,18 @@ export const useProjectManagementHandlers = ({
       updatedAt: new Date().toISOString()
     };
 
-    console.log('Salvando projeto:', projectToSave.name, 'no workspace:', currentWorkspace.name);
-    console.log('Current project ID:', currentProjectId);
-    console.log('Project data being saved:', {
-      componentsCount: projectToSave.components.length,
-      connectionsCount: projectToSave.connections.length,
-      lastComponent: projectToSave.components[projectToSave.components.length - 1]
-    });
+    console.log('💾 Manual save requested for project:', projectToSave.name);
 
-    const result = await addProjectToWorkspace(projectToSave, currentWorkspace.id, currentProjectId || undefined);
-    if (result.success) {
+    const result = await addProjectToWorkspace(projectToSave, currentWorkspace.id, currentProjectId || undefined, false); // false = manual save
+    if (result && result.success) {
       // Update local state to reflect saved project
       setProject(projectToSave);
-      toast.success('Projeto salvo com sucesso!');
       
       // Set current project ID if it's a new project
       if (result.projectId && !currentProjectId) {
         console.log('Setting new project ID:', result.projectId);
         setCurrentProjectId(result.projectId);
       }
-    } else {
-      toast.error('Erro ao salvar projeto');
     }
   }, [project, currentWorkspace, addProjectToWorkspace, currentProjectId, setCurrentProjectId, setProject]);
 
@@ -117,18 +115,66 @@ export const useProjectManagementHandlers = ({
     toast.success('Projeto exportado!');
   }, [project]);
 
+  const handleImport = useCallback(() => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const importedProject = JSON.parse(event.target?.result as string);
+          
+          // Validate imported project structure
+          if (!importedProject.id || !importedProject.name || !Array.isArray(importedProject.components) || !Array.isArray(importedProject.connections)) {
+            throw new Error('Invalid project structure');
+          }
+          
+          // Generate new ID for imported project to avoid conflicts
+          const newProject: FunnelProject = {
+            ...importedProject,
+            id: `project-${Date.now()}`,
+            name: `${importedProject.name} (Imported)`,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          };
+          
+          loadProjectData(newProject);
+          toast.success('Projeto importado com sucesso!');
+        } catch (error) {
+          console.error('Error importing project:', error);
+          toast.error('Erro ao importar projeto. Verifique se o arquivo é válido.');
+        }
+      };
+      
+      reader.readAsText(file);
+    };
+    
+    input.click();
+  }, [loadProjectData]);
+
   const handleClear = useCallback(() => {
-    if (window.confirm('Tem certeza que deseja limpar o projeto?')) {
-      resetProject();
-      toast.success('Projeto limpo!');
+    if (confirm('Tem certeza que deseja limpar todos os componentes? Esta ação não pode ser desfeita.')) {
+      setProject(prev => ({
+        ...prev,
+        components: [],
+        connections: [],
+        updatedAt: new Date().toISOString()
+      }));
+      toast.success('Projeto limpo com sucesso!');
     }
-  }, [resetProject]);
+  }, [setProject]);
 
   return {
     handleProjectSelect,
     handleNewProject,
     handleSave,
     handleExport,
+    handleImport,
     handleClear
   };
 };
