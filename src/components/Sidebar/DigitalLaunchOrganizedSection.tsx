@@ -36,7 +36,7 @@ const funnelStages = {
   },
   'vendas': {
     label: 'Vendas & Finalização',
-    icon: '💰',
+    icon: '📈',
     templates: ['checkout-upsell', 'post-sale']
   },
   'otimizacao': {

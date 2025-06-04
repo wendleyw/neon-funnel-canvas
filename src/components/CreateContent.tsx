@@ -149,7 +149,7 @@ export const CreateContent: React.FC<CreateContentProps> = ({
     const component2: ComponentTemplate = {
       id: 'test-target',
       type: 'conversion',
-      icon: '💰',
+      icon: '🎯',
       label: 'Target Component',
       color: '#10B981',
       category: 'conversion',

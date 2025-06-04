@@ -112,7 +112,7 @@ export const IconSidebar: React.FC<IconSidebarProps> = ({
         {/* Icon Sidebar */}
         <div className={`
           ${isMobile ? 'w-16' : 'w-16'} 
-          bg-black border-r border-gray-800 flex flex-col flex-shrink-0
+          bg-black border-r border-gray-800 flex flex-col flex-shrink-0 relative
         `}>
           {/* Logo */}
           <div className="h-16 flex items-center justify-center border-b border-gray-800">
@@ -192,12 +192,47 @@ export const IconSidebar: React.FC<IconSidebarProps> = ({
             </nav>
           </div>
 
-          {/* Status Indicator */}
+          {/* Responsive Feedback Button */}
           <div className="pb-3 px-2">
-            <div className="text-center">
-              <div className="w-2 h-2 bg-green-500 rounded-full mx-auto shadow-lg animate-pulse" />
-              <span className="text-xs text-gray-500 mt-1 block font-medium">Online</span>
-            </div>
+            <button 
+              className={`
+                w-full flex flex-col items-center justify-center gap-1 
+                hover:bg-gray-800/70 active:bg-gray-700 
+                rounded-xl py-3 px-2 
+                transition-all duration-300 ease-out
+                group hover:scale-105 active:scale-95
+                border border-transparent hover:border-gray-700/50
+                ${isMobile ? 'py-2' : 'py-3'}
+              `}
+              title="Send Feedback"
+              onClick={() => {
+                // Add feedback functionality here
+                console.log('Feedback button clicked');
+                // You can add modal, redirect, or other feedback functionality
+              }}
+            >
+              {/* Status dot with better responsiveness */}
+              <div className={`
+                bg-green-500 rounded-full shadow-lg 
+                animate-pulse group-hover:bg-blue-500 
+                group-hover:shadow-blue-500/50 group-hover:shadow-lg
+                transition-all duration-300
+                ${isMobile ? 'w-2 h-2' : 'w-2.5 h-2.5'}
+              `} />
+              
+              {/* Text with better typography */}
+              <span className={`
+                text-gray-500 font-medium 
+                group-hover:text-white group-active:text-gray-200
+                transition-all duration-300
+                ${isMobile ? 'text-xs' : 'text-xs'}
+              `}>
+                Feedback
+              </span>
+              
+              {/* Subtle background glow on hover */}
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+            </button>
           </div>
         </div>
 

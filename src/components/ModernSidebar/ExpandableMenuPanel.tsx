@@ -213,9 +213,9 @@ export const ExpandableMenuPanel: React.FC<ExpandableMenuPanelProps> = ({
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
                   <div className="flex-1">
-                    <p className="text-white text-sm font-medium group-hover:text-purple-400 transition-colors">Project saved successfully</p>
-                    <p className="text-gray-400 text-xs mt-1">All changes synchronized to cloud</p>
-                    <p className="text-gray-500 text-xs mt-2">2 days ago</p>
+                    <p className="text-white text-sm font-medium group-hover:text-purple-400 transition-colors">Welcome to Funnelboard!</p>
+                    <p className="text-gray-400 text-xs mt-1">Get started with our quick tutorial</p>
+                    <p className="text-gray-500 text-xs mt-2">3 days ago</p>
                   </div>
                 </div>
               </div>
@@ -236,7 +236,7 @@ export const ExpandableMenuPanel: React.FC<ExpandableMenuPanelProps> = ({
       case 'create': return 'Create';
       case 'library': return 'Library';
       case 'explore': return 'Explore';
-      case 'custom': return 'Custom Funnel';
+      case 'custom': return 'Custom AI';
       case 'notifications': return 'Notifications';
       case 'profile': return 'Profile';
       default: return '';
@@ -244,21 +244,64 @@ export const ExpandableMenuPanel: React.FC<ExpandableMenuPanelProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-black">
-      {/* Header */}
-      <div className="h-16 flex items-center justify-between px-6 border-b border-gray-800 flex-shrink-0">
-        <h2 className="text-white font-semibold text-lg">{getTitle()}</h2>
-        <button
-          onClick={onClose}
-          className="p-2 text-gray-400 hover:text-white hover:bg-gray-800/70 rounded-xl transition-all duration-200 hover:scale-105"
+    <div className="relative h-full">
+      {/* Elegant Curved Connection to Top */}
+      <div className="absolute -top-10 left-0 w-full h-10 pointer-events-none z-10">
+        {/* Main connection base */}
+        <div className="w-full h-10 bg-black"></div>
+        
+        {/* Curved connector SVG */}
+        <svg 
+          className="absolute top-0 right-0 h-10 pointer-events-none"
+          width="120" 
+          height="40"
+          viewBox="0 0 120 40"
+          xmlns="http://www.w3.org/2000/svg"
         >
-          <X className="w-4 h-4" />
-        </button>
+          {/* Gradient definition for smooth transition */}
+          <defs>
+            <linearGradient id="connectionGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#000000" />
+              <stop offset="70%" stopColor="#000000" />
+              <stop offset="100%" stopColor="#0f172a" />
+            </linearGradient>
+          </defs>
+          
+          {/* Smooth curved path */}
+          <path
+            d="M 0 40 Q 30 40 60 20 Q 90 0 120 0 L 120 40 L 0 40 Z"
+            fill="url(#connectionGradient)"
+            className="drop-shadow-sm"
+          />
+          
+          {/* Optional subtle border for definition */}
+          <path
+            d="M 0 40 Q 30 40 60 20 Q 90 0 120 0"
+            fill="none"
+            stroke="#374151"
+            strokeWidth="0.5"
+            opacity="0.3"
+          />
+        </svg>
       </div>
 
-      {/* Content - Takes remaining space */}
-      <div className="flex-1 min-h-0">
-        {renderContent()}
+      {/* Main Panel */}
+      <div className="w-80 h-full bg-black border-r border-gray-800 flex flex-col relative">
+        {/* Header - Simplified and Smaller */}
+        <div className="h-10 flex items-center justify-between px-4 border-b border-gray-800 bg-black">
+          <h2 className="text-lg font-semibold text-white">{getTitle()}</h2>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-lg bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-all duration-200 group hover:scale-105"
+          >
+            <X className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-hidden bg-black">
+          {renderContent()}
+        </div>
       </div>
     </div>
   );

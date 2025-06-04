@@ -39,9 +39,7 @@ html {
 
     --radius: 0.5rem;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
@@ -86,56 +84,82 @@ html {
   }
 }
 
-/* Adicionar animação shimmer para efeito neon */
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-
 @layer utilities {
+  /* Scrollbars */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(30, 41, 59, 0.3);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.5);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 116, 139, 0.8);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 116, 139, 0.5) rgba(30, 41, 59, 0.3);
+  }
+
+  /* Line clamp utility */
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  
-  /* Efeito de text-shadow para neon */
+
+  /* React Flow basic styles */
+  .react-flow__node {
+    background: #111827;
+    border: 1px solid #374151;
+    border-radius: 8px;
+  }
+
+  .react-flow__edge-path {
+    stroke: #6366f1;
+    stroke-width: 2;
+  }
+
+  .react-flow__handle {
+    background: #3b82f6;
+    border: 2px solid white;
+    width: 8px;
+    height: 8px;
+  }
+
+  /* Adicionar animação shimmer para efeito neon */
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  /* Text effects for neon */
   .text-neon-cyan {
     color: #06b6d4;
-    text-shadow: 0 0 5px rgba(6, 182, 212, 0.5), 0 0 10px rgba(6, 182, 212, 0.3), 0 0 15px rgba(6, 182, 212, 0.2);
+    text-shadow: 0 0 5px rgba(6, 182, 212, 0.5);
   }
   
   .text-neon-purple {
     color: #8b5cf6;
-    text-shadow: 0 0 5px rgba(139, 92, 246, 0.5), 0 0 10px rgba(139, 92, 246, 0.3), 0 0 15px rgba(139, 92, 246, 0.2);
+    text-shadow: 0 0 5px rgba(139, 92, 246, 0.5);
   }
   
   .text-neon-green {
     color: #10b981;
-    text-shadow: 0 0 5px rgba(16, 185, 129, 0.5), 0 0 10px rgba(16, 185, 129, 0.3), 0 0 15px rgba(16, 185, 129, 0.2);
+    text-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
   }
 
-  /* Scrollbars com estilo neon */
-  .scrollbar-neon::-webkit-scrollbar-thumb {
-    background: linear-gradient(45deg, rgba(6, 182, 212, 0.6), rgba(147, 51, 234, 0.6));
-    box-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
-  }
-  
-  .scrollbar-neon::-webkit-scrollbar-track {
-    background: rgba(17, 24, 39, 0.8);
-    border-radius: 3px;
-  }
-
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-
+  /* Clean scrollbars */
   .scrollbar-thin {
     scrollbar-width: thin;
     scrollbar-color: #4B5563 #1F2937;
@@ -160,7 +184,77 @@ html {
     background: #6B7280;
   }
 
-  /* Enhanced scrollbar for modal content */
+  /* Component styles */
+  .component-node {
+    @apply transition-all duration-200;
+  }
+
+  .component-node:hover {
+    @apply shadow-lg;
+  }
+
+  .component-card {
+    @apply transition-all duration-200;
+  }
+
+  .component-card:hover {
+    @apply scale-105 shadow-lg;
+  }
+
+  /* React Flow styles */
+  .react-flow__node {
+    @apply bg-gray-900 border border-gray-700 rounded-lg;
+  }
+
+  .react-flow__edge-path {
+    stroke: #6366f1;
+    stroke-width: 2;
+  }
+
+  .react-flow__handle {
+    @apply bg-blue-500 border-2 border-white;
+    width: 8px;
+    height: 8px;
+  }
+
+  .react-flow__handle:hover {
+    @apply bg-blue-400;
+  }
+
+  /* Connection styles */
+  .react-flow__connection-line {
+    stroke: #6366f1;
+    stroke-width: 2;
+    stroke-dasharray: 5,5;
+  }
+
+  /* Mobile responsive */
+  @media (max-width: 640px) {
+    .scrollbar-thin::-webkit-scrollbar {
+      width: 4px;
+    }
+  }
+
+  /* Scrollbars com estilo neon */
+  .scrollbar-neon::-webkit-scrollbar-thumb {
+    background: linear-gradient(45deg, rgba(6, 182, 212, 0.6), rgba(147, 51, 234, 0.6));
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
+  }
+  
+  .scrollbar-neon::-webkit-scrollbar-track {
+    background: rgba(17, 24, 39, 0.8);
+    border-radius: 3px;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
   .scrollbar-track-gray-800::-webkit-scrollbar-track {
     background: #1F2937;
     border-radius: 6px;
@@ -1483,4 +1577,73 @@ html {
   animation-duration: 0.3s;
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   animation-fill-mode: both;
+}
+
+/* Custom animations for menu connection */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes connection-flow {
+  0% {
+    stroke-dashoffset: 100;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.5s ease-out;
+}
+
+.connection-line {
+  animation: connection-flow 2s ease-in-out infinite;
+}
+
+.connection-point {
+  filter: drop-shadow(0 0 4px #3B82F6);
+}
+
+.particle {
+  filter: drop-shadow(0 0 2px #60A5FA);
+}
+
+/* Enhanced menu panel styles */
+.menu-panel-connection {
+  position: relative;
+}
+
+.menu-panel-connection::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  right: -1px;
+  height: 2px;
+  background: linear-gradient(90deg, #3B82F6, transparent);
+  border-radius: 2px;
+  opacity: 0.6;
 }

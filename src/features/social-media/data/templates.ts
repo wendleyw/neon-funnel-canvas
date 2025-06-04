@@ -1,4 +1,3 @@
-
 import { ComponentTemplate } from '../../../types/funnel';
 
 export const socialMediaTemplates: ComponentTemplate[] = [
@@ -209,7 +208,7 @@ export const socialMediaTemplates: ComponentTemplate[] = [
   },
   {
     type: 'facebook-ad',
-    icon: '💰',
+    icon: '📢',
     label: 'Facebook Ad',
     color: '#1877F2',
     category: 'social-media',

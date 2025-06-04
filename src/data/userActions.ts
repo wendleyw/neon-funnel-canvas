@@ -506,7 +506,7 @@ export const actionSections = {
   conversion: {
     title: 'Conversion Actions',
     subtitle: 'Ações de Conversão',
-    icon: '💰',
+    icon: '🎯',
     color: '#10B981',
     actions: conversionActions
   },

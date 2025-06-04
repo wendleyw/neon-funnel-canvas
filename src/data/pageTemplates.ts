@@ -13,13 +13,13 @@ export const pageTemplates: PageTemplate[] = [
   // Lead Capture Pages
   {
     id: 'generic-page',
-    label: 'Generic Page',
-    description: 'Basic landing page template',
+    label: 'Modern Landing',
+    description: 'Professional modern landing page with clean design and conversion focus',
     category: 'lead-capture',
     previewUrl: 'https://images.unsplash.com/photo-1611262588024-d12430b98920?w=200&h=150&fit=crop&crop=top',
     type: 'landing-page',
-    color: '#3B82F6',
-    tags: ['basic', 'simple', 'generic']
+    color: '#6366F1',
+    tags: ['modern', 'professional', 'conversion']
   },
   {
     id: 'download-page',
@@ -177,7 +177,7 @@ export const PAGE_CATEGORIES = {
     label: 'Sales',
     description: 'Sales and conversion pages',
     color: '#EF4444',
-    icon: '💰'
+    icon: '🎯'
   },
   'webinar': {
     label: 'Webinar',

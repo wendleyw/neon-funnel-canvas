@@ -24,7 +24,7 @@ export const LibraryMenuContent: React.FC<LibraryMenuContentProps> = ({
       description: 'End-to-end sales processes',
       count: 12,
       color: '#EF4444',
-      icon: '💰'
+      icon: '📈'
     },
     {
       id: 'webinar-funnels',

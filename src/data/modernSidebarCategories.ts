@@ -41,7 +41,7 @@ export const modernSidebarCategories: SidebarCategory[] = [
   {
     id: 'traffic-paid',
     name: 'Tráfego Pago',
-    icon: '💰',
+    icon: '📢',
     color: '#EF4444',
     description: 'Campanhas de tráfego pago',
     templates: getTemplatesByTypes([

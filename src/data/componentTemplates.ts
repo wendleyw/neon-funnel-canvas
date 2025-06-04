@@ -1362,7 +1362,7 @@ export const MARKETING_COMPONENT_TEMPLATES: ComponentTemplate[] = [
   // ========================
   {
     type: 'sales-page',
-    icon: '💰',
+    icon: '📈',
     label: 'Sales Page',
     color: '#DC2626',
     category: 'sales-conversion',
@@ -1766,7 +1766,7 @@ export const TEMPLATE_CATEGORIES = {
     color: '#F59E0B'
   },
   'sales-conversion': {
-    label: '💰 Sales',
+    label: '🎯 Sales',
     description: 'Convert to sales',
     color: '#EF4444'
   },

@@ -1,4 +1,3 @@
-
 import { ComponentTemplate } from '../../../types/funnel';
 
 export const digitalLaunchTemplates: ComponentTemplate[] = [
@@ -61,7 +60,7 @@ export const digitalLaunchTemplates: ComponentTemplate[] = [
   },
   {
     type: 'traffic-paid',
-    icon: '💰',
+    icon: '📈',
     label: 'Tráfego Pago',
     color: '#EA580C',
     category: 'digital-launch',

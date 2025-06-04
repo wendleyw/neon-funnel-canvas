@@ -108,9 +108,15 @@ const getEdgeStyle = (sourceType: string, targetType: string) => {
   return edgeStyles[edgeType];
 };
 
+// Wrapper component to add debug to CustomNode
+const DebugCustomNode: React.FC<any> = (props) => {
+  console.log('🔥 DebugCustomNode called with props:', props);
+  return React.createElement(CustomNode, props);
+};
+
 // Define os tipos de nó e edge customizados fora do componente para evitar recriação
 const nodeTypes: NodeTypes = {
-  custom: CustomNode,
+  custom: DebugCustomNode,
   funnelComponent: FunnelComponentNode,
 };
 
@@ -184,11 +190,13 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   useEffect(() => {
     (window as any).__onConnectionAdd = onConnectionAdd;
     (window as any).__onComponentDelete = onComponentDelete;
+    (window as any).__onComponentUpdate = onComponentUpdate;
     return () => {
       delete (window as any).__onConnectionAdd;
       delete (window as any).__onComponentDelete;
+      delete (window as any).__onComponentUpdate;
     };
-  }, [onConnectionAdd, onComponentDelete]);
+  }, [onConnectionAdd, onComponentDelete, onComponentUpdate]);
   
   console.log('🚀 ReactFlowCanvas rendering with:', {
     componentsCount: components.length,
@@ -898,261 +906,6 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
         </div>
       )}
 
-      {/* Enhanced debug helper buttons */}
-      <div className="absolute top-4 right-4 z-20">
-        <div className="flex flex-col gap-2">
-          {/* Focus on newest component */}
-          <button
-            onClick={() => {
-              const lastComponent = components[components.length - 1];
-              if (lastComponent) {
-                console.log('🎯 Focusing on newest component:', lastComponent.data.title);
-                reactFlowInstance.setCenter(lastComponent.position.x, lastComponent.position.y, { 
-                  zoom: 1.5, 
-                  duration: 800 
-                });
-                setHighlightedNodeId(lastComponent.id);
-                setTimeout(() => setHighlightedNodeId(null), 3000);
-                toast.info(`🎯 Focando: ${lastComponent.data.title}`);
-              } else {
-                toast.error('Nenhum componente encontrado');
-              }
-            }}
-            className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-lg shadow-lg border border-blue-500 transition-colors"
-            title="Focar no último componente adicionado"
-          >
-            🎯 Último
-          </button>
-
-          {/* Show all components */}
-          <button
-            onClick={() => {
-              console.log('🔍 Showing all components. Total:', components.length);
-              components.forEach((comp, index) => {
-                console.log(`${index + 1}. ${comp.data.title} at (${Math.round(comp.position.x)}, ${Math.round(comp.position.y)})`);
-              });
-              
-              if (components.length > 0) {
-                reactFlowInstance.fitView({ 
-                  padding: 0.2, 
-                  includeHiddenNodes: true,
-                  duration: 1000,
-                  maxZoom: 1.2
-                });
-                toast.info(`📋 ${components.length} componentes encontrados (veja console)`);
-              } else {
-                toast.error('Nenhum componente para mostrar');
-              }
-            }}
-            className="px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-xs rounded-lg shadow-lg border border-green-500 transition-colors"
-            title="Mostrar todos os componentes"
-          >
-            📋 Todos
-          </button>
-
-          {/* Reset view */}
-          <button
-            onClick={() => {
-              console.log('🔄 Resetting view to default');
-              reactFlowInstance.fitView({ 
-                padding: 0.1,
-                duration: 800
-              });
-              toast.info('🔄 Visão resetada');
-            }}
-            className="px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs rounded-lg shadow-lg border border-purple-500 transition-colors"
-            title="Resetar visualização"
-          >
-            🔄 Reset
-          </button>
-
-          {/* Clear all components */}
-          <button
-            onClick={() => {
-              if (confirm('🗑️ Tem certeza que deseja limpar TODOS os componentes do canvas?')) {
-                console.log('🗑️ =================== CLEARING ALL COMPONENTS ===================');
-                console.log('🗑️ Components before clear:', components.length);
-                console.log('🗑️ ReactFlow nodes before clear:', nodes.length);
-                
-                // Get all current component IDs
-                const componentIds = components.map(comp => comp.id);
-                console.log('🗑️ Components to delete:', componentIds);
-                
-                // Delete each component from state
-                componentIds.forEach((id, index) => {
-                  console.log(`🗑️ Deleting component ${index + 1}/${componentIds.length}:`, id);
-                  onComponentDelete(id);
-                });
-                
-                // Also force clear ReactFlow nodes as a backup
-                setTimeout(() => {
-                  console.log('🗑️ Force clearing ReactFlow nodes...');
-                  setNodes([]);
-                  setEdges([]);
-                  console.log('🗑️ ReactFlow cleared');
-                }, 100);
-                
-                toast.success(`🗑️ ${componentIds.length} componentes removidos!`, {
-                  description: `Canvas limpo com sucesso`,
-                  duration: 3000
-                });
-                
-                console.log('🗑️ =================== CLEAR COMPLETED ===================');
-              }
-            }}
-            className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-xs rounded-lg shadow-lg border border-red-500 transition-colors"
-            title="Limpar todos os componentes"
-          >
-            🗑️ Limpar
-          </button>
-
-          {/* Debug info */}
-          <button
-            onClick={() => {
-              const viewport = reactFlowInstance.getViewport();
-              const nodes = reactFlowInstance.getNodes();
-              console.log('🔍 DEBUG INFO:');
-              console.log('📊 Components in state:', components.length);
-              console.log('📊 Rendered nodes:', nodes.length);
-              console.log('📊 Current viewport:', viewport);
-              console.log('📊 Canvas size:', { 
-                width: reactFlowInstance.getViewport(),
-                // Get the actual canvas size
-              });
-              
-              toast.info(`🔍 Debug: ${components.length} comp, ${nodes.length} nodes (veja console)`);
-            }}
-            className="px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white text-xs rounded-lg shadow-lg border border-gray-500 transition-colors"
-            title="Informações de debug"
-          >
-            🔍 Info
-          </button>
-
-          {/* Force re-render button */}
-          <button
-            onClick={() => {
-              console.log('🔄 Forcing React Flow re-render...');
-              
-              // Force re-render by calling fitView
-              reactFlowInstance.fitView({ duration: 100 });
-              
-              // Also log all current nodes
-              const currentNodes = reactFlowInstance.getNodes();
-              console.log('📋 All current React Flow nodes:');
-              currentNodes.forEach((node, index) => {
-                console.log(`${index + 1}. ${node.id} (${node.type}) - ${node.data?.title || 'No title'} at (${Math.round(node.position.x)}, ${Math.round(node.position.y)})`);
-              });
-              
-              toast.info(`🔄 Forçou re-render - ${currentNodes.length} nós encontrados`);
-            }}
-            className="px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs rounded-lg shadow-lg border border-purple-500 transition-colors"
-            title="Forçar re-renderização"
-          >
-            🔄 Re-render
-          </button>
-
-          {/* Manual sync button */}
-          <button
-            onClick={() => {
-              console.log('🔄 =================== MANUAL SYNC ===================');
-              console.log('🔄 Components in state:', components.length);
-              console.log('🔄 Current ReactFlow nodes:', nodes.length);
-              console.log('🔄 Expected nodes from conversion:', initialNodes.length);
-              
-              // Force complete resync
-              console.log('🔄 Forcing complete resync...');
-              setNodes(initialNodes);
-              setEdges(initialEdges);
-              
-              // Also trigger fitView to show all nodes
-              setTimeout(() => {
-                reactFlowInstance.fitView({ 
-                  padding: 0.1,
-                  duration: 800
-                });
-              }, 100);
-              
-              toast.info(`🔄 Sincronização forçada: ${initialNodes.length} nodes`, {
-                description: `State → ReactFlow sincronizado`,
-                duration: 3000
-              });
-              
-              console.log('🔄 =================== SYNC COMPLETED ===================');
-            }}
-            className="px-3 py-2 bg-orange-600 hover:bg-orange-700 text-white text-xs rounded-lg shadow-lg border border-orange-500 transition-colors"
-            title="Forçar sincronização entre state e ReactFlow"
-          >
-            🔄 Sync
-          </button>
-
-          {/* Connection help button */}
-          <button
-            onClick={() => {
-              toast.info(`🔗 Como conectar componentes:`, {
-                description: `Arraste do ponto verde (saída) para o azul (entrada) de outro componente`,
-                duration: 8000,
-              });
-              
-              console.log('🔗 ===== CONNECTION HELP =====');
-              console.log('🔗 Total connections:', connections.length);
-              console.log('🔗 Total ReactFlow edges:', edges.length);
-              console.log('🔗 ReactFlow edges:', edges);
-              connections.forEach((conn, index) => {
-                const sourceComp = components.find(c => c.id === conn.from);
-                const targetComp = components.find(c => c.id === conn.to);
-                console.log(`🔗 ${index + 1}. ${sourceComp?.data.title} → ${targetComp?.data.title} (${conn.id})`);
-              });
-              console.log('🔗 ============================');
-            }}
-            className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-lg shadow-lg border border-blue-500 transition-colors"
-            title="Ajuda sobre conexões"
-          >
-            🔗 Ajuda
-          </button>
-
-          {/* Test connection button */}
-          <button
-            onClick={() => {
-              console.log('🧪 ===== TESTING CONNECTION SYSTEM =====');
-              
-              // Check if we have at least 2 components
-              if (components.length < 2) {
-                toast.error('❌ Adicione pelo menos 2 componentes primeiro');
-                return;
-              }
-              
-              // Create a test connection between first two components
-              const sourceComp = components[0];
-              const targetComp = components[1];
-              
-              console.log('🧪 Creating test connection:', {
-                from: sourceComp.data.title,
-                to: targetComp.data.title
-              });
-              
-              // Simulate onConnect call
-              const testConnection = {
-                source: sourceComp.id,
-                target: targetComp.id,
-                sourceHandle: null,
-                targetHandle: null,
-              };
-              
-              onConnect(testConnection);
-              
-              toast.success('🧪 Conexão de teste criada!', {
-                description: `${sourceComp.data.title} → ${targetComp.data.title}`,
-                duration: 5000,
-              });
-            }}
-            className="px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs rounded-lg shadow-lg border border-purple-500 transition-colors"
-            title="Criar conexão de teste entre primeiros 2 componentes"
-          >
-            🧪 Teste
-          </button>
-        </div>
-      </div>
-
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -1198,11 +951,11 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
         />
         
         <Controls 
-          className="!bg-gray-800 !border-gray-600"
-          showZoom={true}
-          showFitView={true}
-          showInteractive={true}
-          position="top-left"
+          className="!bg-gray-800 !border-gray-600 !hidden"
+          showZoom={false}
+          showFitView={false}
+          showInteractive={false}
+          position="bottom-left"
         />
         
         <MiniMap 

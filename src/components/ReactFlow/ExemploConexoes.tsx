@@ -61,7 +61,7 @@ const initialNodes = [
     position: { x: 700, y: 100 },
     data: {
       label: 'Página de Vendas',
-      icon: '💰',
+      icon: '📈',
       type: 'sales-page',
       description: 'Apresentação da oferta principal',
       isActive: false,
