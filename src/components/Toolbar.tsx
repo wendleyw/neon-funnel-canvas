@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Download, Save, FolderOpen, Trash2, FileText } from 'lucide-react';
+import { ArrowLeft, Download, Save, FolderOpen, Trash2, FileText, Link } from 'lucide-react';
 import { AdvancedExportModal } from './AdvancedExportModal';
 import { FunnelProject } from '../types/funnel';
 
@@ -14,6 +14,8 @@ interface ToolbarProps {
   workspaceName?: string;
   componentsCount?: number;
   project: FunnelProject;
+  enableConnectionValidation?: boolean;
+  onToggleConnectionValidation?: () => void;
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
@@ -26,7 +28,9 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onProjectNameChange,
   workspaceName,
   componentsCount = 0,
-  project
+  project,
+  enableConnectionValidation,
+  onToggleConnectionValidation
 }) => {
   const [showAdvancedExport, setShowAdvancedExport] = useState(false);
 
@@ -62,6 +66,20 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
         {/* Right Section - Minimalist Action Buttons */}
         <div className="flex items-center space-x-1">
+          {onToggleConnectionValidation && (
+            <button
+              onClick={onToggleConnectionValidation}
+              className={`w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-200 ${
+                enableConnectionValidation 
+                  ? 'text-red-400 hover:text-red-300 bg-red-900/20 hover:bg-red-900/30' 
+                  : 'text-green-400 hover:text-green-300 bg-green-900/20 hover:bg-green-900/30'
+              }`}
+              title={enableConnectionValidation ? "Conexões Restritas (clique para liberar)" : "Conexões Livres (clique para restringir)"}
+            >
+              <Link size={16} />
+            </button>
+          )}
+          
           <button
             onClick={onSave}
             className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-all duration-200"

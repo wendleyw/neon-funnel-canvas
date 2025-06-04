@@ -44,10 +44,11 @@ interface ReactFlowCanvasProps {
   onConnectionAdd: (connection: FunnelConnection) => void;
   onConnectionDelete: (connectionId: string) => void;
   onConnectionUpdate?: (connectionId: string, updates: Partial<FunnelConnection>) => void;
+  enableConnectionValidation?: boolean;
 }
 
-// Connection validation helper
-const isValidConnection = (connection: Connection, nodeMap: Map<string, FunnelComponent>) => {
+// Connection validation helper - now optional
+const isValidConnection = (connection: Connection, nodeMap: Map<string, FunnelComponent>, enableValidation = true) => {
   if (!connection.source || !connection.target) return false;
   
   const sourceNode = nodeMap.get(connection.source);
@@ -57,6 +58,9 @@ const isValidConnection = (connection: Connection, nodeMap: Map<string, FunnelCo
   
   // Prevent self-connections
   if (connection.source === connection.target) return false;
+  
+  // Skip validation if disabled - allow any connection
+  if (!enableValidation) return true;
   
   // Define connection rules based on component types
   const connectionRules: Record<string, { canConnectTo: string[] }> = {
@@ -132,6 +136,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   onComponentDelete,
   onConnectionAdd,
   onConnectionDelete,
+  enableConnectionValidation = true,
 }) => {
   
   const reactFlowInstance = useReactFlow();
@@ -609,8 +614,8 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
       return;
     }
     
-    // Validate connection using helpers (if available)
-    if (helpers && !helpers.validateConnection(params as Connection)) {
+    // Validate connection using helpers (if validation is enabled)
+    if (enableConnectionValidation && helpers && !helpers.validateConnection(params as Connection)) {
       console.warn('❌ Invalid connection blocked by validation rules');
       toast.error('❌ Conexão inválida entre estes tipos de componente');
       setIsConnecting(false);
@@ -701,7 +706,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
     
     setIsConnecting(false);
     console.log('🔗 ===== CONNECTION COMPLETED =====');
-  }, [helpers, nodeMap, onConnectionAdd, setEdges, connections, getConnectionLabel, calculateBestConnectionPoints]);
+  }, [helpers, nodeMap, onConnectionAdd, setEdges, connections, getConnectionLabel, calculateBestConnectionPoints, enableConnectionValidation]);
 
   // Connection start handler
   const onConnectStart = useCallback(() => {

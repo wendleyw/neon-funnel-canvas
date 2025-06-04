@@ -43,6 +43,7 @@ export const FunnelEditor: React.FC<FunnelEditorProps> = ({
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isDragActive, setIsDragActive] = useState(false);
+  const [enableConnectionValidation, setEnableConnectionValidation] = useState(false);
   
   const isMobile = useIsMobile();
 
@@ -278,6 +279,8 @@ export const FunnelEditor: React.FC<FunnelEditorProps> = ({
             workspaceName={currentWorkspace?.name || ''}
             componentsCount={project.components.length}
             project={project}
+            enableConnectionValidation={enableConnectionValidation}
+            onToggleConnectionValidation={() => setEnableConnectionValidation(!enableConnectionValidation)}
           />
         </div>
         
@@ -292,6 +295,7 @@ export const FunnelEditor: React.FC<FunnelEditorProps> = ({
             onConnectionAdd={projectHandlers.handleConnectionAdd}
             onConnectionDelete={projectHandlers.handleConnectionDelete}
             onConnectionUpdate={projectHandlers.handleConnectionUpdate}
+            enableConnectionValidation={enableConnectionValidation}
           />
         </div>
       </div>
