@@ -110,7 +110,6 @@ const getEdgeStyle = (sourceType: string, targetType: string) => {
 
 // Wrapper component to add debug to CustomNode
 const DebugCustomNode: React.FC<any> = (props) => {
-  console.log('🔥 DebugCustomNode called with props:', props);
   return React.createElement(CustomNode, props);
 };
 
@@ -198,16 +197,8 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
     };
   }, [onConnectionAdd, onComponentDelete, onComponentUpdate]);
   
-  console.log('🚀 ReactFlowCanvas rendering with:', {
-    componentsCount: components.length,
-    connectionsCount: connections.length
-  });
-  
   // Converter dados do funnel para React Flow
   const initialNodes: ReactFlowNode[] = useMemo(() => {
-    console.log('🔄 Converting components to nodes...');
-    console.log('📊 Input components:', components.length);
-    
     const nodes = components.map((component, index) => {
       try {
         const node = convertFunnelComponentToNode(component);
@@ -225,39 +216,12 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
           }
         };
         
-        console.log(`✅ [${index + 1}/${components.length}] Converted:`, {
-          id: component.id,
-          type: component.type,
-          title: component.data.title,
-          nodeType: customNode.type
-        });
-        
         return customNode;
       } catch (error) {
-        console.error(`❌ [${index + 1}/${components.length}] Failed to convert component:`, {
-          id: component.id,
-          type: component.type,
-          error: error.message
-        });
+        console.error(`Failed to convert component ${component.id}:`, error);
         return null;
       }
     }).filter(Boolean); // Remove null entries
-    
-    console.log('📊 Converted nodes successfully:', nodes.length);
-    console.log('⚠️ Conversion issues:', components.length - nodes.length, 'components failed to convert');
-    
-    if (components.length !== nodes.length) {
-      console.warn('🔍 Component vs Node count mismatch:');
-      console.warn('  - Components in state:', components.length);
-      console.warn('  - Nodes converted:', nodes.length);
-      console.warn('  - Missing nodes:', components.length - nodes.length);
-      
-      // Log the components that failed conversion
-      const convertedIds = new Set(nodes.map(n => n.data.funnelComponentId || n.id));
-      const failedComponents = components.filter(comp => !convertedIds.has(comp.id));
-      console.warn('  - Failed component IDs:', failedComponents.map(c => c.id));
-      console.warn('  - Failed component types:', failedComponents.map(c => c.type));
-    }
     
     return nodes;
   }, [components, highlightedNodeId]);
@@ -323,7 +287,6 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
         },
       };
     });
-    console.log('🔗 Converted edges with animation:', edges);
     return edges;
   }, [connections, nodeMap]);
 
@@ -332,15 +295,8 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
 
   // CRITICAL FIX: Sync nodes with components state changes
   useEffect(() => {
-    console.log('🔄 Syncing React Flow nodes with components state...');
-    console.log('📊 Components in state:', components.length);
-    console.log('📊 Current nodes in ReactFlow:', nodes.length);
-    console.log('📊 Initial nodes calculated:', initialNodes.length);
-    
     // Force update nodes when components change
     if (initialNodes.length !== nodes.length) {
-      console.log('⚠️ Node count mismatch detected, forcing sync...');
-      console.log('  - Setting nodes to:', initialNodes.length, 'nodes');
       setNodes(initialNodes);
     } else {
       // Even if counts match, check if the actual nodes are different
@@ -351,19 +307,13 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
       const extraInCurrent = nodes.filter(n => !expectedNodeIds.has(n.id));
       
       if (missingInCurrent.length > 0 || extraInCurrent.length > 0) {
-        console.log('⚠️ Node content mismatch detected, forcing sync...');
-        console.log('  - Missing nodes:', missingInCurrent.map(n => n.id));
-        console.log('  - Extra nodes:', extraInCurrent.map(n => n.id));
         setNodes(initialNodes);
-      } else {
-        console.log('✅ Nodes are properly synced');
       }
     }
   }, [initialNodes, components, setNodes]); // Watch both initialNodes and components
 
   // Also sync when nodes length changes
   useEffect(() => {
-    console.log('📊 ReactFlow nodes updated to:', nodes.length);
   }, [nodes.length]);
 
   // Drag & Drop handlers
@@ -371,7 +321,6 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
     event.preventDefault();
     event.dataTransfer.dropEffect = 'copy';
     setIsDragOver(true);
-    console.log('🎯 onDragOver - React Flow');
     
     // Enhanced debugging
     console.log('🔍 DragOver Debug:', {
@@ -386,7 +335,6 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   const onDragEnter = useCallback((event: React.DragEvent) => {
     event.preventDefault();
     setIsDragOver(true);
-    console.log('🎯 onDragEnter - React Flow');
     
     // Log more details
     console.log('🔍 DragEnter Debug:', {
@@ -399,67 +347,30 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   const onDragLeave = useCallback((event: React.DragEvent) => {
     console.log('🎯 onDragLeave - React Flow - ENTRY');
     
+    // Better leave detection: check if we're actually leaving the target
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
     const x = event.clientX;
     const y = event.clientY;
     
-    console.log('🔍 DragLeave Debug:', {
-      clientX: x,
-      clientY: y,
-      rect: { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom },
-      isOutside: x < rect.left || x > rect.right || y < rect.top || y > rect.bottom
-    });
-    
     if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
       setIsDragOver(false);
-      console.log('🎯 onDragLeave - React Flow - CONFIRMED');
-    } else {
-      console.log('🎯 onDragLeave - React Flow - IGNORED (still inside)');
     }
   }, []);
 
   const onDrop = useCallback((event: React.DragEvent) => {
-    console.log('🎯 *** DROP EVENT TRIGGERED ON REACT FLOW ***');
-    console.log('🎯 Event details:', {
-      type: event.type,
-      target: event.target,
-      currentTarget: event.currentTarget,
-      timeStamp: event.timeStamp
-    });
-    
     event.preventDefault();
     setIsDragOver(false);
 
-    console.log('🎯 Drop event on React Flow');
-
     try {
       const templateData = event.dataTransfer.getData('application/json');
-      console.log('🎯 Raw template data:', templateData);
-      
-      // Enhanced debugging for dataTransfer
-      console.log('🔍 DataTransfer Debug:', {
-        types: Array.from(event.dataTransfer.types),
-        hasJsonData: !!templateData,
-        hasTextData: !!event.dataTransfer.getData('text/plain'),
-        effectAllowed: event.dataTransfer.effectAllowed,
-        dropEffect: event.dataTransfer.dropEffect,
-        items: event.dataTransfer.items ? Array.from(event.dataTransfer.items).map(item => ({
-          kind: item.kind,
-          type: item.type
-        })) : 'Not available'
-      });
       
       if (!templateData) {
-        console.warn('⚠️ No template data found in drop');
-        
         // Try other data formats
         const textData = event.dataTransfer.getData('text/plain');
-        console.log('🔍 Trying text/plain data:', textData);
         
         // Try to get all available data
         for (const type of event.dataTransfer.types) {
           const data = event.dataTransfer.getData(type);
-          console.log(`🔍 Data for type "${type}":`, data);
         }
         
         toast.error('Erro: Nenhum componente encontrado no drag. Verifique se você está arrastando de um item da sidebar.');
@@ -467,7 +378,6 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
       }
       
       const template: ComponentTemplate = JSON.parse(templateData);
-      console.log('📦 Template dropped:', template.label);
 
       // Verificar se o template tem todos os campos necessários
       if (!template.type || !template.label) {
@@ -479,9 +389,6 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
       // IMPROVED POSITIONING: Use a more reliable approach for visible positioning
       const viewport = reactFlowInstance.getViewport();
       const reactFlowBounds = event.currentTarget.getBoundingClientRect();
-      
-      console.log('🔍 Current viewport:', viewport);
-      console.log('🔍 Canvas bounds:', { width: reactFlowBounds.width, height: reactFlowBounds.height });
       
       // SIMPLE APPROACH: Always position at the center of the current view
       // Calculate the actual center of what the user can see
@@ -495,9 +402,6 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
         x: viewportCenterX + randomOffset(),
         y: viewportCenterY + randomOffset()
       };
-      
-      console.log('📍 Calculated viewport center:', { x: viewportCenterX, y: viewportCenterY });
-      console.log('📍 Final position with offset:', position);
 
       const newComponent: FunnelComponent = {
         id: `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -514,40 +418,33 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
         }
       };
 
-      console.log('✅ Creating component:', newComponent);
       onComponentAdd(newComponent);
       
       // ENHANCED: Ensure visibility with more robust strategies
-      console.log('🎯 Ensuring component visibility...');
       
       // Strategy 1: Wait for component to be added to state, then focus
       setTimeout(() => {
         try {
-          console.log('🎯 Strategy 1: Waiting for state update, then centering');
           const currentNodes = reactFlowInstance.getNodes();
           const newNode = currentNodes.find(n => n.id === newComponent.id);
           
           if (newNode) {
-            console.log('✅ Found new node, centering on it:', newNode.position);
             reactFlowInstance.setCenter(newNode.position.x, newNode.position.y, { 
               zoom: 1.2, 
               duration: 800 
             });
           } else {
-            console.warn('❌ New node not found in current nodes, trying direct position');
             reactFlowInstance.setCenter(position.x, position.y, { zoom: 1.2, duration: 800 });
           }
         } catch (error) {
-          console.warn('❌ Strategy 1 failed:', error);
+          console.warn('Failed to center on new component:', error);
         }
       }, 200); // Increased delay to ensure state update
 
       // Strategy 2: FitView with proper node inclusion (fallback)
       setTimeout(() => {
         try {
-          console.log('🎯 Strategy 2: Enhanced FitView');
           const currentNodes = reactFlowInstance.getNodes();
-          console.log('📊 Nodes before fitView:', currentNodes.length);
           
           if (currentNodes.length > 0) {
             reactFlowInstance.fitView({ 
@@ -559,31 +456,26 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
             });
           }
         } catch (error) {
-          console.warn('❌ Strategy 2 failed:', error);
+          console.warn('Failed to fit view:', error);
         }
       }, 800);
 
       // Strategy 3: Force viewport to include the new component area (ultimate fallback)
       setTimeout(() => {
         try {
-          console.log('🎯 Strategy 3: Force viewport to include new area');
           const viewport = reactFlowInstance.getViewport();
           const currentNodes = reactFlowInstance.getNodes();
-          
-          console.log('📊 Current viewport before force:', viewport);
-          console.log('📊 Total nodes after add:', currentNodes.length);
           
           // Force center on the area where the component should be
           const targetX = position.x;
           const targetY = position.y;
           
-          console.log('🎯 Forcing center to:', { x: targetX, y: targetY });
           reactFlowInstance.setCenter(targetX, targetY, { 
             zoom: 1.0,
             duration: 600 
           });
         } catch (error) {
-          console.warn('❌ Strategy 3 failed:', error);
+          console.warn('Failed to force center:', error);
         }
       }, 1500);
 

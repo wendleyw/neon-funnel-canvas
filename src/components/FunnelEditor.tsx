@@ -4,13 +4,14 @@ import ReactFlowCanvasWrapper from './ReactFlowCanvas';
 import { Toolbar } from './Toolbar';
 import { CreateProjectModal } from './ProjectCreator/CreateProjectModal';
 import { OpenProjectModal } from './OpenProjectModal';
-import { FunnelProject, FunnelComponent } from '../types/funnel';
+import { FunnelProject, FunnelComponent, ComponentTemplate } from '../types/funnel';
 import { DrawingShape } from '../types/drawing';
 import { canvasAddService } from '../services/CanvasAddService';
 import { useProjectHandlers } from '../hooks/useProjectHandlers';
 import { useIsMobile } from '../hooks/use-mobile';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { Menu, X } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface FunnelEditorProps {
   project: FunnelProject;
@@ -74,35 +75,45 @@ export const FunnelEditor: React.FC<FunnelEditorProps> = ({
     }
   }, [isMobile]);
 
-  const handleDragStart = useCallback((template: any) => {
-    console.log('🚀 [FunnelEditor] Drag started for template:', template);
-    console.log('🚀 [FunnelEditor] Template type:', typeof template);
-    console.log('🚀 [FunnelEditor] Template keys:', Object.keys(template || {}));
-    
-    // Marcar que um drag está ativo para melhor UX
-    setIsDragActive(true);
-    
-    // Adicionar verificação se o template tem a estrutura esperada
-    if (template && template.type && template.label) {
-      console.log('✅ [FunnelEditor] Template structure looks good');
-    } else {
-      console.warn('⚠️ [FunnelEditor] Template structure may be invalid:', template);
+  const handleDragStart = useCallback((template: ComponentTemplate) => {
+    if (!template) {
+      console.error('Template is undefined in handleDragStart');
+      return;
     }
-    
-    // Add enhanced debugging for drag events
-    console.log('🔍 [FunnelEditor] Drag debugging:');
-    console.log('  - Browser:', navigator.userAgent);
-    console.log('  - Touch device:', 'ontouchstart' in window);
-    console.log('  - Mobile detected:', isMobile);
-    
-    // Test if we can access clipboard/dataTransfer APIs
+
     try {
-      const testTransfer = new DataTransfer();
-      console.log('  - DataTransfer API:', 'Available');
-    } catch (e) {
-      console.warn('  - DataTransfer API:', 'Not available', e);
+      const templateData = JSON.stringify(template);
+      
+      // Set the data for the drag operation
+      const dragEvent = new DragEvent('dragstart', {
+        dataTransfer: new DataTransfer()
+      });
+      
+      dragEvent.dataTransfer?.setData('application/json', templateData);
+      dragEvent.dataTransfer?.setData('text/plain', template.label);
+      
+      // Set drag effect
+      if (dragEvent.dataTransfer) {
+        dragEvent.dataTransfer.effectAllowed = 'copy';
+      }
+
+      // Mobile detection for enhanced debugging
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      
+      if (typeof dragEvent.dataTransfer?.setData === 'function') {
+        // DataTransfer API is available
+      } else {
+        console.warn('DataTransfer API not available - this might be a mobile device or older browser');
+      }
+
+      // Store template globally as fallback for mobile/touch devices
+      (window as any).__dragTemplate = template;
+      
+    } catch (error) {
+      console.error('Error in handleDragStart:', error);
+      toast.error('Erro ao iniciar drag. Tente novamente.');
     }
-  }, [isMobile]);
+  }, []);
 
   const handleProjectCreate = useCallback((newProject: FunnelProject) => {
     loadProjectData(newProject);
@@ -118,50 +129,77 @@ export const FunnelEditor: React.FC<FunnelEditorProps> = ({
     setIsOpenModalOpen(true);
   }, []);
 
-  // Simplified component addition using the new service
-  const handleComponentAdd = useCallback((template: any) => {
-    console.log('🚀 [FunnelEditor] Component add requested:', template);
-    console.log('🚀 [FunnelEditor] Template structure check:');
-    console.log('  - Type:', template?.type);
-    console.log('  - Label:', template?.label);
-    console.log('  - DefaultProps:', template?.defaultProps);
-    console.log('  - Has projectHandlers.handleComponentAdd:', typeof projectHandlers.handleComponentAdd);
-    
-    try {
-      const success = canvasAddService.addComponentTemplate(
-        template,
-        projectHandlers.handleComponentAdd,
-        { position: { x: 400, y: 300 } }
-      );
-      
-      if (success) {
-        console.log('✅ [FunnelEditor] Component added successfully');
-        closeMobileSidebar(); // Close mobile sidebar after adding component
-      } else {
-        console.error('❌ [FunnelEditor] Failed to add component');
-      }
-    } catch (error) {
-      console.error('❌ [FunnelEditor] Error in handleComponentAdd:', error);
+  const handleComponentAdd = useCallback((template: ComponentTemplate) => {
+    if (!template) {
+      console.error('Template is undefined in handleComponentAdd');
+      return;
     }
-  }, [projectHandlers.handleComponentAdd, closeMobileSidebar]);
 
-  // Simplified shape addition using the new service
-  const handleShapeAdd = useCallback((shape: DrawingShape) => {
-    console.log('🚀 [FunnelEditor] Shape add requested:', shape);
-    
-    const success = canvasAddService.addDiagramShape(
-      shape,
-      projectHandlers.handleComponentAdd,
-      { position: shape.position || { x: 400, y: 300 } }
-    );
-    
-    if (success) {
-      console.log('✅ [FunnelEditor] Shape added successfully');
-      closeMobileSidebar(); // Close mobile sidebar after adding shape
-    } else {
-      console.error('❌ [FunnelEditor] Failed to add shape');
+    try {
+      if (typeof projectHandlers.handleComponentAdd !== 'function') {
+        console.error('handleComponentAdd is not a function:', typeof projectHandlers.handleComponentAdd);
+        return;
+      }
+
+      // Create component from template
+      const newComponent: FunnelComponent = {
+        id: `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        type: template.type as FunnelComponent['type'],
+        position: { x: Math.random() * 300, y: Math.random() * 300 },
+        connections: [],
+        data: {
+          title: template.defaultProps?.title || template.label,
+          description: template.defaultProps?.description || '',
+          image: template.defaultProps?.image || '',
+          url: template.defaultProps?.url || '',
+          status: template.defaultProps?.status || 'draft',
+          properties: template.defaultProps?.properties || {}
+        }
+      };
+
+      projectHandlers.handleComponentAdd(newComponent);
+      
+      toast.success(`${template.label} adicionado ao canvas!`);
+    } catch (error) {
+      console.error('Error adding component:', error);
+      toast.error('Erro ao adicionar componente. Tente novamente.');
     }
-  }, [projectHandlers.handleComponentAdd, closeMobileSidebar]);
+  }, [projectHandlers]);
+
+  const handleShapeAdd = useCallback((shape: any) => {
+    if (!shape) {
+      console.error('Shape is undefined in handleShapeAdd');
+      return;
+    }
+
+    try {
+      // Convert shape to component format
+      const shapeComponent: FunnelComponent = {
+        id: `shape-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        type: 'custom-shape' as FunnelComponent['type'],
+        position: { x: Math.random() * 300, y: Math.random() * 300 },
+        connections: [],
+        data: {
+          title: shape.name || 'Custom Shape',
+          description: shape.description || '',
+          image: '',
+          url: '',
+          status: 'draft',
+          properties: {
+            shapeType: shape.type,
+            shapeData: shape
+          }
+        }
+      };
+
+      projectHandlers.handleComponentAdd(shapeComponent);
+      
+      toast.success(`${shape.name || 'Shape'} adicionado ao canvas!`);
+    } catch (error) {
+      console.error('Error adding shape:', error);
+      toast.error('Erro ao adicionar forma. Tente novamente.');
+    }
+  }, [projectHandlers]);
 
   useHotkeys('ctrl+s, command+s', (e) => {
     e.preventDefault();
