@@ -40,17 +40,17 @@ export const ComponentNodeCardSimple: React.FC<ComponentNodeCardSimpleProps> = (
     const status = component.data.status;
     switch (status) {
       case 'active':
-        return { color: '#10B981', icon: Play, text: 'Ativo' };
+        return { color: '#10B981', icon: Play, text: 'Active' };
       case 'inactive':
-        return { color: '#F59E0B', icon: Pause, text: 'Inativo' };
+        return { color: '#F59E0B', icon: Pause, text: 'Inactive' };
       case 'draft':
-        return { color: '#6B7280', icon: Settings, text: 'Rascunho' };
+        return { color: '#6B7280', icon: Settings, text: 'Draft' };
       case 'test':
-        return { color: '#8B5CF6', icon: Zap, text: 'Teste' };
+        return { color: '#8B5CF6', icon: Zap, text: 'Test' };
       case 'published':
-        return { color: '#10B981', icon: Play, text: 'Publicado' };
+        return { color: '#10B981', icon: Play, text: 'Published' };
       default:
-        return { color: '#8B5CF6', icon: Zap, text: 'Pronto' };
+        return { color: '#8B5CF6', icon: Zap, text: 'Ready' };
     }
   };
 
@@ -122,14 +122,14 @@ export const ComponentNodeCardSimple: React.FC<ComponentNodeCardSimpleProps> = (
               <button
                 onClick={onEditClick}
                 className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-800 rounded-md transition-all duration-200"
-                title="Editar"
+                title="Edit"
               >
                 <Edit2 className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={onConnectionClick}
                 className="p-1.5 text-gray-500 hover:text-blue-400 hover:bg-gray-800 rounded-md transition-all duration-200"
-                title="Conectar"
+                title="Connect"
               >
                 <Link className="w-3.5 h-3.5" />
               </button>
@@ -137,7 +137,7 @@ export const ComponentNodeCardSimple: React.FC<ComponentNodeCardSimpleProps> = (
                 <button
                   onClick={onDuplicateClick}
                   className="p-1.5 text-gray-500 hover:text-green-400 hover:bg-gray-800 rounded-md transition-all duration-200"
-                  title="Duplicar"
+                  title="Duplicate"
                 >
                   <Copy className="w-3.5 h-3.5" />
                 </button>
@@ -147,7 +147,7 @@ export const ComponentNodeCardSimple: React.FC<ComponentNodeCardSimpleProps> = (
             <button
               onClick={onDeleteClick}
               className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-gray-800 rounded-md transition-all duration-200"
-              title="Excluir"
+              title="Delete"
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>

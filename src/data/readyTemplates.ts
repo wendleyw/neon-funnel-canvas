@@ -1,48 +1,40 @@
-
 import { ReadyTemplate, TemplateCategory } from '../types/readyTemplates';
 
 export const templateCategories: TemplateCategory[] = [
   {
-    id: 'digital-launch',
-    name: 'Lançamento Digital',
-    description: 'Templates completos para lançamentos digitais',
-    icon: '🚀',
-    color: '#8B5CF6'
-  },
-  {
-    id: 'lead-generation',
-    name: 'Captura de Leads',
-    description: 'Funis focados em geração de leads',
-    icon: '🎯',
-    color: '#3B82F6'
-  },
-  {
-    id: 'e-commerce',
+    id: 'ecommerce',
     name: 'E-commerce',
-    description: 'Funis para vendas online',
+    description: 'Funnels for online product sales',
     icon: '🛒',
     color: '#10B981'
   },
   {
-    id: 'webinar',
-    name: 'Webinar',
-    description: 'Templates para webinars e VSLs',
-    icon: '🎬',
-    color: '#F59E0B'
+    id: 'lead-generation',
+    name: 'Lead Generation',
+    description: 'Funnels focused on lead generation',
+    icon: '🎯',
+    color: '#3B82F6'
   },
   {
-    id: 'course',
-    name: 'Curso Online',
-    description: 'Funis para venda de cursos',
+    id: 'course-sales',
+    name: 'Course Sales',
+    description: 'Funnels for selling digital courses',
     icon: '📚',
     color: '#EF4444'
   },
   {
-    id: 'coaching',
-    name: 'Coaching',
-    description: 'Templates para coaches e consultores',
+    id: 'service-business',
+    name: 'Service Business',
+    description: 'Funnels for service businesses',
     icon: '💼',
     color: '#06B6D4'
+  },
+  {
+    id: 'event-promotion',
+    name: 'Event Promotion',
+    description: 'Funnels for event and webinar promotion',
+    icon: '🎪',
+    color: '#F59E0B'
   }
 ];
 
@@ -64,10 +56,11 @@ export const readyTemplates: ReadyTemplate[] = [
           status: 'draft',
           properties: {
             avatar: 'Empreendedores iniciantes',
-            painPoints: ['Falta de conhecimento em marketing digital', 'Dificuldade em gerar leads'],
+            painPoints: ['Lack of knowledge in digital marketing', 'Difficulty generating leads'],
             desires: ['Autonomia financeira', 'Negócio online rentável'],
             channels: ['Instagram', 'YouTube', 'Facebook'],
-            demographics: { age: '25-45', income: 'R$ 3.000-10.000' }
+            demographics: { age: '25-45', income: 'R$ 3.000-10.000' },
+            goals: ['Increase brand visibility', 'Generate qualified leads', 'Improve ROI']
           }
         },
         connections: []

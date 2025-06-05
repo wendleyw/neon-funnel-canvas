@@ -17,6 +17,7 @@ interface SequenceAnimationContextType {
   analyzeAndStartSequences: (connections: Connection[], components: FunnelComponent[]) => void;
   getConnectionDelay: (connectionId: string) => number;
   isConnectionInActiveSequence: (connectionId: string) => boolean;
+  getConnectionPositionInSequence: (connectionId: string) => number;
 }
 
 const SequenceAnimationContext = createContext<SequenceAnimationContextType | undefined>(undefined);
@@ -40,7 +41,7 @@ export const SequenceAnimationProvider: React.FC<SequenceAnimationProviderProps>
     console.log('[SequenceAnimation] Sequence mode disabled and sequences cleared');
   }, []);
 
-  // Detecta cadeias de conexões e calcula sequências
+  // Detect connection chains and calculate sequences
   const findConnectionChains = useCallback((connections: Connection[], components: FunnelComponent[]) => {
     console.log('[SequenceAnimation] Finding connection chains...', { 
       connectionsCount: connections.length, 
@@ -50,10 +51,10 @@ export const SequenceAnimationProvider: React.FC<SequenceAnimationProviderProps>
     const chains: Connection[][] = [];
     const usedConnections = new Set<string>();
 
-    // Cria mapa de componentes para lookup rápido
+    // Create component map for fast lookup
     const componentMap = new Map(components.map(c => [c.id, c]));
     
-    // Cria mapa de conexões de saída para cada componente
+    // Create outgoing connections map for each component
     const outgoingConnections = new Map<string, Connection[]>();
     connections.forEach(conn => {
       if (!outgoingConnections.has(conn.from)) {
@@ -62,7 +63,7 @@ export const SequenceAnimationProvider: React.FC<SequenceAnimationProviderProps>
       outgoingConnections.get(conn.from)!.push(conn);
     });
 
-    // Encontra pontos de início (componentes sem conexões de entrada)
+    // Find start points (components with no incoming connections)
     const incomingConnections = new Set(connections.map(c => c.to));
     const startPoints = components.filter(comp => !incomingConnections.has(comp.id));
 
@@ -70,7 +71,7 @@ export const SequenceAnimationProvider: React.FC<SequenceAnimationProviderProps>
     console.log('[SequenceAnimation] Incoming connections:', Array.from(incomingConnections));
     console.log('[SequenceAnimation] Outgoing connections map:', Object.fromEntries(outgoingConnections));
 
-    // Constrói cadeias a partir de cada ponto inicial
+    // Build chains from each start point
     startPoints.forEach(startComponent => {
       const chain: Connection[] = [];
       let currentComponentId = startComponent.id;
@@ -80,7 +81,7 @@ export const SequenceAnimationProvider: React.FC<SequenceAnimationProviderProps>
       while (currentComponentId) {
         const outgoing = outgoingConnections.get(currentComponentId);
         if (outgoing && outgoing.length > 0 && !usedConnections.has(outgoing[0].id)) {
-          const connection = outgoing[0]; // Pega a primeira conexão (pode ser expandido para múltiplas)
+          const connection = outgoing[0]; // Take first connection (can be expanded for multiple)
           chain.push(connection);
           usedConnections.add(connection.id);
           
@@ -124,7 +125,7 @@ export const SequenceAnimationProvider: React.FC<SequenceAnimationProviderProps>
     chains.forEach((chain, index) => {
       if (chain.length > 0) {
         const sequenceId = `sequence-${index}-${Date.now()}`;
-        const connectionDuration = 4000; // 4 segundos por conexão
+        const connectionDuration = 4000; // 4 seconds per connection
         const totalDuration = chain.length * connectionDuration;
 
         const sequence: ConnectionSequence = {
@@ -145,7 +146,7 @@ export const SequenceAnimationProvider: React.FC<SequenceAnimationProviderProps>
     console.log(`[SequenceAnimation] Created ${newSequences.length} sequences`);
     setActiveSequences(newSequences);
 
-    // Reinicia as sequências a cada ciclo completo
+    // Restart sequences after each complete cycle
     if (newSequences.length > 0) {
       const maxDuration = Math.max(...newSequences.map(s => s.totalDuration));
       console.log(`[SequenceAnimation] Setting restart timer for ${maxDuration + 1000}ms`);
@@ -154,7 +155,7 @@ export const SequenceAnimationProvider: React.FC<SequenceAnimationProviderProps>
           console.log('[SequenceAnimation] Restarting sequences...');
           analyzeAndStartSequences(connections, components);
         }
-      }, maxDuration + 1000); // Pequena pausa entre ciclos
+      }, maxDuration + 1000); // Small pause between cycles
     }
   }, [isSequenceMode, findConnectionChains]);
 
@@ -164,7 +165,7 @@ export const SequenceAnimationProvider: React.FC<SequenceAnimationProviderProps>
       if (connectionIndex !== -1) {
         const delay = connectionIndex * 4000;
         console.log(`[SequenceAnimation] Connection ${connectionId} delay: ${delay}ms (index: ${connectionIndex})`);
-        return delay; // 4 segundos de delay por conexão anterior
+        return delay; // 4 seconds of delay per previous connection
       }
     }
     return 0;
@@ -178,6 +179,18 @@ export const SequenceAnimationProvider: React.FC<SequenceAnimationProviderProps>
     return inSequence;
   }, [activeSequences]);
 
+  const getConnectionPositionInSequence = useCallback((connectionId: string): number => {
+    for (const sequence of activeSequences) {
+      const connectionIndex = sequence.connections.findIndex(c => c.id === connectionId);
+      if (connectionIndex !== -1) {
+        const position = connectionIndex + 1;
+        console.log(`[SequenceAnimation] Connection ${connectionId} position in sequence: ${position}`);
+        return position;
+      }
+    }
+    return 0;
+  }, [activeSequences]);
+
   return (
     <SequenceAnimationContext.Provider
       value={{
@@ -187,7 +200,8 @@ export const SequenceAnimationProvider: React.FC<SequenceAnimationProviderProps>
         disableSequenceMode,
         analyzeAndStartSequences,
         getConnectionDelay,
-        isConnectionInActiveSequence
+        isConnectionInActiveSequence,
+        getConnectionPositionInSequence
       }}
     >
       {children}

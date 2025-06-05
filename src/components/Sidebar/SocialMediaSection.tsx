@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '../ui/button';
 import { Instagram, Youtube } from 'lucide-react';
@@ -60,7 +59,7 @@ export const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
       components.push(component);
     });
 
-    // Conectar em sequência
+    // Connect in sequence
     for (let i = 0; i < components.length - 1; i++) {
       connections.push({
         id: `connection-${Date.now()}-${i}`,
@@ -104,7 +103,7 @@ export const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
       components.push(component);
     });
 
-    // Conectar thumbnail -> video -> shorts
+    // Connect thumbnail -> video -> shorts
     for (let i = 0; i < components.length - 1; i++) {
       connections.push({
         id: `connection-${Date.now()}-${i}`,
@@ -130,6 +129,76 @@ export const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
     Twitter: socialMediaTemplates.filter(t => t.type.startsWith('twitter-'))
   };
 
+  // Helper function to create initial nodes and connections
+  const createSocialMediaFlow = (socialPlatform: string) => {
+    let nodes: any[] = [];
+    let edges: any[] = [];
+    let yPos = 0;
+    const xPos = 50;
+
+    const createNode = (id: string, type: string, label: string, data?: any) => {
+      const node = {
+        id,
+        type: 'custom',
+        position: { x: xPos, y: yPos },
+        data: {
+          title: label,
+          icon: type, // Assuming icon name matches type for simplicity
+          status: 'draft',
+          connections: [],
+          originalType: type,
+          ...data,
+        },
+      };
+      yPos += 100; // Increment Y position for the next node
+      return node;
+    };
+
+    const createEdge = (sourceId: string, targetId: string, label?: string) => {
+      return {
+        id: `e-${sourceId}-${targetId}`,
+        source: sourceId,
+        target: targetId,
+        type: 'smoothstep',
+        animated: true,
+        label: label || 'Next Step',
+      };
+    };
+
+    switch (socialPlatform) {
+      case 'youtube':
+        const ytVideo = createNode('yt-video', 'youtube', 'YouTube Video');
+        const ytShorts = createNode('yt-shorts', 'youtube-shorts', 'YouTube Shorts');
+        const ytThumbnail = createNode('yt-thumbnail', 'image', 'Video Thumbnail');
+        const ytCommunity = createNode('yt-community', 'post', 'Community Post');
+        nodes = [ytVideo, ytShorts, ytThumbnail, ytCommunity];
+        // Connect in sequence
+        edges = [
+          createEdge(ytThumbnail.id, ytVideo.id, 'Uses Thumbnail'),
+          createEdge(ytVideo.id, ytShorts.id, 'Content from Video'),
+          createEdge(ytVideo.id, ytCommunity.id, 'Promotes Video'),
+        ];
+        break;
+      case 'instagram':
+        const igPost = createNode('ig-post', 'instagram', 'Instagram Post');
+        const igStory = createNode('ig-story', 'instagram-story', 'Instagram Story');
+        const igReel = createNode('ig-reel', 'instagram-reel', 'Instagram Reel');
+        nodes = [igPost, igStory, igReel];
+         // Connect in sequence
+        edges = [
+          createEdge(igPost.id, igStory.id, 'Swipe Up'),
+          createEdge(igPost.id, igReel.id, 'Remix from Post'),
+          createEdge(igStory.id, igReel.id, 'Share to Reel'),
+        ];
+        break;
+      // Add other platforms like tiktok, facebook, twitter similarly
+      default:
+        nodes = [createNode('default-social', socialPlatform, `${socialPlatform} Content`)];
+        edges = [];
+    }
+    return { nodes, edges };
+  };
+
   return (
     <div className="space-y-4">
       <h3 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">
@@ -144,7 +213,7 @@ export const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
           size="sm"
         >
           <Instagram className="w-4 h-4 mr-2" />
-          Flow Instagram Completo
+          Complete Instagram Flow
         </Button>
 
         <Button
@@ -153,7 +222,7 @@ export const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
           size="sm"
         >
           <Youtube className="w-4 h-4 mr-2" />
-          Flow YouTube Completo
+          Complete YouTube Flow
         </Button>
       </div>
 
@@ -161,7 +230,7 @@ export const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({
       {favorites.length > 0 && (
         <div className="space-y-2">
           <h4 className="text-xs font-medium text-yellow-400 uppercase tracking-wider">
-            Favoritos
+            Favorites
           </h4>
           {socialMediaTemplates
             .filter(template => favorites.includes(template.type))

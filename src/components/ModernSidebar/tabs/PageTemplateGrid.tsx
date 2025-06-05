@@ -6,8 +6,8 @@ import { Star, Plus } from 'lucide-react';
 
 interface PageTemplateGridProps {
   templates: PageTemplate[];
-  onDragStart: (template: ComponentTemplate) => void;
-  onTemplateClick?: (template: ComponentTemplate) => void;
+  onDragStart: (template: PageTemplate) => void;
+  onTemplateClick?: (template: PageTemplate) => void;
   showFavorites?: boolean;
   isFavorite?: (template: PageTemplate) => boolean;
   toggleFavorite?: (template: PageTemplate) => void;
@@ -17,26 +17,145 @@ interface PageTemplateGridProps {
 const PageMockup: React.FC<{ type: string; className?: string }> = ({ type, className = '' }) => {
   const getMockupContent = () => {
     switch (type) {
+      // Social Media Mockups
+      case 'instagram-reels':
+        return (
+          <div className="w-full h-full bg-black rounded border overflow-hidden relative">
+            <div className="h-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500"></div>
+            <div className="flex-1 bg-gradient-to-br from-purple-900 via-pink-900 to-black relative h-full flex items-center justify-center">
+              <div className="text-white text-xs font-bold">REELS</div>
+              <div className="absolute top-1 left-1 text-white text-xs">🎬</div>
+              <div className="absolute bottom-1 right-1 text-white text-xs">9:16</div>
+            </div>
+          </div>
+        );
+
+      case 'instagram-post':
+        return (
+          <div className="w-full h-full bg-white rounded border overflow-hidden">
+            <div className="h-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500"></div>
+            <div className="p-0.5 space-y-0.5">
+              <div className="flex items-center gap-1">
+                <div className="w-1 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
+                <div className="w-3 h-0.5 bg-gray-400 rounded-sm"></div>
+              </div>
+              <div className="w-full h-3 bg-gradient-to-br from-pink-400 to-purple-600 rounded-sm flex items-center justify-center">
+                <div className="text-white text-xs">📸</div>
+              </div>
+              <div className="flex gap-1">
+                <div className="text-xs">❤️</div>
+                <div className="text-xs">💬</div>
+                <div className="text-xs">📤</div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'instagram-story':
+        return (
+          <div className="w-full h-full bg-black rounded border overflow-hidden">
+            <div className="h-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500"></div>
+            <div className="p-0.5 flex flex-col items-center justify-center h-full">
+              <div className="w-2 h-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full mb-1"></div>
+              <div className="text-white text-xs font-bold">STORY</div>
+              <div className="text-gray-400 text-xs">9:16</div>
+            </div>
+          </div>
+        );
+
+      case 'tiktok-video':
+        return (
+          <div className="w-full h-full bg-black rounded border overflow-hidden">
+            <div className="p-0.5 flex flex-col items-center justify-center h-full">
+              <div className="text-white text-xs font-bold">TIKTOK</div>
+              <div className="text-red-400 text-xs">🎵</div>
+              <div className="text-gray-400 text-xs">9:16</div>
+            </div>
+          </div>
+        );
+
+      case 'youtube-short':
+        return (
+          <div className="w-full h-full bg-black rounded border overflow-hidden">
+            <div className="h-0.5 bg-red-600"></div>
+            <div className="p-0.5 flex flex-col items-center justify-center h-full">
+              <div className="text-white text-xs font-bold bg-red-600 px-1 rounded">SHORTS</div>
+              <div className="text-white text-xs">📹</div>
+              <div className="text-gray-400 text-xs">9:16</div>
+            </div>
+          </div>
+        );
+
+      case 'facebook-post':
+        return (
+          <div className="w-full h-full bg-white rounded border overflow-hidden">
+            <div className="h-0.5 bg-blue-600"></div>
+            <div className="p-0.5 space-y-0.5">
+              <div className="flex items-center gap-1">
+                <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
+                <div className="w-3 h-0.5 bg-gray-400 rounded-sm"></div>
+              </div>
+              <div className="w-full h-2 bg-gradient-to-br from-blue-400 to-blue-600 rounded-sm flex items-center justify-center">
+                <div className="text-white text-xs">👥</div>
+              </div>
+              <div className="flex gap-1 text-xs">
+                <span>👍</span>
+                <span>💬</span>
+                <span>📤</span>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'linkedin-post':
+        return (
+          <div className="w-full h-full bg-white rounded border overflow-hidden">
+            <div className="h-0.5 bg-blue-700"></div>
+            <div className="p-0.5 space-y-0.5">
+              <div className="flex items-center gap-1">
+                <div className="w-1 h-1 bg-blue-700 rounded-sm"></div>
+                <div className="w-3 h-0.5 bg-gray-400 rounded-sm"></div>
+              </div>
+              <div className="w-full h-2 bg-gradient-to-br from-blue-600 to-blue-800 rounded-sm flex items-center justify-center">
+                <div className="text-white text-xs">💼</div>
+              </div>
+              <div className="flex gap-1 text-xs">
+                <span>👍</span>
+                <span>💬</span>
+                <span>📤</span>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'twitter-post':
+        return (
+          <div className="w-full h-full bg-white rounded border overflow-hidden">
+            <div className="h-0.5 bg-sky-500"></div>
+            <div className="p-0.5 space-y-0.5">
+              <div className="flex items-center gap-1">
+                <div className="w-1 h-1 bg-sky-500 rounded-full"></div>
+                <div className="w-3 h-0.5 bg-gray-400 rounded-sm"></div>
+              </div>
+              <div className="w-full h-2 bg-gradient-to-br from-sky-400 to-sky-600 rounded-sm flex items-center justify-center">
+                <div className="text-white text-xs">🐦</div>
+              </div>
+              <div className="flex gap-1 text-xs">
+                <span>💬</span>
+                <span>🔄</span>
+                <span>❤️</span>
+              </div>
+            </div>
+          </div>
+        );
+
       case 'landing-page':
         return (
-          <div className="w-full h-full bg-gradient-to-br from-indigo-50 to-white rounded border border-indigo-100 overflow-hidden">
-            {/* Modern header with gradient */}
-            <div className="h-2 bg-gradient-to-r from-indigo-500 to-purple-600"></div>
-            <div className="p-1.5 space-y-1">
-              {/* Hero headline */}
-              <div className="w-full h-2 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-sm shadow-sm"></div>
-              <div className="w-4/5 h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-sm"></div>
-              {/* Description text */}
-              <div className="w-full h-0.5 bg-gray-300 rounded-sm"></div>
-              <div className="w-3/4 h-0.5 bg-gray-300 rounded-sm"></div>
-              {/* Modern CTA button */}
-              <div className="w-12 h-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-md shadow-sm mt-1.5"></div>
-              {/* Trust indicators */}
-              <div className="flex gap-0.5 mt-1">
-                <div className="w-2 h-0.5 bg-indigo-400 rounded-sm"></div>
-                <div className="w-2 h-0.5 bg-purple-400 rounded-sm"></div>
-                <div className="w-2 h-0.5 bg-indigo-400 rounded-sm"></div>
-              </div>
+          <div className="w-full h-full bg-white rounded border overflow-hidden">
+            <div className="p-1 space-y-0.5">
+              <div className="w-full h-1 bg-indigo-500 rounded-sm"></div>
+              <div className="w-4/5 h-0.5 bg-gray-300 rounded-sm"></div>
+              <div className="w-8 h-1 bg-green-500 rounded-sm"></div>
             </div>
           </div>
         );
@@ -44,13 +163,10 @@ const PageMockup: React.FC<{ type: string; className?: string }> = ({ type, clas
       case 'sales-page':
         return (
           <div className="w-full h-full bg-white rounded border overflow-hidden">
-            <div className="h-1 bg-red-500"></div>
             <div className="p-1 space-y-0.5">
               <div className="w-full h-1.5 bg-red-500 rounded-sm"></div>
-              <div className="w-4/5 h-1.5 bg-red-500 rounded-sm"></div>
-              <div className="w-full h-0.5 bg-gray-300 rounded-sm"></div>
-              <div className="w-6 h-1.5 bg-yellow-400 rounded-sm"></div>
-              <div className="w-10 h-1 bg-red-500 rounded-sm"></div>
+              <div className="w-3/4 h-0.5 bg-gray-300 rounded-sm"></div>
+              <div className="w-10 h-1 bg-green-500 rounded-sm"></div>
             </div>
           </div>
         );
@@ -59,55 +175,10 @@ const PageMockup: React.FC<{ type: string; className?: string }> = ({ type, clas
       case 'download-page':
         return (
           <div className="w-full h-full bg-white rounded border overflow-hidden">
-            <div className="p-1 space-y-0.5 text-center">
-              <div className="w-4 h-0.5 bg-purple-500 rounded-sm mx-auto"></div>
+            <div className="p-1 space-y-0.5">
               <div className="w-full h-1 bg-purple-500 rounded-sm"></div>
-              <div className="w-full h-0.5 bg-gray-200 border border-gray-300 rounded-sm mt-1"></div>
-              <div className="w-8 h-1 bg-purple-500 rounded-sm mx-auto"></div>
-            </div>
-          </div>
-        );
-
-      case 'webinar-live':
-      case 'webinar-replay':
-        return (
-          <div className="w-full h-full bg-white rounded border overflow-hidden">
-            <div className="p-1 space-y-0.5">
-              <div className="w-3 h-0.5 bg-red-500 rounded-sm"></div>
-              <div className="w-full h-3 bg-gray-800 rounded-sm flex items-center justify-center">
-                <div className="w-1 h-1 bg-white rounded-full"></div>
-              </div>
-              <div className="w-full h-0.5 bg-gray-300 rounded-sm"></div>
-              <div className="w-8 h-1 bg-red-500 rounded-sm"></div>
-            </div>
-          </div>
-        );
-
-      case 'thank-you-page':
-        return (
-          <div className="w-full h-full bg-white rounded border overflow-hidden">
-            <div className="p-1 space-y-0.5 text-center">
-              <div className="w-2 h-2 bg-green-500 rounded-full mx-auto flex items-center justify-center">
-                <div className="w-0.5 h-0.5 bg-white rounded-sm"></div>
-              </div>
-              <div className="w-2/3 h-1 bg-green-500 rounded-sm mx-auto"></div>
-              <div className="w-full h-0.5 bg-gray-300 rounded-sm"></div>
-            </div>
-          </div>
-        );
-
-      case 'calendar-page':
-        return (
-          <div className="w-full h-full bg-white rounded border overflow-hidden">
-            <div className="p-1 space-y-0.5">
-              <div className="w-3/4 h-0.5 bg-blue-500 rounded-sm"></div>
-              <div className="grid grid-cols-4 gap-0.5">
-                <div className="w-full h-1 bg-gray-200 rounded-sm"></div>
-                <div className="w-full h-1 bg-blue-500 rounded-sm"></div>
-                <div className="w-full h-1 bg-gray-200 rounded-sm"></div>
-                <div className="w-full h-1 bg-gray-200 rounded-sm"></div>
-              </div>
-              <div className="w-8 h-0.5 bg-blue-500 rounded-sm"></div>
+              <div className="w-4/5 h-0.5 bg-gray-300 rounded-sm"></div>
+              <div className="w-8 h-1 bg-purple-500 rounded-sm"></div>
             </div>
           </div>
         );
@@ -157,43 +228,37 @@ export const PageTemplateGrid: React.FC<PageTemplateGridProps> = ({
 }) => {
   const isMobile = useIsMobile();
 
-  // Convert PageTemplate to ComponentTemplate for compatibility
-  const convertToComponentTemplate = (pageTemplate: PageTemplate): ComponentTemplate => ({
-    type: pageTemplate.type,
-    icon: '📄',
-    label: pageTemplate.label,
-    color: pageTemplate.color,
-    category: pageTemplate.category,
-    title: pageTemplate.label,
-    description: pageTemplate.description,
-    defaultProps: {
-      title: pageTemplate.label,
-      description: pageTemplate.description,
-      status: 'draft',
-      properties: {
-        page_type: pageTemplate.type,
-        tags: pageTemplate.tags
-      }
-    }
-  });
-
   const handleDragStart = (e: React.DragEvent, pageTemplate: PageTemplate) => {
-    const componentTemplate = convertToComponentTemplate(pageTemplate);
-    e.dataTransfer.setData('application/json', JSON.stringify(componentTemplate));
+    const componentTemplateForDragData = {
+        type: pageTemplate.type,
+        icon: '📄',
+        label: pageTemplate.label,
+        color: pageTemplate.color,
+        category: pageTemplate.category,
+        title: pageTemplate.label,
+        description: pageTemplate.description,
+        defaultProps: {
+            title: pageTemplate.label,
+            description: pageTemplate.description,
+            status: 'draft',
+            properties: { page_type: pageTemplate.type, tags: pageTemplate.tags }
+        }
+    };
+    e.dataTransfer.setData('application/json', JSON.stringify(componentTemplateForDragData));
     e.dataTransfer.effectAllowed = 'copy';
-    onDragStart(componentTemplate);
+    onDragStart(pageTemplate);
   };
 
   const handleTemplateClick = (pageTemplate: PageTemplate) => {
     if (onTemplateClick) {
-      const componentTemplate = convertToComponentTemplate(pageTemplate);
-      onTemplateClick(componentTemplate);
+      onTemplateClick(pageTemplate);
     }
   };
 
   const handleFavoriteClick = (e: React.MouseEvent, template: PageTemplate) => {
     e.preventDefault();
     e.stopPropagation();
+    console.log(`[PageTemplateGrid DEBUG] handleFavoriteClick for page: ID '${template.id}', Label: '${template.label}'`, template);
     if (toggleFavorite) {
       toggleFavorite(template);
     }
@@ -203,64 +268,54 @@ export const PageTemplateGrid: React.FC<PageTemplateGridProps> = ({
     <div className="h-full overflow-y-auto">
       <div className={`
         ${isMobile 
-          ? 'grid grid-cols-1 gap-3 p-4' 
-          : 'grid grid-cols-2 xl:grid-cols-3 gap-3 p-4'
+          ? 'grid grid-cols-1 gap-2 p-3' 
+          : 'grid grid-cols-2 lg:grid-cols-3 gap-2 p-3' 
         }
       `}>
-        {templates.map((template) => (
-          <div
-            key={template.id}
-            className="group relative cursor-pointer"
-            draggable={!isMobile}
-            onDragStart={(e) => !isMobile && handleDragStart(e, template)}
-            onClick={() => handleTemplateClick(template)}
-          >
-            {/* Template Item */}
-            <div className="relative">
-              {/* Preview Card */}
-              <div className="bg-gray-900 border border-gray-700 rounded-lg overflow-hidden hover:border-gray-600 transition-all duration-200 hover:shadow-lg h-28 flex items-center justify-center p-3 relative mb-2">
-                
-                {/* Icons Container - Top right */}
-                <div className="absolute top-2 right-2 flex items-center gap-1">
-                  {/* Favorite Icon */}
-                  {showFavorites && isFavorite && toggleFavorite && (
-                    <button
-                      onClick={(e) => handleFavoriteClick(e, template)}
-                      className={`opacity-0 group-hover:opacity-100 transition-all p-1 rounded ${
-                        isFavorite(template) 
-                          ? 'opacity-100 text-yellow-400 hover:text-yellow-300' 
-                          : 'text-gray-400 hover:text-yellow-400'
-                      }`}
-                      title={isFavorite(template) ? 'Remove from favorites' : 'Add to favorites'}
-                    >
-                      <Star className={`w-3 h-3 ${isFavorite(template) ? 'fill-current' : ''}`} />
-                    </button>
-                  )}
-                </div>
-
-                {/* Add Indicator */}
-                <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-all">
-                  <div className="bg-blue-600 rounded p-1">
-                    <Plus className="w-3 h-3 text-white" />
-                  </div>
-                </div>
-
-                {/* Template Preview */}
+        {templates.map((template) => {
+          const isFav = isFavorite ? isFavorite(template) : false;
+          console.log(`[PageTemplateGrid DEBUG] Rendering page item: ID '${template.id}', Label: '${template.label}', IsFavorite: ${isFav}`, template);
+          return (
+            <div
+              key={template.id || template.type}
+              draggable
+              onDragStart={(e) => handleDragStart(e, template)}
+              onClick={() => handleTemplateClick(template)}
+              className="group relative p-3 rounded-lg border border-neutral-700 hover:border-neutral-600 bg-black hover:bg-neutral-900 transition-colors duration-150 cursor-pointer"
+            >
+              {/* Mockup Section */}
+              <div className="relative h-20 flex items-center justify-center mb-3">
                 <PageMockup type={template.type} className="w-16 h-12" />
               </div>
-
-              {/* Template Title and Description */}
-              <div className="space-y-1">
-                <h4 className="text-xs font-medium text-white truncate">
+              
+              <div className="flex flex-col text-left">
+                <h3 className="font-semibold text-white text-sm mb-1 line-clamp-2">
                   {template.label}
-                </h4>
-                <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed">
+                </h3>
+                <p className="text-xs text-gray-400 line-clamp-2">
                   {template.description}
                 </p>
               </div>
+
+              {/* Favorite Button */}
+              {showFavorites && (
+                <button
+                  onClick={(e) => handleFavoriteClick(e, template)}
+                  className="absolute top-2 right-2 p-1.5 rounded-full bg-neutral-800/50 hover:bg-neutral-700/70 transition-colors opacity-100"
+                  title={isFav ? 'Remove from favorites' : 'Add to favorites'}
+                >
+                  <Star 
+                    className={`w-4 h-4 transition-colors ${
+                      isFav 
+                        ? 'text-yellow-400 fill-yellow-400' 
+                        : 'text-gray-500 hover:text-yellow-500'
+                    }`} 
+                  />
+                </button>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

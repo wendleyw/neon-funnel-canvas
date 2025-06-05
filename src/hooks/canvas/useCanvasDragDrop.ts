@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { ComponentTemplate, FunnelComponent } from '../../types/funnel';
+import { screenToCanvas, type ViewportInfo } from '../../utils/canvasPositioning';
 
 interface UseCanvasDragDropProps {
   onAddComponent: (component: FunnelComponent) => void;
@@ -65,27 +66,34 @@ export const useCanvasDragDrop = ({
       
       const canvasRect = canvasContainer.getBoundingClientRect();
       
-      // Calculate screen position relative to canvas
-      const screenX = e.clientX - canvasRect.left;
-      const screenY = e.clientY - canvasRect.top;
-      
-      // Simple coordinate conversion for the infinite canvas
-      // The canvas viewport has transform: translate(panX, panY) scale(scale)
-      // To get world coordinates: (screen - pan) / scale
-      const worldX = (screenX - panOffset.x) / scale;
-      const worldY = (screenY - panOffset.y) / scale;
+      // Create viewport info for smart positioning
+      const viewport: ViewportInfo = {
+        x: panOffset.x,
+        y: panOffset.y,
+        zoom: scale,
+        width: canvasRect.width,
+        height: canvasRect.height
+      };
 
-      console.log('[CanvasDragDrop] Position:', { 
-        screen: { x: screenX, y: screenY },
-        world: { x: worldX, y: worldY },
-        pan: panOffset,
-        scale 
+      // Use smart positioning to convert drop coordinates to canvas coordinates
+      const position = screenToCanvas(e.clientX, e.clientY, viewport, canvasRect);
+
+      // Add small random offset to avoid exact overlapping when dropping multiple items
+      const randomOffset = () => (Math.random() - 0.5) * 20; // ±10px variation
+      position.x += randomOffset();
+      position.y += randomOffset();
+
+      console.log('[CanvasDragDrop] Smart drop positioning:', { 
+        screen: { x: e.clientX, y: e.clientY },
+        canvas: position,
+        viewport,
+        canvasRect: { width: canvasRect.width, height: canvasRect.height }
       });
 
       const newComponent: FunnelComponent = {
         id: `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         type: template.type as FunnelComponent['type'],
-        position: { x: worldX, y: worldY },
+        position: position,
         connections: [],
         data: {
           title: template.defaultProps.title || template.label,

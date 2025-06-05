@@ -1,8 +1,13 @@
-
 import React from 'react';
-import { Eye, Link } from 'lucide-react';
+import { Eye, Link, Share2 } from 'lucide-react';
 import { FunnelComponent } from '../../types/funnel';
 import { StatusBadge } from '../StatusBadge';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip';
 
 interface ComponentNodeContentProps {
   component: FunnelComponent;
@@ -56,10 +61,19 @@ export const ComponentNodeContent: React.FC<ComponentNodeContentProps> = ({
 
         {/* Connections Count */}
         {component.connections && component.connections.length > 0 && (
-          <div className="flex items-center space-x-1 text-xs text-green-400">
-            <Eye className="w-3 h-3" />
-            <span>{component.connections.length} conexão(ões)</span>
-          </div>
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center text-xs text-gray-400 bg-gray-700/50 px-1.5 py-0.5 rounded-sm cursor-default">
+                  <Share2 size={10} className="mr-1 text-blue-400" />
+                  <span>{component.connections.length} connection{component.connections.length !== 1 ? 's' : ''}</span>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="bg-gray-800 text-white border-gray-700">
+                <p>This component has {component.connections.length} connection{component.connections.length !== 1 ? 's' : ''}.</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         )}
       </div>
     </>

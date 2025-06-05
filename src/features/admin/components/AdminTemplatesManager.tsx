@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { Textarea } from '../../../components/ui/textarea';
-import { Plus, Edit, Trash2, Save } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, Loader2 } from 'lucide-react';
 import { useLocalStorage } from '../../../hooks/useLocalStorage';
 import { ComponentTemplate } from '../../../types/funnel';
 import { toast } from 'sonner';
@@ -21,6 +20,7 @@ export const AdminTemplatesManager: React.FC = () => {
     type: '',
     config: ''
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const resetForm = () => {
     setFormData({
@@ -36,7 +36,7 @@ export const AdminTemplatesManager: React.FC = () => {
 
   const handleSave = () => {
     if (!formData.title || !formData.type) {
-      toast.error('Título e tipo são obrigatórios');
+      toast.error('Title and type are required');
       return;
     }
 
@@ -44,7 +44,7 @@ export const AdminTemplatesManager: React.FC = () => {
     try {
       config = formData.config ? JSON.parse(formData.config) : {};
     } catch (error) {
-      toast.error('Configuração JSON inválida');
+      toast.error('Invalid JSON configuration');
       return;
     }
 
@@ -70,10 +70,10 @@ export const AdminTemplatesManager: React.FC = () => {
       setCustomTemplates(prev => 
         prev.map(t => t.id === editingTemplate.id ? template : t)
       );
-      toast.success('Template atualizado!');
+      toast.success('Template updated!');
     } else {
       setCustomTemplates(prev => [...prev, template]);
-      toast.success('Template criado!');
+      toast.success('Template created!');
     }
 
     resetForm();
@@ -92,9 +92,9 @@ export const AdminTemplatesManager: React.FC = () => {
   };
 
   const handleDelete = (templateId: string) => {
-    if (window.confirm('Tem certeza que deseja excluir este template?')) {
+    if (window.confirm('Are you sure you want to delete this template?')) {
       setCustomTemplates(prev => prev.filter(t => t.id !== templateId));
-      toast.success('Template excluído!');
+      toast.success('Template deleted!');
     }
   };
 
@@ -102,22 +102,22 @@ export const AdminTemplatesManager: React.FC = () => {
     <div className="p-6 space-y-6">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Gerenciador de Templates</CardTitle>
+          <CardTitle>Template Manager</CardTitle>
           <Button onClick={() => setIsCreating(true)} className="flex items-center gap-2">
             <Plus size={16} />
-            Novo Template
+            New Template
           </Button>
         </CardHeader>
         <CardContent>
           {isCreating && (
             <div className="mb-6 p-4 border rounded-lg space-y-4">
               <h3 className="font-medium">
-                {editingTemplate ? 'Editar Template' : 'Criar Novo Template'}
+                {editingTemplate ? 'Edit Template' : 'Create New Template'}
               </h3>
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="title">Título</Label>
+                  <Label htmlFor="title">Title</Label>
                   <Input
                     id="title"
                     value={formData.title}
@@ -126,18 +126,18 @@ export const AdminTemplatesManager: React.FC = () => {
                 </div>
                 
                 <div>
-                  <Label htmlFor="type">Tipo</Label>
+                  <Label htmlFor="type">Type</Label>
                   <Input
                     id="type"
                     value={formData.type}
                     onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value }))}
-                    placeholder="ex: landing-page, form, button"
+                    placeholder="e.g., landing-page, form, button"
                   />
                 </div>
               </div>
               
               <div>
-                <Label htmlFor="description">Descrição</Label>
+                <Label htmlFor="description">Description</Label>
                 <Input
                   id="description"
                   value={formData.description}
@@ -146,17 +146,17 @@ export const AdminTemplatesManager: React.FC = () => {
               </div>
               
               <div>
-                <Label htmlFor="category">Categoria</Label>
+                <Label htmlFor="category">Category</Label>
                 <Input
                   id="category"
                   value={formData.category}
                   onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                  placeholder="ex: Landing Pages, Forms, Social Media"
+                  placeholder="e.g., Landing Pages, Forms, Social Media"
                 />
               </div>
               
               <div>
-                <Label htmlFor="config">Configuração (JSON)</Label>
+                <Label htmlFor="config">Configuration (JSON)</Label>
                 <Textarea
                   id="config"
                   value={formData.config}
@@ -167,21 +167,27 @@ export const AdminTemplatesManager: React.FC = () => {
               </div>
               
               <div className="flex gap-2">
-                <Button onClick={handleSave} className="flex items-center gap-2">
-                  <Save size={16} />
-                  Salvar
+                <Button type="submit" disabled={isLoading} className="bg-blue-600 hover:bg-blue-700" onClick={handleSave}> 
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    'Save'
+                  )}
                 </Button>
                 <Button variant="outline" onClick={resetForm}>
-                  Cancelar
+                  Cancel
                 </Button>
               </div>
             </div>
           )}
 
           <div className="space-y-2">
-            <h4 className="font-medium">Templates Personalizados ({customTemplates.length})</h4>
+            <h4 className="font-medium">Custom Templates ({customTemplates.length})</h4>
             {customTemplates.length === 0 ? (
-              <p className="text-gray-500">Nenhum template personalizado criado</p>
+              <p className="text-gray-500">No custom templates created</p>
             ) : (
               <div className="grid gap-2">
                 {customTemplates.map((template) => (

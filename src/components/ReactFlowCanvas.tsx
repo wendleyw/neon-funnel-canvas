@@ -9,6 +9,7 @@ import ReactFlow, {
   Connection,
   Edge,
   Node,
+  NodeProps,
   ReactFlowProvider,
   BackgroundVariant,
   useReactFlow,
@@ -19,6 +20,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { toast } from 'sonner';
+import { Trash2 } from 'lucide-react';
 
 import { FunnelComponent, Connection as FunnelConnection, ComponentTemplate } from '../types/funnel';
 import { 
@@ -29,12 +31,23 @@ import {
   convertNodeToFunnelComponent,
   convertEdgeToConnection 
 } from '../types/reactflow';
+import { getComponentDimensions } from '../utils/connectionUtils';
 import CustomNode from './ReactFlow/CustomNode';
 import { FunnelComponentNode } from './ReactFlow/FunnelComponentNode';
 import { AnimatedNodeEdge } from './ReactFlow/AnimatedNodeEdge';
 import { AnimatedSVGEdge } from './ReactFlow/AnimatedSVGEdge';
 import { useReactFlowHelpers } from '../hooks/useReactFlowHelpers';
+import { 
+  isValidConnection, 
+  getEdgeStyle, 
+  getConnectionLabel, 
+  calculateBestConnectionPoints,
+  generateRandomOffset 
+} from '../utils/reactFlowHelpers';
 
+/**
+ * Props interface for the ReactFlow Canvas component
+ */
 interface ReactFlowCanvasProps {
   components: FunnelComponent[];
   connections: FunnelConnection[];
@@ -47,77 +60,27 @@ interface ReactFlowCanvasProps {
   enableConnectionValidation?: boolean;
 }
 
-// Connection validation helper - now optional
-const isValidConnection = (connection: Connection, nodeMap: Map<string, FunnelComponent>, enableValidation = true) => {
-  if (!connection.source || !connection.target) return false;
-  
-  const sourceNode = nodeMap.get(connection.source);
-  const targetNode = nodeMap.get(connection.target);
-  
-  if (!sourceNode || !targetNode) return false;
-  
-  // Prevent self-connections
-  if (connection.source === connection.target) return false;
-  
-  // Skip validation if disabled - allow any connection
-  if (!enableValidation) return true;
-  
-  // Define connection rules based on component types
-  const connectionRules: Record<string, { canConnectTo: string[] }> = {
-    'landing-page': { canConnectTo: ['quiz', 'form', 'email-sequence', 'webinar-live', 'opt-in-page', 'sales-page'] },
-    'quiz': { canConnectTo: ['sales-page', 'opt-in-page', 'email-sequence', 'thank-you-page'] },
-    'form': { canConnectTo: ['thank-you-page', 'email-sequence', 'sales-page'] },
-    'email-sequence': { canConnectTo: ['sales-page', 'webinar-live', 'landing-page', 'checkout'] },
-    'sales-page': { canConnectTo: ['checkout', 'thank-you-page'] },
-    'checkout': { canConnectTo: ['thank-you-page'] },
-    'webinar-live': { canConnectTo: ['sales-page', 'opt-in-page', 'checkout'] },
-    'webinar-replay': { canConnectTo: ['sales-page', 'opt-in-page', 'checkout'] },
-    'opt-in-page': { canConnectTo: ['form', 'email-sequence', 'download-page', 'thank-you-page'] },
-    'download-page': { canConnectTo: ['thank-you-page'] },
-    'calendar-page': { canConnectTo: ['thank-you-page', 'sales-page'] }
-  };
-  
-  const sourceRules = connectionRules[sourceNode.type];
-  if (sourceRules && !sourceRules.canConnectTo.includes(targetNode.type)) {
-    console.warn(`❌ Invalid connection: ${sourceNode.type} cannot connect to ${targetNode.type}`);
-    return false;
-  }
-  
-  return true;
-};
+/**
+ * Edge context menu state interface
+ */
+interface EdgeContextMenuState {
+  visible: boolean;
+  edge: ReactFlowEdge | null;
+  x: number;
+  y: number;
+}
 
-// Enhanced edge styles based on connection type
-const getEdgeStyle = (sourceType: string, targetType: string) => {
-  // Define different edge styles based on component types
-  const edgeStyles: Record<string, { color: string; strokeWidth: number; type: string }> = {
-    'default': { color: '#10B981', strokeWidth: 2, type: 'smoothstep' },
-    'conversion': { color: '#EF4444', strokeWidth: 3, type: 'smoothstep' }, // Sales flow
-    'nurturing': { color: '#F59E0B', strokeWidth: 2, type: 'step' }, // Email sequences
-    'capture': { color: '#8B5CF6', strokeWidth: 2, type: 'smoothstep' }, // Lead capture
-    'completion': { color: '#10B981', strokeWidth: 2, type: 'straight' } // Final steps
-  };
-  
-  // Determine edge type based on connection
-  let edgeType = 'default';
-  if (sourceType.includes('sales') || targetType.includes('checkout')) {
-    edgeType = 'conversion';
-  } else if (sourceType.includes('email') || targetType.includes('email')) {
-    edgeType = 'nurturing';
-  } else if (sourceType.includes('opt-in') || sourceType.includes('form')) {
-    edgeType = 'capture';
-  } else if (targetType.includes('thank-you')) {
-    edgeType = 'completion';
-  }
-  
-  return edgeStyles[edgeType];
-};
-
-// Wrapper component to add debug to CustomNode
-const DebugCustomNode: React.FC<any> = (props) => {
+/**
+ * Wrapper component to add debug capabilities to CustomNode
+ */
+const DebugCustomNode: React.FC<NodeProps> = (props) => {
   return React.createElement(CustomNode, props);
 };
 
-// Define os tipos de nó e edge customizados fora do componente para evitar recriação
+/**
+ * Define custom node and edge types OUTSIDE component to prevent recreation
+ * This fixes the React Flow warning about recreating nodeTypes/edgeTypes
+ */
 const nodeTypes: NodeTypes = {
   custom: DebugCustomNode,
   funnelComponent: FunnelComponentNode,
@@ -128,6 +91,10 @@ const edgeTypes: EdgeTypes = {
   animatedSvg: AnimatedSVGEdge,
 };
 
+/**
+ * Main ReactFlow Canvas component for the funnel builder
+ * This component manages the visual representation of funnel components and their connections
+ */
 const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   components,
   connections,
@@ -144,64 +111,51 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   const [isConnecting, setIsConnecting] = useState(false);
   const [highlightedNodeId, setHighlightedNodeId] = useState<string | null>(null);
   
-  // Use the enhanced helpers hook
+  // Edge context menu state
+  const [edgeContextMenu, setEdgeContextMenu] = useState<EdgeContextMenuState>({
+    visible: false,
+    edge: null,
+    x: 0,
+    y: 0
+  });
+  
+  // Use the enhanced helpers hook for React Flow operations
   const helpers = useReactFlowHelpers({ 
     components, 
     connections, 
     onComponentUpdate 
   });
   
-  // Create a map for quick node lookup
+  /**
+   * Create a map for quick node lookup - memoized for performance
+   */
   const nodeMap = useMemo(() => {
     const map = new Map<string, FunnelComponent>();
     components.forEach(comp => map.set(comp.id, comp));
     return map;
   }, [components]);
 
-  // Helper function to get connection label based on component types - MOVED HERE
-  const getConnectionLabel = useCallback((sourceType?: string, targetType?: string): string => {
-    if (!sourceType || !targetType) return 'Lead';
-    
-    const labelMap: Record<string, Record<string, string>> = {
-      'landing-page': {
-        'quiz': 'Visitante',
-        'opt-in-page': 'Clique CTA',
-        'sales-page': 'Lead Quente',
-        'email-sequence': 'Subscriber'
-      },
-      'quiz': {
-        'sales-page': 'Lead Qualificado',
-        'thank-you-page': 'Quiz Completo',
-        'email-sequence': 'Subscriber'
-      },
-      'sales-page': {
-        'checkout': 'Interesse',
-        'thank-you-page': 'Cliente'
-      },
-      'email-sequence': {
-        'sales-page': 'Lead Nutrido',
-        'landing-page': 'Retargeting'
-      },
-      'checkout': {
-        'thank-you-page': 'Compra'
-      }
+  /**
+   * Set up global connection callbacks for external use
+   */
+  useEffect(() => {
+    const globalWindow = window as typeof window & {
+      __onConnectionAdd?: (connection: FunnelConnection) => void;
+      __onComponentDelete?: (id: string) => void;
+      __onComponentUpdate?: (id: string, updates: Partial<FunnelComponent>) => void;
     };
     
-    return labelMap[sourceType]?.[targetType] || 'Lead';
-  }, []);
-  
-  // Set up global connection callback
-  useEffect(() => {
-    (window as any).__onConnectionAdd = onConnectionAdd;
-    (window as any).__onComponentDelete = onComponentDelete;
-    (window as any).__onComponentUpdate = onComponentUpdate;
+    globalWindow.__onConnectionAdd = onConnectionAdd;
+    globalWindow.__onComponentDelete = onComponentDelete;
+    globalWindow.__onComponentUpdate = onComponentUpdate;
+    
     return () => {
-      delete (window as any).__onConnectionAdd;
-      delete (window as any).__onComponentDelete;
-      delete (window as any).__onComponentUpdate;
+      delete globalWindow.__onConnectionAdd;
+      delete globalWindow.__onComponentDelete;
+      delete globalWindow.__onComponentUpdate;
     };
   }, [onConnectionAdd, onComponentDelete, onComponentUpdate]);
-  
+
   // Converter dados do funnel para React Flow
   const initialNodes: ReactFlowNode[] = useMemo(() => {
     const nodes = components.map((component, index) => {
@@ -226,7 +180,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
         console.error(`Failed to convert component ${component.id}:`, error);
         return null;
       }
-    }).filter(Boolean); // Remove null entries
+    }).filter(Boolean) as ReactFlowNode[]; // Remove null entries and assert type
     
     return nodes;
   }, [components, highlightedNodeId]);
@@ -239,10 +193,32 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
       const sourceComp = nodeMap.get(connection.from);
       const targetComp = nodeMap.get(connection.to);
       
+      // FORCE recalculation of handles for existing connections
+      const recalculatedHandles = calculateBestConnectionPoints(
+        connection.from, 
+        connection.to, 
+        reactFlowInstance.getNodes, 
+        nodeMap
+      );
+      
+      // Only log during development and when there are actual changes
+      if (process.env.NODE_ENV === 'development' && false) { // Disabled for cleaner console
+        console.log(`🔄 Recalculating handles for edge: ${connection.id}`, {
+          from: connection.from,
+          to: connection.to,
+          handles: recalculatedHandles,
+          sourceType: sourceComp?.type,
+          targetType: targetComp?.type
+        });
+      }
+      
       if (sourceComp && targetComp) {
         const edgeStyle = getEdgeStyle(sourceComp.type, targetComp.type);
         return {
           ...edge,
+          // FORCE use recalculated handles
+          sourceHandle: recalculatedHandles.sourceHandle,
+          targetHandle: recalculatedHandles.targetHandle,
           type: 'animatedNode' as const, // Use our animated edge type
           animated: true,
           data: {
@@ -260,6 +236,21 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
             width: 20,
             height: 20,
           },
+          // Enhanced label styling for "Lead" connections
+          labelStyle: {
+            background: getConnectionLabel(sourceComp.type, targetComp.type) === 'Lead' ? '#10B981' : '#374151',
+            color: '#ffffff',
+            padding: '8px 16px',
+            borderRadius: '20px',
+            border: getConnectionLabel(sourceComp.type, targetComp.type) === 'Lead' ? '2px solid #34D399' : '1px solid #6B7280',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            boxShadow: getConnectionLabel(sourceComp.type, targetComp.type) === 'Lead' ? '0 4px 6px rgba(16, 185, 129, 0.3)' : 'none'
+          },
+          labelBgStyle: {
+            fill: 'transparent'
+          },
           // Add better path options
           pathOptions: {
             offset: 20,
@@ -268,8 +259,19 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
         };
       }
       
+      // Fallback for connections without component data
+      const fallbackHandles = calculateBestConnectionPoints(
+        connection.from, 
+        connection.to, 
+        reactFlowInstance.getNodes, 
+        nodeMap
+      );
+      
       return {
         ...edge,
+        // FORCE use recalculated handles even for fallback
+        sourceHandle: fallbackHandles.sourceHandle,
+        targetHandle: fallbackHandles.targetHandle,
         type: 'animatedNode' as const, // Use our animated edge type
         animated: true,
         data: {
@@ -286,14 +288,34 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
           width: 20,
           height: 20,
         },
+        // Enhanced label styling for default "Lead" connections
+        labelStyle: {
+          background: '#10B981',
+          color: '#ffffff',
+          padding: '8px 16px',
+          borderRadius: '20px',
+          border: '2px solid #34D399',
+          fontSize: '12px',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          boxShadow: '0 4px 6px rgba(16, 185, 129, 0.3)'
+        },
+        labelBgStyle: {
+          fill: 'transparent'
+        },
         pathOptions: {
           offset: 20,
           borderRadius: 10,
         },
       };
     });
+    
+    // Only log in development mode when needed
+    if (process.env.NODE_ENV === 'development' && false) { // Disabled for cleaner console
+      console.log('🔄 Initial edges with recalculated handles:', edges);
+    }
     return edges;
-  }, [connections, nodeMap]);
+  }, [connections, nodeMap, calculateBestConnectionPoints, getConnectionLabel]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -315,11 +337,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
         setNodes(initialNodes);
       }
     }
-  }, [initialNodes, components, setNodes]); // Watch both initialNodes and components
-
-  // Also sync when nodes length changes
-  useEffect(() => {
-  }, [nodes.length]);
+  }, [initialNodes, components, nodes, setNodes]); // Include missing dependencies
 
   // Drag & Drop handlers
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -327,36 +345,39 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
     event.dataTransfer.dropEffect = 'copy';
     setIsDragOver(true);
     
-    // Enhanced debugging
-    console.log('🔍 DragOver Debug:', {
-      hasDataTransfer: !!event.dataTransfer,
-      types: event.dataTransfer?.types || [],
-      effectAllowed: event.dataTransfer?.effectAllowed,
-      dropEffect: event.dataTransfer?.dropEffect,
-      files: event.dataTransfer?.files?.length || 0
-    });
+    // Reduced debugging - only log when needed
+    if (process.env.NODE_ENV === 'development' && false) { // Disabled for cleaner console
+      console.log('🔍 DragOver Debug:', {
+        hasDataTransfer: !!event.dataTransfer,
+        types: event.dataTransfer?.types || [],
+        effectAllowed: event.dataTransfer?.effectAllowed,
+        dropEffect: event.dataTransfer?.dropEffect,
+        files: event.dataTransfer?.files?.length || 0
+      });
+    }
   }, []);
 
   const onDragEnter = useCallback((event: React.DragEvent) => {
     event.preventDefault();
     setIsDragOver(true);
     
-    // Log more details
-    console.log('🔍 DragEnter Debug:', {
-      target: event.target,
-      currentTarget: event.currentTarget,
-      hasDataTransfer: !!event.dataTransfer
-    });
+    // Reduced debugging - only log when needed
+    if (process.env.NODE_ENV === 'development' && false) { // Disabled for cleaner console
+      console.log('🔍 DragEnter Debug:', {
+        target: event.target,
+        currentTarget: event.currentTarget,
+        hasDataTransfer: !!event.dataTransfer
+      });
+    }
   }, []);
 
   const onDragLeave = useCallback((event: React.DragEvent) => {
-    console.log('🎯 onDragLeave - React Flow - ENTRY');
-    
-    // Better leave detection: check if we're actually leaving the target
+    // Reduce excessive logging
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
     const x = event.clientX;
     const y = event.clientY;
     
+    // Only set dragOver to false when actually leaving the component
     if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
       setIsDragOver(false);
     }
@@ -378,7 +399,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
           const data = event.dataTransfer.getData(type);
         }
         
-        toast.error('Erro: Nenhum componente encontrado no drag. Verifique se você está arrastando de um item da sidebar.');
+        toast.error('Error: No component found in drag. Please ensure you are dragging from an item in the sidebar.');
         return;
       }
       
@@ -386,8 +407,8 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
 
       // Verificar se o template tem todos os campos necessários
       if (!template.type || !template.label) {
-        console.error('❌ Template inválido:', template);
-        toast.error('Template inválido: faltam campos obrigatórios');
+        console.error('❌ Invalid template:', template);
+        toast.error('Invalid template: missing required fields');
         return;
       }
 
@@ -495,11 +516,11 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
         Math.pow(position.x - viewportCenterX, 2) + Math.pow(position.y - viewportCenterY, 2)
       );
       
-      toast.success(`✅ ${template.label} adicionado!`, {
-        description: `Posição: (${Math.round(position.x)}, ${Math.round(position.y)}) - ${components.length + 1} componentes total - Distância do centro: ${Math.round(componentDistance)}px`,
+      toast.success(`✅ ${template.label} added!`, {
+        description: `Position: (${Math.round(position.x)}, ${Math.round(position.y)}) - ${components.length + 1} components total - Distance from center: ${Math.round(componentDistance)}px`,
         duration: 10000,
         action: {
-          label: "🎯 Focar Agora",
+          label: "🎯 Focus Now",
           onClick: () => {
             console.log('🎯 Manual focus triggered for component:', newComponent.id);
             // Force immediate focus with larger zoom for better visibility
@@ -515,78 +536,18 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
       
     } catch (error) {
       console.error('❌ Error in drop handler:', error);
-      toast.error('Erro ao adicionar componente. Verifique o console para mais detalhes.');
+      toast.error('Error adding component. Please check the console for more details.');
     }
-  }, [reactFlowInstance, onComponentAdd]);
-
-  // Helper function to calculate the best connection points based on component positions
-  const calculateBestConnectionPoints = useCallback((sourceNodeId: string, targetNodeId: string) => {
-    const sourceNode = nodes.find(n => n.id === sourceNodeId);
-    const targetNode = nodes.find(n => n.id === targetNodeId);
-    
-    if (!sourceNode || !targetNode) {
-      return { sourceHandle: 'right-source', targetHandle: 'left-target' };
-    }
-    
-    const sourcePos = sourceNode.position;
-    const targetPos = targetNode.position;
-    
-    // Calculate relative position
-    const deltaX = targetPos.x - sourcePos.x;
-    const deltaY = targetPos.y - sourcePos.y;
-    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-    
-    // Calculate angle in radians
-    const angle = Math.atan2(deltaY, deltaX);
-    const degrees = angle * 180 / Math.PI;
-    
-    // Determine the best connection points based on angle
-    let sourceHandle = 'right-source';
-    let targetHandle = 'left-target';
-    
-    // Normalize angle to 0-360 degrees
-    const normalizedDegrees = degrees < 0 ? degrees + 360 : degrees;
-    
-    if (normalizedDegrees >= 315 || normalizedDegrees < 45) {
-      // Target is to the right
-      sourceHandle = 'right-source';
-      targetHandle = 'left-target';
-    } else if (normalizedDegrees >= 45 && normalizedDegrees < 135) {
-      // Target is below
-      sourceHandle = 'bottom-source';
-      targetHandle = 'top-target';
-    } else if (normalizedDegrees >= 135 && normalizedDegrees < 225) {
-      // Target is to the left
-      sourceHandle = 'left-source';
-      targetHandle = 'right-target';
-    } else if (normalizedDegrees >= 225 && normalizedDegrees < 315) {
-      // Target is above
-      sourceHandle = 'top-source';
-      targetHandle = 'bottom-target';
-    }
-    
-    console.log(`🧭 Connection routing: ${sourceNodeId} → ${targetNodeId}`, {
-      deltaX,
-      deltaY,
-      distance: Math.round(distance),
-      degrees: Math.round(normalizedDegrees),
-      sourceHandle,
-      targetHandle
-    });
-    
-    return { sourceHandle, targetHandle };
-  }, [nodes]);
+  }, [reactFlowInstance, onComponentAdd, components.length]); // Include missing dependency
 
   // Enhanced connection handler with automatic routing
   const onConnect = useCallback((params: Connection | Edge) => {
     setIsConnecting(true);
     
-    console.log('🔗 ===== NEW CONNECTION ATTEMPT =====');
-    console.log('🔗 Connection params:', params);
-    console.log('🔗 Source:', params.source);
-    console.log('🔗 Target:', params.target);
-    console.log('🔗 Source Handle:', params.sourceHandle);
-    console.log('🔗 Target Handle:', params.targetHandle);
+    // Reduced logging - only essential information
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔗 New connection:', params.source, '→', params.target);
+    }
     
     // Enhanced validation
     if (!params.source || !params.target) {
@@ -597,7 +558,6 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
     
     if (params.source === params.target) {
       console.warn('❌ Invalid connection: cannot connect to self');
-      toast.error('❌ Não é possível conectar um componente a si mesmo');
       setIsConnecting(false);
       return;
     }
@@ -609,7 +569,6 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
     
     if (existingConnection) {
       console.warn('❌ Connection already exists');
-      toast.error('❌ Conexão já existe entre estes componentes');
       setIsConnecting(false);
       return;
     }
@@ -617,7 +576,6 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
     // Validate connection using helpers (if validation is enabled)
     if (enableConnectionValidation && helpers && !helpers.validateConnection(params as Connection)) {
       console.warn('❌ Invalid connection blocked by validation rules');
-      toast.error('❌ Conexão inválida entre estes tipos de componente');
       setIsConnecting(false);
       return;
     }
@@ -626,20 +584,34 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
     const sourceComp = nodeMap.get(params.source!);
     const targetComp = nodeMap.get(params.target!);
     
-    console.log('🔗 Source component:', sourceComp?.data.title, `(${sourceComp?.type})`);
-    console.log('🔗 Target component:', targetComp?.data.title, `(${targetComp?.type})`);
-    
-    // Calculate optimal connection points only if not already specified
-    let sourceHandle = params.sourceHandle;
-    let targetHandle = params.targetHandle;
-    
-    if (!sourceHandle || !targetHandle) {
-      const optimalHandles = calculateBestConnectionPoints(params.source!, params.target!);
-      sourceHandle = sourceHandle || optimalHandles.sourceHandle;
-      targetHandle = targetHandle || optimalHandles.targetHandle;
-      console.log('🧭 Using calculated optimal handles:', { sourceHandle, targetHandle });
+    // ALWAYS calculate optimal connection points for better routing
+    // If handles are null (from component drop), calculate them automatically
+    let optimalHandles;
+    if (params.sourceHandle === null || params.targetHandle === null) {
+      optimalHandles = calculateBestConnectionPoints(
+      params.source!, 
+      params.target!, 
+      reactFlowInstance.getNodes, 
+      nodeMap
+    );
     } else {
-      console.log('🎯 Using provided handles:', { sourceHandle, targetHandle });
+      // Use provided handles but still validate them
+      optimalHandles = {
+        sourceHandle: params.sourceHandle,
+        targetHandle: params.targetHandle
+      };
+    }
+    
+    // Use calculated handles for better visual flow
+    const sourceHandle = optimalHandles.sourceHandle;
+    const targetHandle = optimalHandles.targetHandle;
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🧭 Using optimal handles:', { 
+        sourceHandle, 
+        targetHandle, 
+        method: params.sourceHandle === null ? 'CALCULATED' : 'PROVIDED'
+      });
     }
     
     const edgeStyle = sourceComp && targetComp ? getEdgeStyle(sourceComp.type, targetComp.type) : { 
@@ -678,7 +650,9 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
       },
     };
     
-    console.log('✅ Creating new edge:', newEdge);
+    if (process.env.NODE_ENV === 'development' && false) { // Disabled for cleaner console
+      console.log('✅ Creating new edge with calculated handles:', newEdge);
+    }
     setEdges((eds) => addEdge(newEdge, eds));
     
     // Converter de volta para o formato do sistema
@@ -698,87 +672,325 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
     console.log('✅ Adding funnel connection:', funnelConnection);
     onConnectionAdd(funnelConnection);
     
-    // Success feedback
-    toast.success(`🔗 Conexão criada!`, {
-      description: `${sourceComp?.data.title} → ${targetComp?.data.title}`,
-      duration: 3000,
-    });
+    // Removed toast notification for clean experience
     
     setIsConnecting(false);
     console.log('🔗 ===== CONNECTION COMPLETED =====');
   }, [helpers, nodeMap, onConnectionAdd, setEdges, connections, getConnectionLabel, calculateBestConnectionPoints, enableConnectionValidation]);
 
-  // Connection start handler
-  const onConnectStart = useCallback(() => {
-    setIsConnecting(true);
-    console.log('🔗 Connection started');
-  }, []);
+  // Enhanced connection end handler with component-wide connection support
+  const onConnectEnd = useCallback((event: MouseEvent | TouchEvent) => {
+    // Get the mouse/touch position
+    const clientX = 'clientX' in event ? event.clientX : event.touches[0].clientX;
+    const clientY = 'clientY' in event ? event.clientY : event.touches[0].clientY;
+    
+    // Get the ReactFlow instance viewport
+    const reactFlowBounds = document.querySelector('.react-flow')?.getBoundingClientRect();
+    if (!reactFlowBounds) {
+      setIsConnecting(false);
+      return;
+    }
+    
+    // Calculate position relative to ReactFlow canvas
+    const position = reactFlowInstance.project({
+      x: clientX - reactFlowBounds.left,
+      y: clientY - reactFlowBounds.top,
+    });
+    
+    // Find nodes that intersect with the drop position
+    const intersectingNodes = reactFlowInstance.getIntersectingNodes({
+      x: position.x - 50, // Small area around the cursor
+      y: position.y - 50,
+      width: 100,
+      height: 100,
+    });
+    
+    if (intersectingNodes.length > 0) {
+      const targetNode = intersectingNodes[0];
 
-  // Connection end handler
-  const onConnectEnd = useCallback(() => {
+      // Check if we have a connection in progress (from the connection state)
+      const connectionInProgress = (window as any).__reactflow__connection_in_progress;
+      
+      if (connectionInProgress && connectionInProgress.nodeId !== targetNode.id) {
+        // Create connection programmatically
+        const sourceNodeId = connectionInProgress.nodeId;
+        const targetNodeId = targetNode.id;
+        
+        console.log('🔗 Creating connection from drop:', sourceNodeId, '→', targetNodeId);
+        
+        // Use the existing onConnect handler
+        onConnect({
+          source: sourceNodeId,
+          target: targetNodeId,
+          sourceHandle: null, // Will be calculated automatically
+          targetHandle: null, // Will be calculated automatically
+        });
+      }
+    }
+    
     setIsConnecting(false);
     console.log('🔗 Connection ended');
+    
+    // Clear connection state
+    delete (window as any).__reactflow__connection_in_progress;
+  }, [reactFlowInstance, onConnect]);
+
+  // Enhanced connection start handler to track source node
+  const onConnectStart = useCallback((event: React.MouseEvent | React.TouchEvent, { nodeId, handleId, handleType }: { nodeId: string; handleId: string | null; handleType: string }) => {
+    setIsConnecting(true);
+    
+    // Store connection state globally for access in onConnectEnd
+    (window as any).__reactflow__connection_in_progress = {
+      nodeId,
+      handleId,
+      handleType,
+      startTime: Date.now()
+    };
+    
+    console.log('🔗 Connection started from node:', nodeId, 'handle:', handleId);
   }, []);
+
+  // Add ESC key handler to cancel connections
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isConnecting) {
+        setIsConnecting(false);
+        console.log('🔗 Connection cancelled with ESC');
+        // Removed toast notification for clean experience
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isConnecting]);
 
   // Enhanced delete handlers
   const onNodesDelete = useCallback((deletedNodes: Node[]) => {
     deletedNodes.forEach(node => {
-      console.log('🗑️ Deleting node:', node.id);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🗑️ Deleting node:', node.id);
+      }
       onComponentDelete(node.id);
     });
   }, [onComponentDelete]);
 
   const onEdgesDelete = useCallback((deletedEdges: Edge[]) => {
     deletedEdges.forEach(edge => {
-      console.log('🗑️ Deleting edge:', edge.id);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🗑️ Deleting edge:', edge.id);
+      }
       onConnectionDelete(edge.id);
     });
   }, [onConnectionDelete]);
 
   // Enhanced node update handler
   const onNodeDragStop = useCallback((event: React.MouseEvent, node: Node) => {
-    console.log('📍 Node moved:', node.id, node.position);
+    if (process.env.NODE_ENV === 'development' && false) { // Disabled for cleaner console
+      console.log('📍 Node moved:', node.id, node.position);
+    }
     onComponentUpdate(node.id, { position: node.position });
-  }, [onComponentUpdate]);
-
-  // Enhanced drag tracking for debugging
-  useEffect(() => {
-    const handleGlobalDragStart = (e: DragEvent) => {
-      console.log('🌍 Global dragstart:', e.target, e.dataTransfer?.types);
-    };
     
-    const handleGlobalDrag = (e: DragEvent) => {
-      // Only log occasionally to avoid spam
-      if (Math.random() < 0.01) {
-        console.log('🌍 Global drag:', e.clientX, e.clientY);
+    // FORCE update of all edges that connect to this node to use optimal handles
+    setEdges((currentEdges) => {
+      const updatedEdges = currentEdges.map((edge) => {
+        // Check if this edge involves the moved node
+        if (edge.source === node.id || edge.target === node.id) {
+          if (process.env.NODE_ENV === 'development' && false) { // Disabled for cleaner console
+            console.log(`🔄 Updating edge handles for moved node: ${edge.id}`);
+          }
+          
+          // Recalculate optimal handles for this connection
+          const optimalHandles = calculateBestConnectionPoints(
+            edge.source, 
+            edge.target, 
+            reactFlowInstance.getNodes, 
+            nodeMap
+          );
+          
+          if (process.env.NODE_ENV === 'development' && false) { // Disabled for cleaner console
+            console.log(`🧭 New handles for edge ${edge.id}:`, optimalHandles);
+          }
+          
+          return {
+            ...edge,
+            sourceHandle: optimalHandles.sourceHandle,
+            targetHandle: optimalHandles.targetHandle,
+          };
+        }
+        return edge;
+      });
+      
+      if (process.env.NODE_ENV === 'development' && false) { // Disabled for cleaner console
+        console.log('✅ Updated edges after node move:', updatedEdges);
+      }
+      return updatedEdges;
+    });
+  }, [onComponentUpdate, calculateBestConnectionPoints, setEdges]);
+
+  // Enhanced drag tracking for debugging - DISABLED for cleaner console
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development' && false) { // Disabled for cleaner console
+      const handleGlobalDragStart = (e: DragEvent) => {
+        console.log('🌍 Global dragstart:', e.target, e.dataTransfer?.types);
+      };
+      
+      const handleGlobalDrag = (e: DragEvent) => {
+        // Only log occasionally to avoid spam
+        if (Math.random() < 0.01) {
+          console.log('🌍 Global drag:', e.clientX, e.clientY);
+        }
+      };
+      
+      const handleGlobalDragEnd = (e: DragEvent) => {
+        console.log('🌍 Global dragend:', e.target, 'Effect:', e.dataTransfer?.dropEffect);
+        setIsDragOver(false); // Reset drag state
+      };
+      
+      const handleGlobalDrop = (e: DragEvent) => {
+        console.log('🌍 Global drop:', e.target, 'Data available:', !!e.dataTransfer?.getData('application/json'));
+      };
+      
+      document.addEventListener('dragstart', handleGlobalDragStart);
+      document.addEventListener('drag', handleGlobalDrag);
+      document.addEventListener('dragend', handleGlobalDragEnd);
+      document.addEventListener('drop', handleGlobalDrop);
+      
+      return () => {
+        document.removeEventListener('dragstart', handleGlobalDragStart);
+        document.removeEventListener('drag', handleGlobalDrag);
+        document.removeEventListener('dragend', handleGlobalDragEnd);
+        document.removeEventListener('drop', handleGlobalDrop);
+      };
+    }
+  }, []);
+
+  // Enhanced edge click handler with context menu for deletion
+  const onEdgeClick = useCallback((event: React.MouseEvent, edge: ReactFlowEdge) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔗 Edge clicked:', edge.id, 'Label:', edge.data?.label);
+    }
+    
+    // Get mouse coordinates relative to the viewport
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    
+    // Show context menu at click position
+    setEdgeContextMenu({
+      visible: true,
+      edge: edge,
+      x: event.clientX, // Use global coordinates for proper positioning
+      y: event.clientY,
+    });
+    
+    if (process.env.NODE_ENV === 'development' && false) { // Disabled for cleaner console
+      console.log('🔗 Context menu opened for edge:', edge.id, 'at position:', { x: event.clientX, y: event.clientY });
+    }
+  }, []);
+
+  // Handler to delete an edge
+  const handleDeleteEdge = useCallback((edge: ReactFlowEdge) => {
+    console.log('🗑️ Deleting edge:', edge.id);
+    
+    // Find the corresponding connection in the funnel data
+    const connection = connections.find(conn => conn.id === edge.id);
+    
+    if (connection) {
+      const sourceComp = nodeMap.get(edge.source);
+      const targetComp = nodeMap.get(edge.target);
+      
+      console.log('✅ Deleting connection:', connection.id, 'from funnel data');
+      onConnectionDelete(connection.id);
+      
+      // Also remove from ReactFlow edges
+      setEdges((edges) => edges.filter((e) => e.id !== edge.id));
+      
+      // Close context menu
+      setEdgeContextMenu({ visible: false, edge: null, x: 0, y: 0 });
+      
+      // Removed toast notification for clean experience
+      
+      console.log('✅ Edge deleted successfully:', edge.id);
+    } else {
+      console.warn('❌ Connection not found for edge:', edge.id);
+      // Removed toast notification for clean experience
+    }
+  }, [connections, nodeMap, onConnectionDelete, setEdges]);
+
+  // Close context menu when clicking outside
+  const handleCanvasClick = useCallback(() => {
+    if (edgeContextMenu.visible) {
+      setEdgeContextMenu({ visible: false, edge: null, x: 0, y: 0 });
+    }
+  }, [edgeContextMenu.visible]);
+
+  // Close context menu with ESC key
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && edgeContextMenu.visible) {
+        setEdgeContextMenu({ visible: false, edge: null, x: 0, y: 0 });
       }
     };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [edgeContextMenu.visible]);
+
+  // Enhanced node click handler to support edge connections
+  const onNodeClick = useCallback((event: React.MouseEvent, node: ReactFlowNode) => {
+    event.stopPropagation();
+    if (process.env.NODE_ENV === 'development' && false) { // Disabled for cleaner console
+      console.log('🎯 Node clicked:', node.id);
+    }
     
-    const handleGlobalDragEnd = (e: DragEvent) => {
-      console.log('🌍 Global dragend:', e.target, 'Effect:', e.dataTransfer?.dropEffect);
-      setIsDragOver(false); // Reset drag state
+    // Check if we're in edge connection mode
+    const globalWindow = window as typeof window & {
+      __edgeConnectionMode?: {
+        enabled: boolean;
+        targetEdge?: ReactFlowEdge;
+      };
     };
     
-    const handleGlobalDrop = (e: DragEvent) => {
-      console.log('🌍 Global drop:', e.target, 'Data available:', !!e.dataTransfer?.getData('application/json'));
-    };
-    
-    document.addEventListener('dragstart', handleGlobalDragStart);
-    document.addEventListener('drag', handleGlobalDrag);
-    document.addEventListener('dragend', handleGlobalDragEnd);
-    document.addEventListener('drop', handleGlobalDrop);
-    
-    return () => {
-      document.removeEventListener('dragstart', handleGlobalDragStart);
-      document.removeEventListener('drag', handleGlobalDrag);
-      document.removeEventListener('dragend', handleGlobalDragEnd);
-      document.removeEventListener('drop', handleGlobalDrop);
-    };
-  }, []);
+    const edgeConnectionMode = globalWindow.__edgeConnectionMode;
+    if (edgeConnectionMode?.enabled && edgeConnectionMode.targetEdge) {
+      console.log('🔗 Creating connection to edge:', edgeConnectionMode.targetEdge.id);
+      
+      const targetEdge = edgeConnectionMode.targetEdge;
+      const sourceComp = nodeMap.get(node.id);
+      
+      if (sourceComp) {
+        // Create a connection from the node to the target of the existing edge
+        const newConnection: FunnelConnection = {
+          id: `edge-to-${node.id}-${Date.now()}`,
+          from: node.id,
+          to: targetEdge.target!,
+          type: 'success',
+          color: '#10B981',
+          animated: true,
+          connectionData: {
+            condition: `Via ${targetEdge.data?.label || 'Lead'}`,
+            dataType: `${sourceComp.data.title} → ${targetEdge.data?.label || 'Lead'} → Target`
+          }
+        };
+        
+        onConnectionAdd(newConnection);
+        
+        // Removed toast notification for clean experience
+        
+        // Disable edge connection mode
+        globalWindow.__edgeConnectionMode = { enabled: false };
+      }
+    }
+  }, [nodeMap, onConnectionAdd]);
 
   return (
     <div 
-      className={`w-full h-full transition-all duration-200 ${isDragOver ? 'bg-blue-950/20' : ''} relative`}
+      className={`canvas-container w-full h-full transition-all duration-200 ${isDragOver ? 'bg-blue-950/20' : ''} relative`}
       onDrop={onDrop}
       onDragOver={onDragOver}
       onDragEnter={onDragEnter}
@@ -788,20 +1000,12 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
       {isDragOver && (
         <div className="absolute inset-4 border-2 border-dashed border-blue-500 rounded-lg bg-blue-500/5 pointer-events-none z-10 flex items-center justify-center">
           <div className="text-blue-400 text-lg font-medium">
-            📦 Solte o componente aqui!
+            📦 Drop the component here!
           </div>
         </div>
       )}
       
-      {/* Connection indicator */}
-      {isConnecting && (
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg z-20 border border-gray-600">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-sm">Conectando componentes...</span>
-          </div>
-        </div>
-      )}
+      {/* Connection indicator - REMOVED */}
 
       <ReactFlow
         nodes={nodes}
@@ -838,6 +1042,9 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
           padding: 0.1,
           includeHiddenNodes: false,
         }}
+        onEdgeClick={onEdgeClick}
+        onNodeClick={onNodeClick}
+        onPaneClick={handleCanvasClick}
       >
         <Background 
           variant={BackgroundVariant.Dots} 
@@ -879,36 +1086,66 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
           position="bottom-right"
         />
 
-        {/* Connection instructions overlay */}
-        {isConnecting && (
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-800 text-white p-6 rounded-lg shadow-lg z-30 border border-gray-600 max-w-md">
-            <h3 className="font-semibold mb-3 text-center text-blue-400">🔗 Criando Conexão</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                <span>Pontos azuis = Entrada (Target)</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                <span>Pontos verdes = Saída (Source)</span>
-              </div>
-              <div className="text-center mt-3 pt-3 border-t border-gray-600">
-                <span className="text-gray-400">Arraste do verde para o azul</span>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Connection instructions overlay - REMOVED */}
         
         {/* Enhanced connection success message */}
         {connections.length > 0 && (
           <div className="absolute bottom-4 left-4 bg-gray-800 text-white p-3 rounded-lg text-sm border border-gray-600">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span>{connections.length} conexão{connections.length !== 1 ? 'ões' : ''} ativa{connections.length !== 1 ? 's' : ''}</span>
+              <span>{connections.length} active connection{connections.length !== 1 ? 's' : ''}</span>
             </div>
           </div>
         )}
       </ReactFlow>
+
+      {/* Edge Context Menu */}
+      {edgeContextMenu.visible && edgeContextMenu.edge && (
+        <div 
+          className="fixed bg-gray-800 border border-gray-600 rounded-lg shadow-xl z-50 py-2 min-w-48"
+          style={{
+            left: edgeContextMenu.x,
+            top: edgeContextMenu.y,
+            transform: 'translate(-50%, -100%)', // Position menu above the click point
+          }}
+        >
+          {/* Menu Header */}
+          <div className="px-4 py-2 border-b border-gray-700">
+            <div className="text-white text-sm font-medium">
+              Connection: {edgeContextMenu.edge.data?.label || 'Lead'}
+            </div>
+            <div className="text-gray-400 text-xs">
+              {nodeMap.get(edgeContextMenu.edge.source)?.data.title} → {nodeMap.get(edgeContextMenu.edge.target)?.data.title}
+            </div>
+          </div>
+          
+          {/* Menu Options */}
+          <div className="py-1">
+            <button
+              onClick={() => handleDeleteEdge(edgeContextMenu.edge!)}
+              className="w-full text-left px-4 py-2 text-red-400 hover:bg-red-900/20 hover:text-red-300 transition-colors flex items-center gap-2 text-sm"
+            >
+              <span>🗑️</span>
+              <span>Delete Connection</span>
+            </button>
+            
+            <button
+              onClick={() => setEdgeContextMenu({ visible: false, edge: null, x: 0, y: 0 })}
+              className="w-full text-left px-4 py-2 text-gray-400 hover:bg-gray-700 hover:text-white transition-colors flex items-center gap-2 text-sm"
+            >
+              <span>❌</span>
+              <span>Cancel</span>
+            </button>
+          </div>
+          
+          {/* Instructions */}
+          <div className="px-4 py-2 border-t border-gray-700">
+            <div className="text-gray-500 text-xs">
+              💡 Tip: Press ESC to close
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

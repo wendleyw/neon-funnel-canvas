@@ -40,7 +40,12 @@ export const Canvas = React.memo<CanvasProps>(({
   const [isInstagramModalOpen, setIsInstagramModalOpen] = useState(false);
   const { analyzeAndStartSequences } = useSequenceAnimation();
 
-  // Detecta mudanças nas conexões e analisa sequências
+  // Expose connections globally for ConnectionLine components
+  useEffect(() => {
+    (window as any).__currentConnections = connections;
+  }, [connections]);
+
+  // Detect connection changes and analyze sequences
   useEffect(() => {
     if (connections.length > 0 && components.length > 0) {
       console.log('[Canvas] Connections or components changed, analyzing sequences...');

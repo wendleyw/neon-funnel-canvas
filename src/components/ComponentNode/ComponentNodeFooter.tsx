@@ -1,6 +1,6 @@
-
 import React from 'react';
-import { Link, Copy } from 'lucide-react';
+import { Link, Copy, Share2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface ComponentNodeFooterProps {
   isSelected: boolean;
@@ -30,14 +30,16 @@ export const ComponentNodeFooter: React.FC<ComponentNodeFooterProps> = ({
         <span>Duplicar</span>
       </button>
       
-      <button
-        onClick={onConnectionClick}
-        className="flex items-center space-x-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors text-xs"
-        title="Conectar com outro componente"
+      <Button 
+        variant="ghost"
+        size="icon"
+        className="text-gray-400 hover:text-blue-400 hover:bg-blue-900/30 transition-all duration-150 h-6 w-6 p-1"
+        onClick={onConnectionClick} 
+        title="Connect with another component"
+        aria-label="Connect component"
       >
-        <Link className="w-3 h-3" />
-        <span>Conectar</span>
-      </button>
+        <Share2 size={14} />
+      </Button>
     </div>
   );
 };

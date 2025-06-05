@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { FunnelComponent, Connection } from '../types/funnel';
 
@@ -23,7 +22,7 @@ export const FlowAnimation: React.FC<FlowAnimationProps> = ({
 
   useEffect(() => {
     const interval = setInterval(() => {
-      // Adiciona novas partículas para cada conexão
+      // Adds new particles for each connection
       const newParticles = connections.map(connection => {
         const fromComponent = components.find(c => c.id === connection.from);
         const toComponent = components.find(c => c.id === connection.to);
@@ -35,8 +34,8 @@ export const FlowAnimation: React.FC<FlowAnimationProps> = ({
           connectionId: connection.id,
           progress: 0,
           startPos: {
-            x: fromComponent.position.x + 192, // Width do componente + offset
-            y: fromComponent.position.y + 40   // Meio do componente
+            x: fromComponent.position.x + 192, // Width of the component + offset
+            y: fromComponent.position.y + 40   // Middle of the component
           },
           endPos: {
             x: toComponent.position.x,
@@ -46,10 +45,10 @@ export const FlowAnimation: React.FC<FlowAnimationProps> = ({
       }).filter(Boolean) as FlowParticle[];
 
       setParticles(prev => [
-        ...prev.filter(p => p.progress < 1), // Remove partículas que chegaram ao destino
+        ...prev.filter(p => p.progress < 1), // Remove particles that have reached their destination
         ...newParticles
       ]);
-    }, 2000); // Nova partícula a cada 2 segundos
+    }, 2000); // New particle every 2 seconds
 
     return () => clearInterval(interval);
   }, [connections, components]);
@@ -59,7 +58,7 @@ export const FlowAnimation: React.FC<FlowAnimationProps> = ({
       setParticles(prev => 
         prev.map(particle => ({
           ...particle,
-          progress: Math.min(particle.progress + 0.02, 1) // Velocidade da animação
+          progress: Math.min(particle.progress + 0.02, 1) // Animation speed
         }))
       );
     }, 50); // 60 FPS
@@ -70,7 +69,7 @@ export const FlowAnimation: React.FC<FlowAnimationProps> = ({
   const getParticlePosition = (particle: FlowParticle) => {
     const { startPos, endPos, progress } = particle;
     
-    // Interpolação suave (ease-in-out)
+    // Smooth interpolation (ease-in-out)
     const easeProgress = progress < 0.5 
       ? 2 * progress * progress 
       : 1 - Math.pow(-2 * progress + 2, 2) / 2;
@@ -82,13 +81,13 @@ export const FlowAnimation: React.FC<FlowAnimationProps> = ({
   };
 
   const getParticleOpacity = (progress: number) => {
-    // Gradiente de transparência: aparece no início, some no final
+    // Transparency gradient: appears at the start, disappears at the end
     if (progress < 0.1) {
-      return progress * 10; // Aparece gradualmente
+      return progress * 10; // Appears gradually
     } else if (progress > 0.9) {
-      return (1 - progress) * 10; // Some gradualmente
+      return (1 - progress) * 10; // Disappears gradually
     }
-    return 1; // Totalmente visível no meio
+    return 1; // Fully visible in the middle
   };
 
   return (

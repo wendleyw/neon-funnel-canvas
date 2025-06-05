@@ -7,17 +7,20 @@ import { useDebounceProjectSave } from './useDebounceProjectSave';
 
 type WorkspaceProject = Database['public']['Tables']['workspace_projects']['Row'];
 
-export const useOptimizedWorkspaceProjects = () => {
+export const useProjects = () => { // Renamed from useOptimizedWorkspaceProjects
   const { user } = useAuth();
   const [workspaceProjects, setWorkspaceProjects] = useState<WorkspaceProject[]>([]);
   const [loading, setLoading] = useState(false);
   const cacheRef = useRef<Map<string, WorkspaceProject>>(new Map());
   const lastFetchRef = useRef<number>(0);
-  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
+  const loadingRef = useRef(false); // Guard to prevent multiple simultaneous calls
+  const lastLoadedUserId = useRef<string | null>(null); // Control by user
+  const isInitializedRef = useRef(false); // Initialization control
+  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
   const currentWorkspaceIdRef = useRef<string>('');
   const currentProjectIdRef = useRef<string | undefined>();
 
-  // Cache local para evitar refetch desnecessário
+  // Local cache to avoid unnecessary refetch
   const getCachedProject = useCallback((projectId: string): WorkspaceProject | null => {
     return cacheRef.current.get(projectId) || null;
   }, []);
@@ -26,7 +29,7 @@ export const useOptimizedWorkspaceProjects = () => {
     cacheRef.current.set(project.id, project);
   }, []);
 
-  // Operação de salvamento otimizada com debounce
+  // Optimized save operation with debounce
   const saveProjectOptimized = useCallback(async (project: any) => {
     if (!user) {
       return { success: false };
@@ -39,7 +42,7 @@ export const useOptimizedWorkspaceProjects = () => {
       let result;
       
       if (projectId) {
-        // Atualizar projeto existente
+        // Update existing project
         result = await projectService.update(projectId, {
           name: project.name,
           project_data: project,
@@ -47,7 +50,7 @@ export const useOptimizedWorkspaceProjects = () => {
           connections_count: project.connections.length
         }, user.id);
       } else {
-        // Criar novo projeto
+        // Create new project
         result = await projectService.create({
           name: project.name,
           workspace_id: workspaceId,
@@ -59,16 +62,16 @@ export const useOptimizedWorkspaceProjects = () => {
       }
 
       if (result) {
-        // Atualizar cache local
+        // Update local cache
         setCachedProject(result);
         
-        // Atualizar estado local
+        // Update local state
         setWorkspaceProjects(prev => {
           const filtered = prev.filter(p => p.id !== result.id);
           return [...filtered, result];
         });
 
-        // Atualizar project ID se for um novo projeto
+        // Update project ID if it's a new project
         if (!projectId) {
           currentProjectIdRef.current = result.id;
         }
@@ -83,35 +86,35 @@ export const useOptimizedWorkspaceProjects = () => {
     }
   }, [user, setCachedProject]);
 
-  // Hook de debounce para auto-save
+  // Debounce hook for auto-save
   const { debouncedSave, forceSave, cancelSave } = useDebounceProjectSave({
     onSave: saveProjectOptimized,
-    delay: 5000 // 5 segundos de delay para auto-save
+    delay: 5000 // 5 seconds delay for auto-save
   });
 
   const addProjectToWorkspace = useCallback(async (project: any, workspaceId: string, projectId?: string, isAutoSave: boolean = false) => {
     if (!user) {
-      toast.error('Usuário não autenticado');
+      toast.error('User not authenticated');
       return { success: false };
     }
 
-    // Atualizar referências para o save otimizado
+    // Update refs for optimized save
     currentWorkspaceIdRef.current = workspaceId;
     currentProjectIdRef.current = projectId;
 
-    // Se for auto-save, usar debounced save
+    // If auto-save, use debounced save
     if (isAutoSave) {
       return await debouncedSave(project);
     }
 
-    // Se for save manual, forçar save imediato
+    // If manual save, force immediate save
     setLoading(true);
     try {
       const result = await forceSave(project);
       if (result.success) {
-        toast.success('Projeto salvo com sucesso!');
+        toast.success('Project saved successfully!');
       } else {
-        toast.error('Erro ao salvar projeto');
+        toast.error('Error saving project');
       }
       return result;
     } finally {
@@ -121,11 +124,11 @@ export const useOptimizedWorkspaceProjects = () => {
 
   const updateProjectName = useCallback(async (projectId: string, newName: string) => {
     if (!user) {
-      toast.error('Usuário não autenticado');
+      toast.error('User not authenticated');
       return false;
     }
 
-    // Atualizar cache local primeiro (otimistic update)
+    // Update local cache first (optimistic update)
     const cachedProject = getCachedProject(projectId);
     if (cachedProject) {
       const updatedProject = { ...cachedProject, name: newName };
@@ -144,17 +147,17 @@ export const useOptimizedWorkspaceProjects = () => {
         setWorkspaceProjects(prev => 
           prev.map(p => p.id === projectId ? result : p)
         );
-        toast.success('Nome do projeto atualizado!');
+        toast.success('Project name updated!');
         return true;
       } else {
-        // Reverter optimistic update em caso de erro
+        // Revert optimistic update in case of error
         if (cachedProject) {
           setCachedProject(cachedProject);
           setWorkspaceProjects(prev => 
             prev.map(p => p.id === projectId ? cachedProject : p)
           );
         }
-        toast.error('Erro ao atualizar nome do projeto');
+        toast.error('Error updating project name');
         return false;
       }
     } finally {
@@ -164,11 +167,11 @@ export const useOptimizedWorkspaceProjects = () => {
 
   const deleteProject = useCallback(async (projectId: string) => {
     if (!user) {
-      toast.error('Usuário não autenticado');
+      toast.error('User not authenticated');
       return false;
     }
 
-    // Cancelar qualquer save pendente
+    // Cancel any pending save
     cancelSave();
 
     setLoading(true);
@@ -176,14 +179,14 @@ export const useOptimizedWorkspaceProjects = () => {
       const success = await projectService.delete(projectId, user.id);
       
       if (success) {
-        // Remover do cache
+        // Remove from cache
         cacheRef.current.delete(projectId);
         
         setWorkspaceProjects(prev => prev.filter(p => p.id !== projectId));
-        toast.success('Projeto deletado com sucesso!');
+        toast.success('Project deleted successfully!');
         return true;
       } else {
-        toast.error('Erro ao deletar projeto');
+        toast.error('Error deleting project');
         return false;
       }
     } finally {
@@ -194,54 +197,100 @@ export const useOptimizedWorkspaceProjects = () => {
   const loadProjects = useCallback(async (forceRefresh: boolean = false) => {
     if (!user) {
       setWorkspaceProjects([]);
+      lastLoadedUserId.current = null;
+      isInitializedRef.current = false;
       return;
     }
 
-    const now = Date.now();
-    const shouldFetch = forceRefresh || (now - lastFetchRef.current > CACHE_DURATION);
+    // Robust checks to prevent multiple calls
+    if (loadingRef.current) {
+      console.log('⏳ LoadProjects is already running, skipping...');
+      return;
+    }
 
-    if (!shouldFetch && workspaceProjects.length > 0) {
+    // If already loaded for this user and not a forced refresh, don't load again
+    if (lastLoadedUserId.current === user.id && isInitializedRef.current && !forceRefresh) {
+      console.log('✅ Projects already loaded for this user');
+      return;
+    }
+
+    // Check if user has changed
+    if (lastLoadedUserId.current !== user.id) {
+      console.log('🔄 User changed, resetting projects state');
+      setWorkspaceProjects([]);
+      cacheRef.current.clear();
+      isInitializedRef.current = false;
+      lastFetchRef.current = 0;
+    }
+
+    const now = Date.now();
+    const hasValidCache = lastFetchRef.current > 0 && (now - lastFetchRef.current < CACHE_DURATION);
+    
+    if (!forceRefresh && hasValidCache && workspaceProjects.length > 0 && isInitializedRef.current) {
       console.log('📦 Using cached projects');
       return;
     }
 
+    loadingRef.current = true;
     setLoading(true);
     try {
       console.log('🔄 Fetching projects from database');
       const data = await projectService.getByUserId(user.id);
       
-      // Atualizar cache
+      // Update cache
+      cacheRef.current.clear(); // Clear previous cache
       data.forEach(project => setCachedProject(project));
       
       setWorkspaceProjects(data);
       lastFetchRef.current = now;
+      lastLoadedUserId.current = user.id;
+      isInitializedRef.current = true;
+      console.log(`✅ Projects loaded: ${data.length} found`);
+    } catch (error) {
+      console.error('❌ Error loading projects:', error);
+      toast.error('Error loading projects');
     } finally {
       setLoading(false);
+      loadingRef.current = false;
     }
-  }, [user, workspaceProjects.length, setCachedProject]);
-
+  }, [user, setCachedProject]);
+  
+  // Returns all projects for a given workspace ID
   const getWorkspaceProjects = useCallback((workspaceId: string) => {
     return workspaceProjects.filter(p => p.workspace_id === workspaceId);
   }, [workspaceProjects]);
 
-  const loadProject = useCallback((projectId: string) => {
-    // Tentar cache primeiro
+  // Loads a specific project (first from local state, then from cache)
+  const loadProject = useCallback(async (projectId: string): Promise<WorkspaceProject | null> => {
+    if (!projectId) return null;
+
+    // Try to get from local state first (populated by loadProjects)
+    const projectFromState = workspaceProjects.find(p => p.id === projectId);
+    if (projectFromState) {
+      return projectFromState;
+    }
+    
+    // Then try cache (might have specific items not in general list or for quick access)
     const cached = getCachedProject(projectId);
     if (cached) {
-      return cached.project_data;
+      return cached;
     }
 
-    // Fallback para array de projetos
-    const project = workspaceProjects.find(p => p.id === projectId);
-    return project ? project.project_data : null;
-  }, [workspaceProjects, getCachedProject]);
+    // If not found in local state or cache, it means it's not loaded or doesn't exist.
+    // A dedicated fetch for a single project (e.g., projectService.getById) is not currently implemented.
+    // For now, we return null if not found locally.
+    // Consider adding projectService.getById for a more robust fetch-on-demand capability if needed.
+    console.warn(`Project ${projectId} not found in local state or cache.`);
+    return null;
+  }, [getCachedProject, workspaceProjects]);
 
-  // Estatísticas do cache para debugging
+  // Utility function to get cache statistics (for debugging)
   const cacheStats = useMemo(() => ({
-    cacheSize: cacheRef.current.size,
-    lastFetch: new Date(lastFetchRef.current).toLocaleTimeString(),
-    cacheAge: Math.round((Date.now() - lastFetchRef.current) / 1000 / 60), // minutos
-  }), [workspaceProjects]);
+    size: cacheRef.current.size,
+    lastFetch: lastFetchRef.current,
+    isInitialized: isInitializedRef.current,
+    isLoading: loading
+  }), [loading]);
 
   return {
     workspaceProjects,
@@ -253,6 +302,6 @@ export const useOptimizedWorkspaceProjects = () => {
     loadProject,
     loading,
     cacheStats,
-    cancelSave, // Para cancelar saves pendentes quando necessário
+    cancelSave, // Expose cancelSave from useDebounceProjectSave
   };
 }; 

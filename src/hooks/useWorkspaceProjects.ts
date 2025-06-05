@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { projectService } from '../services/projectService';
 import { useAuth } from '../contexts/AuthContext';
@@ -14,7 +13,7 @@ export const useWorkspaceProjects = () => {
 
   const addProjectToWorkspace = useCallback(async (project: any, workspaceId: string, projectId?: string) => {
     if (!user) {
-      toast.error('Usuário não autenticado');
+      toast.error('User not authenticated');
       return { success: false };
     }
 
@@ -23,7 +22,7 @@ export const useWorkspaceProjects = () => {
       let result;
       
       if (projectId) {
-        // Atualizar projeto existente
+        // Update existing project
         result = await projectService.update(projectId, {
           name: project.name,
           project_data: project,
@@ -32,10 +31,10 @@ export const useWorkspaceProjects = () => {
         }, user.id);
 
         if (result) {
-          console.log('Projeto atualizado:', project.name);
+          console.log('Project updated:', project.name);
         }
       } else {
-        // Criar novo projeto
+        // Create new project
         result = await projectService.create({
           name: project.name,
           workspace_id: workspaceId,
@@ -46,12 +45,12 @@ export const useWorkspaceProjects = () => {
         });
 
         if (result) {
-          console.log('Novo projeto criado:', project.name);
+          console.log('New project created:', project.name);
         }
       }
 
       if (result) {
-        // Atualizar o estado local
+        // Update local state
         setWorkspaceProjects(prev => {
           const filtered = prev.filter(p => p.id !== result.id);
           return [...filtered, result];
@@ -59,7 +58,7 @@ export const useWorkspaceProjects = () => {
 
         return { success: true, projectId: result.id };
       } else {
-        toast.error('Erro ao salvar projeto');
+        toast.error('Error saving project');
         return { success: false };
       }
     } finally {
@@ -69,24 +68,22 @@ export const useWorkspaceProjects = () => {
 
   const updateProjectName = useCallback(async (projectId: string, newName: string) => {
     if (!user) {
-      toast.error('Usuário não autenticado');
+      toast.error('User not authenticated');
       return false;
     }
 
     setLoading(true);
     try {
-      const result = await projectService.update(projectId, { name: newName }, user.id);
-      
-      if (result) {
-        setWorkspaceProjects(prev => 
-          prev.map(p => p.id === projectId ? result : p)
-        );
-        toast.success('Nome do projeto atualizado!');
-        return true;
-      } else {
-        toast.error('Erro ao atualizar nome do projeto');
-        return false;
-      }
+      await projectService.update(projectId, { name: newName }, user.id);
+      setWorkspaceProjects(prev => 
+        prev.map(p => p.id === projectId ? { ...p, name: newName } : p)
+      );
+      toast.success('Project name updated!');
+      return true;
+    } catch (err: any) {
+      console.error('Error updating project name in workspace:', err);
+      toast.error('Error updating project name');
+      return false;
     } finally {
       setLoading(false);
     }
@@ -94,7 +91,7 @@ export const useWorkspaceProjects = () => {
 
   const deleteProject = useCallback(async (projectId: string) => {
     if (!user) {
-      toast.error('Usuário não autenticado');
+      toast.error('User not authenticated');
       return false;
     }
 
@@ -104,12 +101,16 @@ export const useWorkspaceProjects = () => {
       
       if (success) {
         setWorkspaceProjects(prev => prev.filter(p => p.id !== projectId));
-        toast.success('Projeto deletado com sucesso!');
+        toast.success('Project deleted successfully!');
         return true;
       } else {
-        toast.error('Erro ao deletar projeto');
+        toast.error('Error deleting project');
         return false;
       }
+    } catch (err: any) {
+      console.error('Error deleting project from workspace:', err);
+      toast.error('Error deleting project');
+      return false;
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { ReadyTemplate } from '../types/readyTemplates';
 import { readyTemplates as defaultTemplates } from '../data/readyTemplates';
@@ -8,7 +7,7 @@ export const useReadyTemplates = () => {
   const [templates] = useState<ReadyTemplate[]>(defaultTemplates);
 
   const duplicateTemplate = useCallback((template: ReadyTemplate): { components: FunnelComponent[], connections: Connection[] } => {
-    // Gerar novos IDs para componentes
+    // Generate new IDs for components
     const componentIdMap = new Map<string, string>();
     
     const newComponents: FunnelComponent[] = template.components.map((component) => {
@@ -25,15 +24,15 @@ export const useReadyTemplates = () => {
       };
     });
 
-    // Atualizar conexões com novos IDs
-    const newConnections: Connection[] = template.connections.map((connection) => ({
+    // Update connections with new IDs
+    const updatedConnections = template.connections.map(connection => ({
       ...connection,
       id: `connection-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       from: componentIdMap.get(connection.from) || connection.from,
       to: componentIdMap.get(connection.to) || connection.to
     }));
 
-    return { components: newComponents, connections: newConnections };
+    return { components: newComponents, connections: updatedConnections };
   }, []);
 
   const getTemplatesByCategory = useCallback((category?: string) => {

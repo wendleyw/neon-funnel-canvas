@@ -1,4 +1,3 @@
-
 import { supabase } from '../integrations/supabase/client';
 import { Database } from '../integrations/supabase/types';
 
@@ -15,13 +14,13 @@ export const projectService = {
         .single();
 
       if (error) {
-        console.error('Erro ao criar projeto:', error);
+        console.error('Error creating project:', error);
         return null;
       }
 
       return data;
     } catch (error) {
-      console.error('Erro ao criar projeto:', error);
+      console.error('Error creating project:', error);
       return null;
     }
   },
@@ -40,13 +39,13 @@ export const projectService = {
         .single();
 
       if (error) {
-        console.error('Erro ao atualizar projeto:', error);
+        console.error('Error updating project:', error);
         return null;
       }
 
       return data;
     } catch (error) {
-      console.error('Erro ao atualizar projeto:', error);
+      console.error('Error updating project:', error);
       return null;
     }
   },
@@ -60,13 +59,13 @@ export const projectService = {
         .eq('user_id', userId);
 
       if (error) {
-        console.error('Erro ao deletar projeto:', error);
+        console.error('Error deleting project:', error);
         return false;
       }
 
       return true;
     } catch (error) {
-      console.error('Erro ao deletar projeto:', error);
+      console.error('Error deleting project:', error);
       return false;
     }
   },
@@ -77,16 +76,16 @@ export const projectService = {
         .from('workspace_projects')
         .select('*')
         .eq('user_id', userId)
-        .order('created_at', { ascending: false });
+        .order('updated_at', { ascending: false });
 
       if (error) {
-        console.error('Erro ao carregar projetos:', error);
+        console.error('Error loading projects:', error);
         return [];
       }
 
       return data || [];
     } catch (error) {
-      console.error('Erro ao carregar projetos:', error);
+      console.error('Error loading projects:', error);
       return [];
     }
   },
@@ -97,16 +96,16 @@ export const projectService = {
         .from('workspace_projects')
         .select('*')
         .eq('workspace_id', workspaceId)
-        .order('created_at', { ascending: false });
+        .order('updated_at', { ascending: false });
 
       if (error) {
-        console.error('Erro ao carregar projetos do workspace:', error);
+        console.error('Error loading workspace projects:', error);
         return [];
       }
 
       return data || [];
     } catch (error) {
-      console.error('Erro ao carregar projetos do workspace:', error);
+      console.error('Error loading workspace projects:', error);
       return [];
     }
   }

@@ -20,10 +20,10 @@ const getTemplatesByTypes = (types: string[]): ComponentTemplate[] => {
 export const modernSidebarCategories: SidebarCategory[] = [
   {
     id: 'traffic-organic',
-    name: 'Tráfego Orgânico',
+    name: 'Organic Traffic',
     icon: '🌱',
     color: '#22C55E',
-    description: 'Estratégias de tráfego orgânico',
+    description: 'Organic traffic strategies',
     templates: getTemplatesByTypes([
       'instagram-post',
       'instagram-story', 
@@ -40,10 +40,10 @@ export const modernSidebarCategories: SidebarCategory[] = [
   },
   {
     id: 'traffic-paid',
-    name: 'Tráfego Pago',
+    name: 'Paid Traffic',
     icon: '📢',
     color: '#EF4444',
-    description: 'Campanhas de tráfego pago',
+    description: 'Paid traffic campaigns',
     templates: getTemplatesByTypes([
       'facebook-ad',
       'instagram-ad',
@@ -53,52 +53,50 @@ export const modernSidebarCategories: SidebarCategory[] = [
   },
   {
     id: 'lead-capture',
-    name: 'Captura de Leads',
-    icon: '🎯',
+    name: 'Lead Capture',
+    icon: 'Target',
     color: '#3B82F6',
-    description: 'Ferramentas para capturar leads',
+    description: 'Tools to capture leads',
     templates: getTemplatesByTypes([
+      'opt-in-page',
       'landing-page',
-      'form',
-      'quiz',
       'lead-magnet'
     ])
   },
   {
     id: 'nurturing',
-    name: 'Nutrição',
-    icon: '🌿',
+    name: 'Nurturing',
+    icon: 'Mail',
     color: '#8B5CF6',
-    description: 'Sequências de nutrição',
+    description: 'Nurturing sequences',
     templates: getTemplatesByTypes([
       'email-sequence',
-      'automation',
-      'segmentation'
+      'drip-campaign',
+      'newsletter'
     ])
   },
   {
     id: 'conversion',
-    name: 'Conversão',
-    icon: '💎',
-    color: '#F59E0B',
-    description: 'Páginas de conversão',
+    name: 'Conversion',
+    icon: 'ShoppingCart',
+    color: '#10B981',
+    description: 'Conversion pages',
     templates: getTemplatesByTypes([
       'sales-page',
-      'webinar-vsl',
       'checkout',
       'upsell'
     ])
   },
   {
-    id: 'post-sales',
-    name: 'Pós-Venda',
-    icon: '🎉',
-    color: '#10B981',
-    description: 'Estratégias pós-venda',
+    id: 'post-sale',
+    name: 'Post-Sale',
+    icon: 'Award',
+    color: '#F59E0B',
+    description: 'Post-sale strategies',
     templates: getTemplatesByTypes([
-      'onboarding',
-      'support',
-      'feedback'
+      'thank-you-page',
+      'delivery-page',
+      'support'
     ])
   },
   {
@@ -106,7 +104,7 @@ export const modernSidebarCategories: SidebarCategory[] = [
     name: 'Analytics',
     icon: '📊',
     color: '#6366F1',
-    description: 'Análise e métricas',
+    description: 'Analysis and metrics',
     templates: getTemplatesByTypes([
       'analytics',
       'conversion-tracking',
@@ -115,10 +113,10 @@ export const modernSidebarCategories: SidebarCategory[] = [
   },
   {
     id: 'visual-helpers',
-    name: 'Helpers Visuais',
+    name: 'Visual Helpers',
     icon: '🎨',
     color: '#EC4899',
-    description: 'Componentes para organização visual',
+    description: 'Components for visual organization',
     templates: getTemplatesByTypes([
       'note',
       'arrow', 

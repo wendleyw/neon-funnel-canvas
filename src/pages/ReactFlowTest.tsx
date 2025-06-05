@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import ExemploConexoesWrapper from '../components/ReactFlow/ExemploConexoes';
+import ConnectionExamplesWrapper from '../components/ReactFlow/ConnectionExamples';
 
 const ReactFlowTest: React.FC = () => {
   return (
@@ -13,18 +13,18 @@ const ReactFlowTest: React.FC = () => {
               to="/" 
               className="text-blue-400 hover:text-blue-300 transition-colors text-sm"
             >
-              ← Voltar
+              ← Go Back
             </Link>
             <h1 className="text-white font-semibold">
-              🧪 React Flow - Teste de Funcionalidades
+              🧪 React Flow - Functionality Test
             </h1>
           </div>
           
           <div className="flex items-center gap-4 text-sm text-gray-400">
             <span>✅ onConnect & addEdge</span>
-            <span>✅ Handles customizados</span>
-            <span>✅ Arestas animadas (neon)</span>
-            <span>✅ Validação de conexões</span>
+            <span>✅ Custom Handles</span>
+            <span>✅ Animated Edges (neon)</span>
+            <span>✅ Connection Validation</span>
             <span>✅ Save/Load localStorage</span>
           </div>
         </div>
@@ -32,17 +32,17 @@ const ReactFlowTest: React.FC = () => {
 
       {/* Container principal com margem para o header */}
       <div className="w-full h-full pt-16">
-        <ExemploConexoesWrapper />
+        <ConnectionExamplesWrapper />
       </div>
       
       {/* Status e informações */}
       <div className="absolute bottom-4 left-4 z-10 bg-gray-800 text-white p-3 rounded-lg text-xs border border-gray-600">
         <div className="space-y-1">
-          <div><strong>Status:</strong> ✅ Todas as funcionalidades implementadas</div>
-          <div><strong>CSS:</strong> ✅ react-flow/dist/style.css importado</div>
-          <div><strong>Conexões:</strong> ✅ onConnect + addEdge funcionando</div>
-          <div><strong>Handles:</strong> ✅ Target (azul) + Source (verde)</div>
-          <div><strong>Animações:</strong> ✅ Efeito neon com partículas</div>
+          <div><strong>Status:</strong> ✅ All features implemented</div>
+          <div><strong>CSS:</strong> ✅ react-flow/dist/style.css imported</div>
+          <div><strong>Connections:</strong> ✅ onConnect + addEdge working</div>
+          <div><strong>Handles:</strong> ✅ Target (blue) + Source (green)</div>
+          <div><strong>Animations:</strong> ✅ Neon effect with particles</div>
         </div>
       </div>
     </div>

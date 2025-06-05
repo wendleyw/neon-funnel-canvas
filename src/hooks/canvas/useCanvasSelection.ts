@@ -1,9 +1,10 @@
 import { useCallback, useState } from 'react';
+import { Connection } from '../../types/funnel';
 
 interface UseCanvasSelectionOptions {
-  onConnectionAdd: (connection: any) => void;
+  onConnectionAdd: (connection: Connection) => void;
   onConnectionDelete: (connectionId: string) => void;
-  onConnectionUpdate?: (connectionId: string, updates: any) => void;
+  onConnectionUpdate?: (connectionId: string, updates: Partial<Connection>) => void;
 }
 
 export const useCanvasSelection = ({ 
@@ -16,107 +17,87 @@ export const useCanvasSelection = ({
   const [selectedConnection, setSelectedConnection] = useState<string | null>(null);
 
   const handleComponentConnect = useCallback((toComponentId: string) => {
-    console.log('🔗 handleComponentConnect chamado:', { connectingFrom, toComponentId });
-    
-    if (!connectingFrom) {
-      console.warn('⚠️ Tentativa de conectar sem componente de origem');
-      return;
-    }
-    
-    if (connectingFrom === toComponentId) {
-      console.warn('⚠️ Tentativa de conectar componente a si mesmo');
-      return;
-    }
-    
-    console.log('✨ Criando conexão de', connectingFrom, 'para', toComponentId);
-    
-    const newConnection = {
-      id: `connection-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      from: connectingFrom,
-      to: toComponentId,
-      type: 'success' as const,
-      animated: true
-    };
-    
-    console.log('📦 Nova conexão criada:', newConnection);
-    
-    try {
+    if (connectingFrom && connectingFrom !== toComponentId) {
+      console.log('✨ Creating connection from', connectingFrom, 'to', toComponentId);
+      
+      const newConnection: Connection = {
+        id: `connection-${Date.now()}`,
+        from: connectingFrom,
+        to: toComponentId,
+        type: 'success' as const,
+        color: '#10B981',
+        animated: true
+      };
+      
       onConnectionAdd(newConnection);
-      console.log('✅ Conexão adicionada com sucesso');
-      
-      // Limpa o estado de conexão
+      // Clear connection state
       setConnectingFrom(null);
-      // Seleciona o componente de destino
-      setSelectedComponent(toComponentId);
-      
-      console.log('🎉 Processo de conexão concluído');
-    } catch (error) {
-      console.error('❌ Erro ao adicionar conexão:', error);
     }
   }, [connectingFrom, onConnectionAdd]);
 
   const handleComponentSelect = useCallback((componentId: string) => {
-    console.log('🎯 Selecionando componente:', componentId);
+    // Keep component selected during connection
+    if (connectingFrom) {
+      console.log('🔄 Connection state active. Click another component to connect.');
+      return;
+    }
     
-    // Se estamos no modo conexão, tenta conectar
-    if (connectingFrom && connectingFrom !== componentId) {
-      console.log('🔗 Tentando conectar de', connectingFrom, 'para', componentId);
+    setSelectedComponent(componentId);
+    // Clear connection selection when selecting component
+    setSelectedConnection(null);
+  }, [connectingFrom]);
+
+  const startConnection = useCallback((componentId: string) => {
+    if (connectingFrom === componentId) {
+      // If clicking same component, cancel connection
+      setConnectingFrom(null);
+      return;
+    }
+    
+    // If in connection mode, try to connect
+    if (connectingFrom) {
       handleComponentConnect(componentId);
       return;
     }
     
-    // Limpa seleção de conexão ao selecionar componente
+    // Start connection mode
+    setConnectingFrom(componentId);
+    // Clear connection selection when selecting component
     setSelectedConnection(null);
-    setConnectingFrom(null);
-    
-    // Sempre seleciona o componente clicado
-    setSelectedComponent(componentId);
-    console.log('✅ Componente selecionado:', componentId);
   }, [connectingFrom, handleComponentConnect]);
 
-  const startConnection = useCallback((fromComponentId: string) => {
-    console.log('🚀 Iniciando conexão de:', fromComponentId);
-    setConnectingFrom(fromComponentId);
-    setSelectedConnection(null);
-    // Mantém o componente selecionado durante a conexão
-    setSelectedComponent(fromComponentId);
-    console.log('🔄 Estado de conexão ativo. Clique em outro componente para conectar.');
-  }, []);
-
   const handleConnectionSelect = useCallback((connectionId: string) => {
-    console.log('🔗 Selecionando conexão:', connectionId);
+    console.log('🔗 Connection selected:', connectionId);
     
-    // Limpa seleção de componentes ao selecionar conexão
+    // Clear component selection when selecting connection
     setSelectedComponent(null);
-    setConnectingFrom(null);
     
+    // If already selected, close editor
     if (selectedConnection === connectionId) {
-      // Se já estava selecionada, fecha o editor
-      console.log('❌ Fechando editor de conexão:', connectionId);
       setSelectedConnection(null);
-    } else {
-      // Seleciona a conexão e abre o editor
-      console.log('📝 Abrindo editor de conexão:', connectionId);
-      setSelectedConnection(connectionId);
+      return;
     }
+    
+    // Select connection and open editor
+    setSelectedConnection(connectionId);
   }, [selectedConnection]);
 
-  const handleConnectionColorChange = useCallback((connectionId: string, updates: any) => {
-    console.log('🎨 Atualizando conexão:', connectionId, 'com:', updates);
+  const handleConnectionColorChange = useCallback((connectionId: string, updates: Partial<Connection>) => {
+    console.log('🎨 Updating connection:', connectionId, 'with:', updates);
     if (onConnectionUpdate) {
       onConnectionUpdate(connectionId, updates);
     }
   }, [onConnectionUpdate]);
 
   const clearSelection = useCallback(() => {
-    console.log('🧹 Limpando todas as seleções');
+    console.log('🧹 Clearing all selections');
     setSelectedComponent(null);
     setConnectingFrom(null);
     setSelectedConnection(null);
   }, []);
 
-  // Log do estado atual para debug
-  console.log('🔍 Estado atual da seleção:', {
+  // Log current state for debug
+  console.log('🔍 Current selection state:', {
     selectedComponent,
     connectingFrom,
     selectedConnection,
@@ -133,6 +114,6 @@ export const useCanvasSelection = ({
     handleComponentConnect,
     handleConnectionSelect,
     handleConnectionColorChange,
-    clearSelection
+    clearSelection,
   };
 };

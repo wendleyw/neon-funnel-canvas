@@ -1,57 +1,57 @@
 export interface FunnelComponent {
   id: string;
   type: 
-    // Fontes de Tráfego - Paid
+    // Traffic Sources - Paid
     | 'facebook-ads' | 'instagram-ads' | 'google-ads' | 'bing-ads' | 'youtube-ads' | 'linkedin-ads' 
     | 'tiktok-ads' | 'twitter-ads' | 'pinterest-ads' | 'snapchat-ads' | 'reddit-ads'
-    // Fontes de Tráfego - Search
+    // Traffic Sources - Search
     | 'google-organic' | 'bing-organic' | 'youtube-organic' | 'all-search'
-    // Fontes de Tráfego - Social
+    // Traffic Sources - Social
     | 'facebook-organic' | 'instagram-organic' | 'pinterest-organic' | 'reddit-organic' 
     | 'linkedin-organic' | 'tiktok-organic' | 'x-organic'
-    // Fontes de Tráfego - Messaging
+    // Traffic Sources - Messaging
     | 'whatsapp-business' | 'telegram-marketing' | 'facebook-messenger' | 'slack-marketing' 
     | 'sms-marketing' | 'chatbot-marketing'
-    // Fontes de Tráfego - CRM
+    // Traffic Sources - CRM
     | 'ontraport-crm' | 'keap-crm' | 'hubspot-crm' | 'salesforce-crm' | 'pipedrive-crm' | 'mailchimp-crm'
     | 'intercom-crm' | 'marketo-crm' | 'constant-contact-crm' | 'activecampaign-crm' | 'drip-crm'
-    // Fontes de Tráfego - Other Sites
+    // Traffic Sources - Other Sites
     | 'zoho-site' | 'yelp-site' | 'zendesk-site' | 'drift-site' | 'gotomeeting-site' | 'amazon-site'
     | 'zoom-site' | 'gmail-site' | 'spotify-site' | 'snapchat-site' | 'clutch-site' | 'googlemaps-site'
-    // Fontes de Tráfego - Offline
+    // Traffic Sources - Offline
     | 'job-interview' | 'print-advertising' | 'event-marketing' | 'online-meeting' | 'banner-advertising'
     | 'direct-mail' | 'tv-advertising' | 'biz-directory' | 'workshop-seminar' | 'radio-advertising'
     | 'guest-blog' | 'job-site' | 'meeting-networking' | 'billboard-advertising' | 'business-card'
     | 'career-site' | 'phone-marketing' | 'report-marketing' | 'qr-code'
-    // Fontes de Tráfego - Content & Events
+    // Traffic Sources - Content & Events
     | 'webinar-traffic' | 'podcast-marketing' | 'content-marketing' | 'influencer-marketing' | 'referral-traffic'
-    // Fontes de Tráfego - Other
+    // Traffic Sources - Other
     | 'email-marketing' | 'direct-traffic' | 'affiliate-marketing'
     // Custom Icons
     | 'custom-uploaded-icon'
-    // Legacy types (manter compatibilidade)
+    // Legacy types (maintain compatibility)
     | 'social-ads' | 'google-search' | 'google-display' | 'seo-organic' | 'email-traffic' 
     | 'content-blog' | 'content-video' | 'content-podcast'
-    // Captura de Leads e Engajamento
+    // Lead Capture and Engagement
     | 'landing-page' | 'quiz' | 'form' | 'cta-button' | 'lead-magnet' | 'ebook' | 'checklist' | 'webinar' | 'template-offer'
-    // Nutrição e Relacionamento
+    // Nurturing and Relationship
     | 'email-sequence' | 'automation' | 'retargeting-ads'
-    // Vendas e Conversão
+    // Sales and Conversion
     | 'sales-page' | 'checkout' | 'order-bump' | 'upsell' | 'downsell' | 'conversion'
-    // Pós-Venda e Retenção
+    // Post-Sale and Retention
     | 'thank-you-page' | 'member-area' | 'customer-support'
-    // Analytics e Otimização
+    // Analytics and Optimization
     | 'analytics' | 'ab-test'
-    // Jornada do Cliente
+    // Customer Journey
     | 'customer-journey' | 'touchpoint' | 'emotion-point' | 'pain-point' | 'opportunity'
-    // Fluxo de Processo
+    // Process Flow
     | 'process-start' | 'process-step' | 'decision-point' | 'process-end'
-    // Conteúdo
+    // Content
     | 'content-piece' | 'keyword' | 'distribution-channel'
     // MarTech Stack
     | 'crm-tool' | 'automation-tool' | 'ads-tool' | 'analytics-tool' | 'content-tool' | 'sales-tool' | 'communication-tool'
     
-    // === USER ACTIONS (Ações do Usuário) ===
+    // === USER ACTIONS ===
     // Conversion Actions
     | 'purchase' | 'form-completion' | 'schedule-meeting' | 'deal-won'
     // Engagement Actions  
@@ -61,15 +61,15 @@ export interface FunnelComponent {
     // Custom Actions
     | 'add-to-list' | 'contact' | 'request-content' | 'request-info' | 'popup' | 'add-to-cart' | 'add-tag'
     
-    // === FASE 2: DIAGRAMAS ESPECIALIZADOS ===
+    // === PHASE 2: SPECIALIZED DIAGRAMS ===
     
-    // Marketing Funnel Diagrams - Com métricas
+    // Marketing Funnel Diagrams - With metrics
     | 'funnel-stage' | 'conversion-metric' | 'traffic-metric' | 'revenue-metric' | 'funnel-connector'
     
-    // Customer Journey Maps - Com emotions/touchpoints
+    // Customer Journey Maps - With emotions/touchpoints
     | 'journey-stage' | 'customer-persona' | 'emotion-state' | 'touchpoint-interaction' | 'pain-point-critical' | 'opportunity-moment'
     
-    // Process Flowcharts - Com decision points
+    // Process Flowcharts - With decision points
     | 'flow-start' | 'flow-process' | 'flow-decision' | 'flow-end' | 'flow-connector' | 'flow-condition'
     
     // Content Mapping Grids
@@ -78,9 +78,9 @@ export interface FunnelComponent {
     // MarTech Stack Integration
     | 'martech-platform' | 'data-source' | 'integration-point' | 'automation-trigger' | 'data-flow'
     
-    // Elementos Visuais (existentes)
+    // Visual Elements (existing)
     | 'note' | 'arrow' | 'frame' | 'custom'
-    // Tipos existentes mantidos para compatibilidade
+    // Existing types maintained for compatibility
     | 'webinar-vsl' | string;
   position: { x: number; y: number };
   data: {
@@ -91,9 +91,9 @@ export interface FunnelComponent {
     status: 'draft' | 'active' | 'test' | 'published' | 'inactive';
     properties: Record<string, any>;
     
-    // === PROPRIEDADES ESPECIALIZADAS PARA DIAGRAMAS ===
+    // === SPECIALIZED PROPERTIES FOR DIAGRAMS ===
     
-    // Para Marketing Funnel Diagrams
+    // For Marketing Funnel Diagrams
     metrics?: {
       visitors?: number;
       conversions?: number;
@@ -103,7 +103,7 @@ export interface FunnelComponent {
       roi?: number;
     };
     
-    // Para Customer Journey Maps
+    // For Customer Journey Maps
     journey?: {
       stage?: 'awareness' | 'consideration' | 'decision' | 'retention' | 'advocacy';
       emotion?: 'delighted' | 'satisfied' | 'neutral' | 'frustrated' | 'angry';
@@ -112,7 +112,7 @@ export interface FunnelComponent {
       actions?: string[];
     };
     
-    // Para Process Flowcharts
+    // For Process Flowcharts
     process?: {
       flowType?: 'start' | 'process' | 'decision' | 'end';
       conditions?: string[];
@@ -121,7 +121,7 @@ export interface FunnelComponent {
       duration?: string;
     };
     
-    // Para Content Mapping
+    // For Content Mapping
     content?: {
       format?: 'blog' | 'video' | 'podcast' | 'ebook' | 'webinar' | 'social' | 'email';
       stage?: 'awareness' | 'consideration' | 'decision' | 'retention';
@@ -129,7 +129,7 @@ export interface FunnelComponent {
       frequency?: 'daily' | 'weekly' | 'monthly' | 'quarterly';
     };
     
-    // Para MarTech Stack
+    // For MarTech Stack
     martech?: {
       category?: 'crm' | 'automation' | 'analytics' | 'advertising' | 'content' | 'sales' | 'support';
       vendor?: string;
@@ -144,7 +144,7 @@ export interface FunnelComponent {
   updatedAt?: string;
 }
 
-// === NOVOS TIPOS PARA DIAGRAMAS ESPECIALIZADOS ===
+// === NEW TYPES FOR SPECIALIZED DIAGRAMS ===
 
 export interface DiagramTemplate {
   id: string;
@@ -178,17 +178,17 @@ export interface Connection {
   customColor?: string;
   animated?: boolean;
   
-  // === PROPRIEDADES ESPECIALIZADAS PARA CONEXÕES ===
+  // === SPECIALIZED PROPERTIES FOR CONNECTIONS ===
   connectionData?: {
-    // Para fluxos de processo
+    // For process flows
     condition?: string;
     probability?: number;
     
-    // Para fluxos de dados
+    // For data flows
     dataType?: string;
     frequency?: string;
     
-    // Para jornadas do cliente
+    // For customer journeys
     trigger?: string;
     emotion?: string;
   };
@@ -203,7 +203,7 @@ export interface FunnelProject {
   components: FunnelComponent[];
   connections: Connection[];
   
-  // === PROPRIEDADES PARA DIAGRAMAS ESPECIALIZADOS ===
+  // === PROPERTIES FOR SPECIALIZED DIAGRAMS ===
   projectType?: 'funnel' | 'marketing-funnel' | 'customer-journey' | 'process-flow' | 'content-mapping' | 'martech-stack' | 'mixed';
   diagramSettings?: {
     showMetrics?: boolean;
@@ -224,12 +224,13 @@ export interface ComponentTemplate {
   label: string;
   color: string;
   category: string;
+  tags?: string[];
   defaultProps: FunnelComponent['data'];
   title?: string;
   description?: string;
   config?: Record<string, any>;
   
-  // === CONFIGURAÇÕES ESPECIALIZADAS ===
+  // === SPECIALIZED SETTINGS ===
   diagramType?: 'marketing-funnel' | 'customer-journey' | 'process-flow' | 'content-mapping' | 'martech-stack' | 'general';
   complexity?: 'simple' | 'intermediate' | 'advanced';
 }
@@ -242,3 +243,19 @@ export interface ComponentFormData {
   status: FunnelComponent['data']['status'];
   properties: Record<string, any>;
 }
+
+export type ComponentType = 
+  | 'landing-page' 
+  | 'sales-page' 
+  | 'quiz'
+  | 'form'
+  | 'email-sequence'
+  | 'checkout'
+  | 'thank-you-page'
+  | 'webinar-live'
+  | 'webinar-replay'
+  | 'opt-in-page'
+  | 'download-page'
+  | 'calendar-page'
+  | 'custom-shape'
+  | 'lead-hub'; // New: Central hub for Lead connections

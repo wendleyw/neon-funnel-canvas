@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { LaunchProject, LaunchMetrics, Persona, ProductOffer } from '../types/launch';
 import { toast } from 'sonner';
@@ -19,7 +18,7 @@ export const useLaunchManager = () => {
     };
 
     setProjects(prev => [...prev, newProject]);
-    toast.success('Projeto criado com sucesso!');
+    toast.success('Project created successfully!');
     return newProject;
   }, []);
 
@@ -34,7 +33,7 @@ export const useLaunchManager = () => {
       setSelectedProject(prev => prev ? { ...prev, ...updates, updatedAt: new Date().toISOString() } : null);
     }
 
-    toast.success('Projeto atualizado com sucesso!');
+    toast.success('Project updated successfully!');
   }, [selectedProject]);
 
   const deleteProject = useCallback((projectId: string) => {
@@ -44,7 +43,7 @@ export const useLaunchManager = () => {
       setSelectedProject(null);
     }
 
-    toast.success('Projeto removido com sucesso!');
+    toast.success('Project removed successfully!');
   }, [selectedProject]);
 
   // Metrics Management
@@ -60,7 +59,7 @@ export const useLaunchManager = () => {
     };
 
     setPersonas(prev => [...prev, newPersona]);
-    toast.success('Persona criada com sucesso!');
+    toast.success('Persona created successfully!');
     return newPersona;
   }, []);
 
@@ -68,12 +67,12 @@ export const useLaunchManager = () => {
     setPersonas(prev => prev.map(persona => 
       persona.id === personaId ? { ...persona, ...updates } : persona
     ));
-    toast.success('Persona atualizada com sucesso!');
+    toast.success('Persona updated successfully!');
   }, []);
 
   const deletePersona = useCallback((personaId: string) => {
     setPersonas(prev => prev.filter(persona => persona.id !== personaId));
-    toast.success('Persona removida com sucesso!');
+    toast.success('Persona removed successfully!');
   }, []);
 
   // Offer Management
@@ -84,7 +83,7 @@ export const useLaunchManager = () => {
     };
 
     setOffers(prev => [...prev, newOffer]);
-    toast.success('Oferta criada com sucesso!');
+    toast.success('Offer created successfully!');
     return newOffer;
   }, []);
 
@@ -92,12 +91,12 @@ export const useLaunchManager = () => {
     setOffers(prev => prev.map(offer => 
       offer.id === offerId ? { ...offer, ...updates } : offer
     ));
-    toast.success('Oferta atualizada com sucesso!');
+    toast.success('Offer updated successfully!');
   }, []);
 
   const deleteOffer = useCallback((offerId: string) => {
     setOffers(prev => prev.filter(offer => offer.id !== offerId));
-    toast.success('Oferta removida com sucesso!');
+    toast.success('Offer removed successfully!');
   }, []);
 
   // Analytics

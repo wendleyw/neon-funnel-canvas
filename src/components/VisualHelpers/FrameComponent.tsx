@@ -164,8 +164,8 @@ export const FrameComponent: React.FC<FrameComponentProps> = ({
       <div className="w-full h-full flex items-center justify-center p-4">
         <div className="text-center opacity-50">
           <Square className="w-8 h-8 mx-auto mb-2" />
-          <p className="text-xs">Área do Frame</p>
-          <p className="text-xs mt-1">{component.data.description || 'Organize seus componentes aqui'}</p>
+          <p className="text-xs">Frame Area</p>
+          <p className="text-xs mt-1">{component.data.description || 'Organize your components here'}</p>
         </div>
       </div>
 
@@ -321,7 +321,7 @@ export const FrameComponent: React.FC<FrameComponentProps> = ({
               onDelete();
             }}
             className="w-6 h-6 bg-red-600 hover:bg-red-700 rounded flex items-center justify-center"
-            title="Deletar"
+            title="Delete"
           >
             <Trash2 className="w-3 h-3 text-white" />
           </button>
@@ -334,7 +334,7 @@ export const FrameComponent: React.FC<FrameComponentProps> = ({
                 handleZIndexChange('front');
               }}
               className="w-6 h-3 bg-gray-600 hover:bg-gray-500 rounded-t flex items-center justify-center"
-              title="Trazer para Frente"
+              title="Bring to Front"
             >
               <ChevronUp className="w-3 h-3 text-white" />
             </button>
@@ -344,7 +344,7 @@ export const FrameComponent: React.FC<FrameComponentProps> = ({
                 handleZIndexChange('back');
               }}
               className="w-6 h-3 bg-gray-700 hover:bg-gray-600 rounded-b flex items-center justify-center"
-              title="Enviar para Trás"
+              title="Send to Back"
             >
               <ChevronDown className="w-3 h-3 text-white" />
             </button>

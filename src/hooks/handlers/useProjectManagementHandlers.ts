@@ -2,6 +2,7 @@ import { useCallback, useEffect } from 'react';
 import { FunnelProject } from '../../types/funnel';
 import { useWorkspace } from '../useWorkspace';
 import { toast } from 'sonner';
+import { useWorkspaceProjects } from '../useWorkspaceProjects';
 
 interface UseProjectManagementHandlersProps {
   project: FunnelProject;
@@ -12,6 +13,9 @@ interface UseProjectManagementHandlersProps {
   resetProject: () => void;
   enterEditor: () => void;
 }
+
+// Auto-save when the project is modified (debounced)
+const SAVE_DEBOUNCE_MS = 2000;
 
 export const useProjectManagementHandlers = ({
   project,
@@ -24,7 +28,6 @@ export const useProjectManagementHandlers = ({
 }: UseProjectManagementHandlersProps) => {
   const { currentWorkspace, addProjectToWorkspace, workspaceProjects } = useWorkspace();
 
-  // Auto-save quando o projeto é modificado (debounced)
   useEffect(() => {
     if (currentWorkspace && currentProjectId && project.components.length > 0) {
       console.log('🔄 Project changed, triggering auto-save...');
@@ -40,7 +43,7 @@ export const useProjectManagementHandlers = ({
       
       if (!projectRecord) {
         console.error('Project not found in workspaceProjects:', projectId);
-        toast.error('Projeto não encontrado');
+        toast.error('Project not found');
         return;
       }
 
@@ -50,22 +53,22 @@ export const useProjectManagementHandlers = ({
       
       if (!projectData || typeof projectData !== 'object') {
         console.error('Invalid project data:', projectData);
-        toast.error('Dados do projeto inválidos');
+        toast.error('Invalid project data');
         return;
       }
 
       if (!projectData.id || !projectData.name || !Array.isArray(projectData.components) || !Array.isArray(projectData.connections)) {
         console.error('Project data missing required fields:', projectData);
-        toast.error('Estrutura do projeto inválida');
+        toast.error('Invalid project structure');
         return;
       }
 
       console.log('Loading project:', projectData.name);
       loadProjectData(projectData, projectId);
-      toast.success(`Projeto "${projectData.name}" carregado com sucesso!`);
+      toast.success(`Project "${projectData.name}" loaded successfully!`);
     } catch (error) {
-      console.error('Erro ao carregar projeto:', error);
-      toast.error('Erro ao carregar projeto');
+      console.error('Error loading project:', error);
+      toast.error('Error loading project');
     }
   }, [workspaceProjects, loadProjectData]);
 
@@ -76,7 +79,7 @@ export const useProjectManagementHandlers = ({
 
   const handleSave = useCallback(async () => {
     if (!currentWorkspace) {
-      toast.error('Nenhum workspace selecionado');
+      toast.error('No workspace selected');
       return;
     }
 
@@ -112,7 +115,7 @@ export const useProjectManagementHandlers = ({
     link.click();
     
     URL.revokeObjectURL(url);
-    toast.success('Projeto exportado!');
+    toast.success('Project exported!');
   }, [project]);
 
   const handleImport = useCallback(() => {
@@ -144,10 +147,10 @@ export const useProjectManagementHandlers = ({
           };
           
           loadProjectData(newProject);
-          toast.success('Projeto importado com sucesso!');
+          toast.success('Project imported successfully!');
         } catch (error) {
           console.error('Error importing project:', error);
-          toast.error('Erro ao importar projeto. Verifique se o arquivo é válido.');
+          toast.error('Error importing project. Please check if the file is valid.');
         }
       };
       
@@ -158,14 +161,14 @@ export const useProjectManagementHandlers = ({
   }, [loadProjectData]);
 
   const handleClear = useCallback(() => {
-    if (confirm('Tem certeza que deseja limpar todos os componentes? Esta ação não pode ser desfeita.')) {
+    if (confirm('Are you sure you want to clear all components? This action cannot be undone.')) {
       setProject(prev => ({
         ...prev,
         components: [],
         connections: [],
         updatedAt: new Date().toISOString()
       }));
-      toast.success('Projeto limpo com sucesso!');
+      toast.success('Project cleared successfully!');
     }
   }, [setProject]);
 

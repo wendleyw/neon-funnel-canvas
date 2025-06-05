@@ -1,14 +1,47 @@
 import React from 'react';
-import { User, Settings, LogOut, Crown, HelpCircle, FileText } from 'lucide-react';
+import { User, Settings, LogOut, Crown, HelpCircle, FileText, Shield, Globe } from 'lucide-react';
+import { useTranslation } from '../../lib/i18n';
+import { useAdmin } from '../../contexts/AdminContext';
+
+interface ProfileAction {
+  icon: any;
+  label: string;
+  description: string;
+  isPremium?: boolean;
+  isAdmin?: boolean;
+}
 
 export const ProfileMenuContent: React.FC = () => {
-  const profileActions = [
-    { icon: User, label: 'Edit Profile', description: 'Update your information' },
-    { icon: Settings, label: 'Settings', description: 'App preferences' },
+  const { t, language, setLanguage, availableLanguages } = useTranslation();
+  const { isAdmin } = useAdmin();
+  console.log('ProfileMenuContent: isAdmin value:', isAdmin);
+
+  const profileActions: ProfileAction[] = [
+    { icon: User, label: t('auth.profile'), description: 'Update your information' },
+    { icon: Settings, label: t('common.settings'), description: 'App preferences' },
     { icon: Crown, label: 'Upgrade to Pro', description: 'Unlock premium features', isPremium: true },
     { icon: FileText, label: 'My Projects', description: 'View all projects' },
-    { icon: HelpCircle, label: 'Help & Support', description: 'Get assistance' },
+    { icon: HelpCircle, label: t('common.help'), description: 'Get assistance' },
   ];
+
+  // Add admin action if user is admin
+  if (isAdmin) {
+    profileActions.splice(2, 0, {
+      icon: Shield,
+      label: t('admin.title'),
+      description: 'Manage sources, pages, and actions',
+      isAdmin: true
+    });
+  }
+
+  const handleLanguageChange = (newLanguage: string) => {
+    setLanguage(newLanguage as any);
+  };
+
+  const openAdminPanel = () => {
+    // Open admin panel in new tab or navigate to it
+    window.open('/admin', '_blank');
+  };
 
   return (
     <div className="p-4">
@@ -18,7 +51,9 @@ export const ProfileMenuContent: React.FC = () => {
           <span className="text-white text-xl font-bold">W</span>
         </div>
         <h3 className="text-lg font-semibold text-white">Wendley Wilson</h3>
-        <p className="text-sm text-gray-400">Free Plan</p>
+        <p className="text-sm text-gray-400">
+          {isAdmin ? 'Admin Plan' : 'Free Plan'}
+        </p>
         <div className="mt-2 flex items-center justify-center gap-2">
           <div className="w-2 h-2 bg-green-500 rounded-full"></div>
           <span className="text-xs text-gray-400">Online</span>
@@ -26,47 +61,66 @@ export const ProfileMenuContent: React.FC = () => {
       </div>
 
       {/* Usage Stats */}
-      <div className="mb-6 bg-gray-800 rounded-lg p-4">
-        <h4 className="text-sm font-medium text-white mb-3">Usage This Month</h4>
-        <div className="space-y-3">
-          <div>
-            <div className="flex justify-between text-xs mb-1">
-              <span className="text-gray-400">Projects</span>
-              <span className="text-white">3/5</span>
-            </div>
-            <div className="w-full bg-gray-700 rounded-full h-2">
-              <div className="bg-blue-500 h-2 rounded-full w-3/5"></div>
-            </div>
-          </div>
-          <div>
-            <div className="flex justify-between text-xs mb-1">
-              <span className="text-gray-400">Components</span>
-              <span className="text-white">42/100</span>
-            </div>
-            <div className="w-full bg-gray-700 rounded-full h-2">
-              <div className="bg-green-500 h-2 rounded-full w-2/5"></div>
-            </div>
-          </div>
+      <div className="mb-6 p-3 bg-gray-800 rounded-lg">
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-xs text-gray-400">Projects Used</span>
+          <span className="text-xs text-white">3/10</span>
+        </div>
+        <div className="w-full bg-gray-700 rounded-full h-2">
+          <div className="bg-orange-500 h-2 rounded-full" style={{ width: '30%' }}></div>
         </div>
       </div>
 
-      {/* Profile Actions */}
+      {/* Language Selector */}
+      <div className="mb-6">
+        <label className="block text-xs text-gray-400 mb-2">Language</label>
+        <div className="flex gap-2">
+          {availableLanguages.map((lang) => (
+            <button
+              key={lang}
+              onClick={() => handleLanguageChange(lang)}
+              className={`flex items-center gap-1 px-3 py-2 rounded text-xs font-medium transition-colors ${
+                language === lang
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+              }`}
+            >
+              <Globe className="w-3 h-3" />
+              {lang.toUpperCase()}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="space-y-2 mb-6">
         {profileActions.map((action) => (
           <button
             key={action.label}
+            onClick={action.isAdmin ? openAdminPanel : undefined}
             className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors hover:bg-gray-700 ${
-              action.isPremium ? 'bg-gradient-to-r from-purple-900/20 to-pink-900/20 border border-purple-500/30' : 'bg-gray-800'
+              action.isPremium 
+                ? 'bg-gradient-to-r from-purple-900/20 to-pink-900/20 border border-purple-500/30' 
+                : action.isAdmin
+                ? 'bg-gradient-to-r from-blue-900/20 to-indigo-900/20 border border-blue-500/30'
+                : 'bg-gray-800'
             }`}
           >
             <div className={`w-8 h-8 rounded flex items-center justify-center ${
-              action.isPremium ? 'text-purple-400' : 'text-gray-400'
+              action.isPremium 
+                ? 'text-purple-400' 
+                : action.isAdmin
+                ? 'text-blue-400'
+                : 'text-gray-400'
             }`}>
               <action.icon className="w-4 h-4" />
             </div>
             <div className="flex-1 min-w-0">
               <h4 className={`font-medium text-sm ${
-                action.isPremium ? 'text-purple-200' : 'text-white'
+                action.isPremium 
+                  ? 'text-purple-200' 
+                  : action.isAdmin
+                  ? 'text-blue-200'
+                  : 'text-white'
               }`}>
                 {action.label}
               </h4>
@@ -76,6 +130,9 @@ export const ProfileMenuContent: React.FC = () => {
             </div>
             {action.isPremium && (
               <Crown className="w-4 h-4 text-yellow-400" />
+            )}
+            {action.isAdmin && (
+              <Shield className="w-4 h-4 text-blue-400" />
             )}
           </button>
         ))}
@@ -88,7 +145,7 @@ export const ProfileMenuContent: React.FC = () => {
         </div>
         <div className="flex-1 min-w-0">
           <h4 className="font-medium text-red-200 text-sm">
-            Sign Out
+            {t('auth.logout')}
           </h4>
           <p className="text-xs text-red-400/70">
             End your session

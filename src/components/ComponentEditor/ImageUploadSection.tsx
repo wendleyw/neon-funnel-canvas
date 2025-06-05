@@ -12,7 +12,103 @@ interface ImageUploadSectionProps {
   onImageChange: (image: string) => void;
   onImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onRemoveImage: () => void;
+  componentType?: string; // Add component type to determine if auto-scroll should be enabled
 }
+
+// Auto-scroll preview component for the editor
+const AutoScrollPreview: React.FC<{ src: string; alt: string; componentType?: string }> = ({ src, alt, componentType }) => {
+  const [isImageLoaded, setIsImageLoaded] = React.useState(false);
+  const imageRef = React.useRef<HTMLImageElement>(null);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  
+  // Check if this is a page-type component that should have auto-scroll
+  const isPageComponent = React.useMemo(() => {
+    if (!componentType) return false;
+    const pageTypes = [
+      'landing-page', 'sales-page', 'opt-in-page', 'download-page', 
+      'thank-you-page', 'webinar-live', 'webinar-replay', 'checkout',
+      'member-area', 'blog-page', 'members-page'
+    ];
+    return pageTypes.includes(componentType);
+  }, [componentType]);
+
+  // Auto-scroll effect for page components
+  React.useEffect(() => {
+    if (!isPageComponent || !isImageLoaded || !imageRef.current || !containerRef.current) {
+      return;
+    }
+
+    const image = imageRef.current;
+    const container = containerRef.current;
+    let animationId: number;
+    let startTime: number;
+
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      
+      const elapsed = timestamp - startTime;
+      const duration = 5000; // 5 seconds
+      const progress = (elapsed % duration) / duration;
+      
+      // Calculate scroll position (from top to bottom)
+      const imageHeight = image.naturalHeight;
+      const containerHeight = container.clientHeight;
+      
+      if (imageHeight > containerHeight) {
+        const maxScroll = imageHeight - containerHeight;
+        const scrollPosition = progress * maxScroll;
+        
+        // Apply smooth scrolling transform
+        image.style.transform = `translateY(-${scrollPosition}px)`;
+        image.style.transition = elapsed < 100 ? 'none' : 'transform 0.1s ease-out';
+      }
+      
+      animationId = requestAnimationFrame(animate);
+    };
+
+    // Start animation after a short delay
+    const timeoutId = setTimeout(() => {
+      animationId = requestAnimationFrame(animate);
+    }, 1000);
+
+    return () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+      clearTimeout(timeoutId);
+    };
+  }, [isImageLoaded, isPageComponent]);
+
+  const handleImageLoad = () => {
+    setIsImageLoaded(true);
+  };
+
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    console.error('Error loading preview image');
+    e.currentTarget.src = '';
+  };
+
+  return (
+    <div ref={containerRef} className="w-full h-48 relative overflow-hidden rounded-lg border border-gray-600">
+      <img
+        ref={imageRef}
+        src={src}
+        alt={alt}
+        className="w-full min-h-full object-cover object-top"
+        style={{
+          transformOrigin: 'top left'
+        }}
+        onLoad={handleImageLoad}
+        onError={handleImageError}
+      />
+      {isPageComponent && isImageLoaded && (
+        <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded backdrop-blur-sm">
+          Auto-scroll preview
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
   image,
@@ -21,7 +117,8 @@ export const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
   dimensionsInfo,
   onImageChange,
   onImageUpload,
-  onRemoveImage
+  onRemoveImage,
+  componentType
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -54,14 +151,10 @@ export const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
         {image ? (
           <div className="space-y-3">
             <div className="relative">
-              <img
+              <AutoScrollPreview
                 src={image}
                 alt="Preview"
-                className="w-full h-48 object-cover rounded-lg border border-gray-600"
-                onError={(e) => {
-                  console.error('Error loading preview image');
-                  e.currentTarget.src = '';
-                }}
+                componentType={componentType}
               />
               <Button
                 type="button"

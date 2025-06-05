@@ -1,9 +1,7 @@
-
 // Workspace hooks
 export { useWorkspaces } from './useWorkspaces';
-export { useWorkspaceProjects } from './useWorkspaceProjects';
+export { useProjects } from './useProjects';
 export { useWorkspacePersistence } from './useWorkspacePersistence';
-export { useSupabaseWorkspace } from './useSupabaseWorkspace';
 export { useWorkspace } from './useWorkspace';
 
 // Canvas hooks

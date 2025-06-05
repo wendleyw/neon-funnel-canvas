@@ -11,26 +11,55 @@ export interface ComponentDimensions {
   height: number;
 }
 
-// Tamanho padrão dos componentes (baseado no novo design melhorado)
+// Default component size (based on the new improved design)
 export const DEFAULT_COMPONENT_SIZE: ComponentDimensions = {
-  width: 288, // Largura baseada em w-72 = 18rem = 288px
-  height: 200 // Altura do novo card melhorado
+  width: 288, // Width based on w-72 = 18rem = 288px
+  height: 200 // Height of the new improved card
 };
 
-// Dimensões base para diferentes tipos de componentes
+// Base dimensions for different component types
 const COMPONENT_DIMENSIONS = {
-  // Marketing components (padrão)
+  // Marketing components (default)
   default: { width: 288, height: 200 },
   
-  // Componentes especializados
+  // Specialized components
   funnel: { width: 280, height: 190 },
   journey: { width: 290, height: 210 },
   process: { width: 270, height: 180 },
-  'social-media': { width: 288, height: 220 } // Novo para Instagram Grid
+  
+  // Social Media components with appropriate aspect ratios
+  'social-media': { width: 288, height: 220 }, // Generic
+  'instagram-post': { width: 250, height: 250 }, // 1:1 - Square
+  'instagram-story': { width: 180, height: 320 }, // 9:16 - Vertical
+  'instagram-reels': { width: 180, height: 320 }, // 9:16 - Vertical (like Stories)
+  'instagram-carousel': { width: 250, height: 250 }, // 1:1 - Square
+  'tiktok-video': { width: 180, height: 320 }, // 9:16 - Vertical
+  'youtube-short': { width: 180, height: 320 }, // 9:16 - Vertical
+  'youtube-video': { width: 320, height: 180 }, // 16:9 - Horizontal
+  'youtube-thumbnail': { width: 280, height: 158 }, // 16:9 - Horizontal (smaller)
+  'facebook-post': { width: 310, height: 162 }, // 1.91:1 - Horizontal
+  'facebook-ad': { width: 310, height: 162 }, // 1.91:1 - Horizontal
+  'linkedin-post': { width: 310, height: 162 }, // 1.91:1 - Horizontal
+  'twitter-post': { width: 300, height: 169 } // 16:9 - Horizontal
 };
 
-// Determinar categoria do componente de forma simplificada
-function getComponentCategory(type: string): 'funnel' | 'journey' | 'process' | 'social-media' | 'default' {
+// Determine component category in a simplified way
+function getComponentCategory(type: string): 'funnel' | 'journey' | 'process' | 'social-media' | 'instagram-post' | 'instagram-story' | 'instagram-reels' | 'instagram-carousel' | 'tiktok-video' | 'youtube-short' | 'youtube-video' | 'youtube-thumbnail' | 'facebook-post' | 'facebook-ad' | 'linkedin-post' | 'twitter-post' | 'default' {
+  // Check specific social media types first
+  if (type === 'instagram-post') return 'instagram-post';
+  if (type === 'instagram-story') return 'instagram-story';
+  if (type === 'instagram-reels') return 'instagram-reels';
+  if (type === 'instagram-carousel') return 'instagram-carousel';
+  if (type === 'tiktok-video') return 'tiktok-video';
+  if (type === 'youtube-short') return 'youtube-short';
+  if (type === 'youtube-video') return 'youtube-video';
+  if (type === 'youtube-thumbnail') return 'youtube-thumbnail';
+  if (type === 'facebook-post') return 'facebook-post';
+  if (type === 'facebook-ad') return 'facebook-ad';
+  if (type === 'linkedin-post') return 'linkedin-post';
+  if (type === 'twitter-post') return 'twitter-post';
+  
+  // General categories
   if (type.startsWith('funnel-') || type.includes('metric')) return 'funnel';
   if (type.startsWith('journey-') || type.includes('emotion') || type.includes('touchpoint')) return 'journey';
   if (type.startsWith('flow-') || type.includes('process')) return 'process';
@@ -38,15 +67,15 @@ function getComponentCategory(type: string): 'funnel' | 'journey' | 'process' | 
   return 'default';
 }
 
-// Obter dimensões do componente
+// Get component dimensions
 export function getComponentDimensions(type: string): { width: number; height: number } {
   const category = getComponentCategory(type);
   return COMPONENT_DIMENSIONS[category];
 }
 
-// Função para obter as dimensões do componente baseado no tipo
+// Function to get component dimensions based on type
 export const getComponentDimensionsForComponent = (component: FunnelComponent): ComponentDimensions => {
-  // Se for um componente visual com dimensões customizadas
+  // If it's a visual component with custom dimensions
   if (component.data.properties?.width && component.data.properties?.height) {
     return {
       width: component.data.properties.width as number,
@@ -54,11 +83,11 @@ export const getComponentDimensionsForComponent = (component: FunnelComponent): 
     };
   }
 
-  // Retornar dimensões baseadas no tipo usando a nova função
+  // Return dimensions based on type using the new function
   return getComponentDimensions(component.type);
 };
 
-// Função para calcular a melhor conexão entre dois componentes
+// Function to calculate the best connection between two components
 export function calculateBestConnectionPoints(
   fromComponent: FunnelComponent,
   toComponent: FunnelComponent
@@ -68,7 +97,7 @@ export function calculateBestConnectionPoints(
   const fromDims = getComponentDimensionsForComponent(fromComponent);
   const toDims = getComponentDimensionsForComponent(toComponent);
 
-  // Calcular centros dos componentes
+  // Calculate component centers
   const fromCenter = {
     x: fromPos.x + fromDims.width / 2,
     y: fromPos.y + fromDims.height / 2
@@ -79,16 +108,16 @@ export function calculateBestConnectionPoints(
     y: toPos.y + toDims.height / 2
   };
 
-  // Calcular diferenças
+  // Calculate differences
   const dx = toCenter.x - fromCenter.x;
   const dy = toCenter.y - fromCenter.y;
 
-  // Determinar melhor lado para conexão baseado na direção
+  // Determine the best side for connection based on direction
   let fromSide: 'top' | 'right' | 'bottom' | 'left';
   let toSide: 'top' | 'right' | 'bottom' | 'left';
 
   if (Math.abs(dx) > Math.abs(dy)) {
-    // Conexão horizontal é melhor
+    // Horizontal connection is better
     if (dx > 0) {
       fromSide = 'right';
       toSide = 'left';
@@ -97,7 +126,7 @@ export function calculateBestConnectionPoints(
       toSide = 'right';
     }
   } else {
-    // Conexão vertical é melhor
+    // Vertical connection is better
     if (dy > 0) {
       fromSide = 'bottom';
       toSide = 'top';
@@ -116,7 +145,7 @@ export function calculateBestConnectionPoints(
   };
 }
 
-// Função para obter o ponto de conexão em um lado específico do componente
+// Function to get the connection point on a specific side of the component
 export const getConnectionPoint = (
   component: FunnelComponent,
   side: 'top' | 'right' | 'bottom' | 'left'
@@ -136,7 +165,7 @@ export const getConnectionPoint = (
   }
 };
 
-// Função para verificar se dois componentes estão alinhados
+// Function to check if two components are aligned
 export const areComponentsAligned = (
   comp1: FunnelComponent,
   comp2: FunnelComponent,
@@ -161,7 +190,7 @@ export const areComponentsAligned = (
   };
 };
 
-// Calcular pontos de conexão para instâncias de componente
+// Calculate connection points for component instances
 export function getConnectionPoints(component: FunnelComponent): {
   top: { x: number; y: number };
   right: { x: number; y: number };
@@ -180,7 +209,7 @@ export function getConnectionPoints(component: FunnelComponent): {
   };
 }
 
-// Encontrar melhor ponto de conexão
+// Find the best connection point
 export function findBestConnectionPoint(
   from: FunnelComponent,
   to: FunnelComponent
@@ -191,7 +220,7 @@ export function findBestConnectionPoint(
   const fromPoints = getConnectionPoints(from);
   const toPoints = getConnectionPoints(to);
 
-  // Calcular centro dos componentes
+  // Calculate component centers
   const fromDims = getComponentDimensions(from.type);
   const toDims = getComponentDimensions(to.type);
   
@@ -205,11 +234,11 @@ export function findBestConnectionPoint(
     y: to.position.y + toDims.height / 2
   };
 
-  // Determinar direção principal
+  // Determine the main direction
   const dx = toCenter.x - fromCenter.x;
   const dy = toCenter.y - fromCenter.y;
 
-  // Escolher pontos baseado na direção principal
+  // Choose points based on the main direction
   if (Math.abs(dx) > Math.abs(dy)) {
     // Horizontal
     if (dx > 0) {
@@ -227,7 +256,7 @@ export function findBestConnectionPoint(
   }
 }
 
-// Função para criar path SVG otimizado baseado nos pontos de conexão
+// Function to create an optimized connection path SVG based on connection points
 export const createOptimizedConnectionPath = (
   fromPoint: ConnectionPoint,
   toPoint: ConnectionPoint,
@@ -241,7 +270,7 @@ export const createOptimizedConnectionPath = (
   }
 
   if (style === 'stepped') {
-    // Conexão em degraus (mais limpa para layouts organizados)
+    // Connection in steps (cleaner for organized layouts)
     if (fromSide === 'right' && toSide === 'left') {
       const midX = x1 + (x2 - x1) / 2;
       return `M ${x1} ${y1} H ${midX} V ${y2} H ${x2}`;
@@ -252,11 +281,11 @@ export const createOptimizedConnectionPath = (
     }
   }
 
-  // Conexão curva (padrão)
+  // Curved connection (default)
   const dx = x2 - x1;
   const dy = y2 - y1;
 
-  // Calcular pontos de controle baseado nas direções
+  // Calculate control points based on directions
   let cp1x, cp1y, cp2x, cp2y;
 
   if (fromSide === 'right' && toSide === 'left') {
@@ -284,7 +313,7 @@ export const createOptimizedConnectionPath = (
     cp2x = x2;
     cp2y = y2 + offset;
   } else {
-    // Fallback para conexões diagonais
+    // Fallback for diagonal connections
     cp1x = x1 + dx * 0.5;
     cp1y = y1;
     cp2x = x1 + dx * 0.5;

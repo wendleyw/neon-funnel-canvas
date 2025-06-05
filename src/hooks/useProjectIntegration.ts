@@ -1,4 +1,3 @@
-
 import { useCallback } from 'react';
 import { FunnelProject } from '../types/funnel';
 import { toast } from 'sonner';
@@ -192,7 +191,7 @@ export const useProjectIntegration = () => {
     };
 
     return {
-      title: `${project.name} - Documentação`,
+      title: `${project.name} - Documentation`,
       overview: {
         projectId: project.id,
         name: project.name,
@@ -204,7 +203,7 @@ export const useProjectIntegration = () => {
         id: comp.id,
         name: comp.data.title,
         type: comp.type,
-        description: comp.data.description || 'Sem descrição',
+        description: comp.data.description || 'No description',
         position: comp.position,
         connections: {
           incoming: project.connections.filter(c => c.to === comp.id).length,
@@ -240,10 +239,10 @@ export const useProjectIntegration = () => {
       const filename = `${project.name.replace(/\s+/g, '-').toLowerCase()}.${format === 'json' ? 'json' : format}`;
       
       downloadFile(exportData, filename);
-      toast.success(`Projeto exportado para ${format.toUpperCase()}`);
+      toast.success(`Project exported to ${format.toUpperCase()}`);
     } catch (error) {
-      console.error('Erro ao exportar:', error);
-      toast.error('Erro ao exportar projeto');
+      console.error('Error exporting project:', error);
+      toast.error('Error exporting project');
     }
   }, [exportToFormat, downloadFile]);
 
@@ -253,10 +252,10 @@ export const useProjectIntegration = () => {
       const filename = `${project.name.replace(/\s+/g, '-').toLowerCase()}-docs.json`;
       
       downloadFile(docs, filename);
-      toast.success('Documentação exportada');
+      toast.success('Documentation exported');
     } catch (error) {
-      console.error('Erro ao exportar documentação:', error);
-      toast.error('Erro ao exportar documentação');
+      console.error('Error exporting documentation:', error);
+      toast.error('Error exporting documentation');
     }
   }, [generateDocumentation, downloadFile]);
 

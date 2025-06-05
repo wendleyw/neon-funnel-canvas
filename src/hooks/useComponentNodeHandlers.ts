@@ -1,4 +1,3 @@
-
 import { useCallback } from 'react';
 import { FunnelComponent } from '../types/funnel';
 
@@ -49,22 +48,25 @@ export const useComponentNodeHandlers = ({
     onUpdate(component.id, updates);
   }, [component.id, onUpdate]);
 
-  const handleClick = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    
-    // Se pode conectar, conecta em vez de selecionar
-    if (canConnect) {
-      onConnect();
-      return;
-    }
-    
-    // Não seleciona se clicou em botões
-    if ((e.target as Element).closest('button')) {
-      return;
-    }
-    
-    onSelect();
-  }, [onSelect, onConnect, canConnect]);
+  const handleClick = useCallback(
+    (event: React.MouseEvent) => {
+      event.stopPropagation();
+
+      // If it can connect, connect instead of selecting
+      if (canConnect) {
+        onConnect();
+        return;
+      }
+      
+      // Don't select if a button was clicked
+      if ((event.target as Element).closest('button')) {
+        return;
+      }
+      
+      onSelect();
+    },
+    [canConnect, onConnect, onSelect]
+  );
 
   const handleConnectionClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();

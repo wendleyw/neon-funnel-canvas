@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Edit } from 'lucide-react';
 import { Database } from '../../integrations/supabase/types';
@@ -35,16 +34,16 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         <button
           onClick={handleEditClick}
           className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-gray-400 hover:text-white rounded"
-          title="Editar projeto"
+          title="Edit project"
         >
           <Edit size={16} />
         </button>
       </div>
       
       <div className="text-xs text-gray-400 space-y-1">
-        <p>{project.components_count || 0} componentes</p>
-        <p>{project.connections_count || 0} conexões</p>
-        <p>Atualizado: {new Date(project.updated_at).toLocaleDateString('pt-BR')}</p>
+        <p>{project.components_count || 0} components</p>
+        <p>{project.connections_count || 0} connections</p>
+        <p>Updated: {new Date(project.updated_at).toLocaleDateString()}</p>
       </div>
     </div>
   );

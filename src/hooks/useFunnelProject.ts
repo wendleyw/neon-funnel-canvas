@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { FunnelProject, FunnelComponent, Connection } from '../types/funnel';
 import { toast } from 'sonner';
@@ -68,10 +67,10 @@ export const useFunnelProject = () => {
       link.click();
       
       URL.revokeObjectURL(url);
-      toast.success('Projeto exportado com sucesso!');
+      toast.success('Project exported successfully!');
     } catch (error) {
-      console.error('Erro ao exportar projeto:', error);
-      toast.error('Erro ao exportar projeto');
+      console.error('Error exporting project:', error);
+      toast.error('Error exporting project');
     }
   }, [project]);
 

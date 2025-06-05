@@ -1,9 +1,8 @@
-
-import { FunnelProject } from '../types/funnel';
+import { FunnelProject } from '../types';
 
 export const initialProject: FunnelProject = {
-  id: 'project-' + Date.now(),
-  name: 'Novo Projeto',
+  id: 'new-project',
+  name: 'New Project',
   components: [],
   connections: [],
   createdAt: new Date().toISOString(),

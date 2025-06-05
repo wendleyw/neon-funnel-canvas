@@ -1,4 +1,3 @@
-
 import { useMemo } from 'react';
 import { FunnelComponent, Connection } from '../types/funnel';
 import { ProjectStats, ProjectValidation } from '../types/project';
@@ -61,7 +60,7 @@ export const useOptimizedProject = (project: ProjectData): OptimizedProjectData 
       const toExists = project.components.some(c => c.id === connection.to);
       
       if (!fromExists || !toExists) {
-        errors.push(`Conexão ${connection.id} referencia componentes inexistentes`);
+        errors.push(`Connection ${connection.id} references non-existent components`);
       }
     });
 

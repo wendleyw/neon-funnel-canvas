@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useProfile } from '../../hooks/useProfile';
 import { useAuth } from '../../contexts/AuthContext';
@@ -39,13 +38,15 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
     try {
       const { error } = await updateProfile(formData);
       if (error) {
-        toast.error('Erro ao atualizar perfil');
+        console.error('Failed to update profile:', error);
+        toast.error('Error updating profile');
       } else {
-        toast.success('Perfil atualizado com sucesso!');
+        toast.success('Profile updated successfully!');
         onClose();
       }
     } catch (error) {
-      toast.error('Erro interno. Tente novamente.');
+      console.error('Failed to update profile:', error);
+      toast.error('Error updating profile');
     } finally {
       setSaving(false);
     }
@@ -130,7 +131,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
                 className="flex-1 bg-white text-black py-3 rounded hover:bg-gray-200 transition-colors font-medium disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 <Save size={16} />
-                {saving ? 'Salvando...' : 'Salvar'}
+                {saving ? 'Saving...' : 'Save'}
               </button>
               
               <button

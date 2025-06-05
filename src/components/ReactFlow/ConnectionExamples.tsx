@@ -15,21 +15,22 @@ import ReactFlow, {
   EdgeTypes,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
+import { toast } from 'sonner';
 
 import { FunnelComponentNode } from './FunnelComponentNode';
 import { AnimatedSVGEdge } from './AnimatedSVGEdge';
 
-// Tipos de nós customizados
+// Custom node types
 const nodeTypes: NodeTypes = {
   funnelComponent: FunnelComponentNode,
 };
 
-// Tipos de arestas customizadas
+// Custom edge types
 const edgeTypes: EdgeTypes = {
   animatedSvg: AnimatedSVGEdge,
 };
 
-// Nós iniciais de exemplo
+// Example initial nodes
 const initialNodes = [
   {
     id: '1',
@@ -39,7 +40,7 @@ const initialNodes = [
       label: 'Landing Page',
       icon: '🚀',
       type: 'landing-page',
-      description: 'Página inicial de captura de leads',
+      description: 'Initial lead capture page',
       isActive: true,
     },
   },
@@ -48,10 +49,10 @@ const initialNodes = [
     type: 'funnelComponent',
     position: { x: 400, y: 100 },
     data: {
-      label: 'Quiz Interativo',
+      label: 'Interactive Quiz',
       icon: '❓',
       type: 'quiz',
-      description: 'Quiz para qualificar leads',
+      description: 'Quiz to qualify leads',
       isActive: false,
     },
   },
@@ -60,10 +61,10 @@ const initialNodes = [
     type: 'funnelComponent',
     position: { x: 700, y: 100 },
     data: {
-      label: 'Página de Vendas',
+      label: 'Sales Page',
       icon: '📈',
       type: 'sales-page',
-      description: 'Apresentação da oferta principal',
+      description: 'Presentation of the main offer',
       isActive: false,
     },
   },
@@ -72,16 +73,16 @@ const initialNodes = [
     type: 'funnelComponent',
     position: { x: 400, y: 300 },
     data: {
-      label: 'Sequência de E-mails',
+      label: 'Email Sequence',
       icon: '📧',
       type: 'email-sequence',
-      description: 'Nutrição automática de leads',
+      description: 'Automated lead nurturing',
       isActive: false,
     },
   },
 ];
 
-// Arestas iniciais de exemplo
+// Example initial edges
 const initialEdges = [
   {
     id: 'e1-2',
@@ -89,7 +90,7 @@ const initialEdges = [
     target: '2',
     type: 'animatedSvg',
     data: {
-      label: 'Clique CTa',
+      label: 'CTA Click',
       color: '#10B981',
       animated: true,
     },
@@ -100,58 +101,65 @@ const initialEdges = [
   },
 ];
 
-// Regras de validação de conexão
-const isValidConnection = (connection: Connection): boolean => {
-  if (!connection.source || !connection.target) return false;
-  if (connection.source === connection.target) return false;
+// Connection validation rules
+const isValidConnection = (connection: Connection | Edge): boolean => {
+    // Example: Allow connections only from source handle 'a' to target handle 'b'
+    // return connection.sourceHandle === 'a' && connection.targetHandle === 'b';
 
-  // Regras específicas de tipo de componente
-  const connectionRules: Record<string, string[]> = {
-    'landing-page': ['quiz', 'opt-in-page', 'email-sequence'],
-    'quiz': ['sales-page', 'email-sequence', 'thank-you-page'],
-    'sales-page': ['checkout', 'thank-you-page'],
-    'email-sequence': ['sales-page', 'landing-page'],
-  };
+    // Example: Disallow connections to self
+    if (connection.source === connection.target) {
+      return false;
+    }
 
-  // Aqui você poderia implementar validação mais específica
-  // baseada nos dados dos nós
-  return true;
-};
+    // Example: Only allow one connection from a specific source node
+    // const existingEdges = edges.filter(edge => edge.source === connection.source);
+    // if (existingEdges.length >= 1) return false;
 
-const ExemploConexoes: React.FC = () => {
+    return true; // Default: allow all connections
+  }
+;
+
+const ConnectionExamples: React.FC = () => { // Renamed component
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-  // Função para lidar com novas conexões
+  // Handler for new connections
   const onConnect = useCallback(
     (params: Connection | Edge) => {
-      console.log('🔗 Nova conexão:', params);
-      
-      if (!isValidConnection(params as Connection)) {
-        console.warn('❌ Conexão inválida bloqueada');
-        return;
-      }
-
-      const newEdge = {
-        ...params,
-        type: 'animatedSvg',
-        data: {
+      console.log('Attempting to connect:', params);
+      if (isValidConnection(params)) {
+        console.log('🔗 New connection:', params);
+        
+        const defaultEdgeData = {
           label: 'Lead',
           color: '#3B82F6',
           animated: true,
-        },
-        markerEnd: {
-          type: MarkerType.ArrowClosed,
-          color: '#3B82F6',
-        },
-      };
+        };
 
-      setEdges((eds) => addEdge(newEdge, eds));
+        const edgeData = (params as Edge).data ? (params as Edge).data : defaultEdgeData;
+
+        const newEdge = {
+          ...params, 
+          type: 'animatedSvg', 
+          data: {
+            label: edgeData.label || defaultEdgeData.label,
+            color: edgeData.color || defaultEdgeData.color,
+            animated: edgeData.animated !== undefined ? edgeData.animated : defaultEdgeData.animated,
+          },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            color: edgeData.color || defaultEdgeData.color,
+          },
+        };
+        setEdges((eds) => addEdge(newEdge, eds));
+      } else {
+        console.warn('❌ Invalid connection blocked', params);
+      }
     },
-    [setEdges]
+    [setEdges] // Removed isValidConnection as it's a stable function now
   );
 
-  // Salvar estado no localStorage
+  // Save flow to localStorage
   const saveFlow = useCallback(() => {
     const flowData = {
       nodes,
@@ -159,11 +167,11 @@ const ExemploConexoes: React.FC = () => {
       timestamp: new Date().toISOString(),
     };
     localStorage.setItem('react-flow-funnel', JSON.stringify(flowData));
-    console.log('💾 Fluxo salvo no localStorage');
-    alert('Fluxo salvo com sucesso!');
+    console.log('💾 Flow saved to localStorage');
+    toast.success('Flow saved successfully!'); // Replaced alert
   }, [nodes, edges]);
 
-  // Carregar estado do localStorage
+  // Load flow from localStorage
   const loadFlow = useCallback(() => {
     try {
       const savedFlow = localStorage.getItem('react-flow-funnel');
@@ -171,25 +179,38 @@ const ExemploConexoes: React.FC = () => {
         const flowData = JSON.parse(savedFlow);
         setNodes(flowData.nodes || []);
         setEdges(flowData.edges || []);
-        console.log('📂 Fluxo carregado do localStorage');
-        alert('Fluxo carregado com sucesso!');
+        console.log('📂 Flow loaded from localStorage');
+        toast.success('Flow loaded successfully!'); // Replaced alert
       } else {
-        alert('Nenhum fluxo salvo encontrado');
+        toast.info('No saved flow found.'); // Replaced alert
       }
     } catch (error) {
-      console.error('Erro ao carregar fluxo:', error);
-      alert('Erro ao carregar fluxo');
+      console.error('Error loading flow:', error);
+      toast.error('Error loading flow.'); // Replaced alert
     }
   }, [setNodes, setEdges]);
 
-  // Limpar fluxo
+  // Clear flow
   const clearFlow = useCallback(() => {
-    if (confirm('Tem certeza que deseja limpar o fluxo?')) {
-      setNodes([]);
-      setEdges([]);
-      localStorage.removeItem('react-flow-funnel');
-      console.log('🗑️ Fluxo limpo');
-    }
+    toast('Are you sure you want to clear the flow?', {
+      duration: Infinity, // Keep toast visible until an action is taken
+      action: {
+        label: 'Confirm Clear',
+        onClick: () => {
+          setNodes([]);
+          setEdges([]);
+          localStorage.removeItem('react-flow-funnel');
+          console.log('🗑️ Flow cleared');
+          toast.success('Flow cleared successfully!');
+        },
+      },
+      cancel: {
+        label: 'Cancel',
+        onClick: () => {
+          toast.info('Clear operation cancelled.');
+        },
+      },
+    });
   }, [setNodes, setEdges]);
 
   return (
@@ -200,30 +221,30 @@ const ExemploConexoes: React.FC = () => {
           onClick={saveFlow}
           className="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
         >
-          💾 Salvar
+          💾 Save
         </button>
         <button
           onClick={loadFlow}
           className="px-3 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
         >
-          📂 Carregar
+          📂 Load
         </button>
         <button
           onClick={clearFlow}
           className="px-3 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors"
         >
-          🗑️ Limpar
+          🗑️ Clear
         </button>
       </div>
 
-      {/* Instruções */}
+      {/* Instructions */}
       <div className="absolute top-4 right-4 z-10 bg-gray-800 text-white p-4 rounded-lg max-w-sm">
-        <h3 className="font-semibold mb-2">Como usar:</h3>
+        <h3 className="font-semibold mb-2">How to use:</h3>
         <ul className="text-sm space-y-1">
-          <li>• Arraste dos pontos azuis (entrada) para verdes (saída)</li>
-          <li>• Delete: tecla Delete ou Backspace</li>
-          <li>• Zoom: scroll do mouse</li>
-          <li>• Pan: arrastar o canvas</li>
+          <li>• Drag from blue points (input) to green points (output)</li>
+          <li>• Delete: Delete or Backspace key</li>
+          <li>• Zoom: Mouse scroll</li>
+          <li>• Pan: Drag the canvas</li>
         </ul>
       </div>
 
@@ -266,13 +287,13 @@ const ExemploConexoes: React.FC = () => {
   );
 };
 
-// Componente wrapper com ReactFlowProvider
-export const ExemploConexoesWrapper: React.FC = () => {
+// Wrapper component with ReactFlowProvider
+export const ConnectionExamplesWrapper: React.FC = () => { // Renamed wrapper
   return (
     <ReactFlowProvider>
-      <ExemploConexoes />
+      <ConnectionExamples />
     </ReactFlowProvider>
   );
 };
 
-export default ExemploConexoesWrapper; 
+export default ConnectionExamplesWrapper; // Exporting renamed wrapper 

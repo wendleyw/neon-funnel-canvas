@@ -1745,6 +1745,29 @@ export const MARKETING_COMPONENT_TEMPLATES: ComponentTemplate[] = [
         icon_type: 'uploaded'
       }
     }
+  },
+
+  // ========================
+  // LEAD HUB CONNECTOR
+  // ========================
+  {
+    type: 'lead-hub',
+    icon: 'GitBranch',
+    label: 'Lead Hub',
+    color: '#10B981',
+    category: 'lead-capture',
+    title: 'Lead Connection Hub',
+    description: 'Central hub for all lead connections - connect multiple components here',
+    defaultProps: {
+      title: 'Lead Hub',
+      description: 'Central connection point for leads',
+      status: 'active',
+      properties: {
+        hub_type: 'lead_connector',
+        max_connections: 999,
+        auto_route: true
+      }
+    }
   }
 ];
 

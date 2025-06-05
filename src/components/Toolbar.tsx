@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Download, Save, FolderOpen, Trash2, FileText, Link } from 'lucide-react';
+import { ArrowLeft, Download, Save, FolderOpen, Trash2, FileText, Link, AlertCircle } from 'lucide-react';
 import { AdvancedExportModal } from './AdvancedExportModal';
 import { FunnelProject } from '../types/funnel';
 
@@ -16,6 +16,7 @@ interface ToolbarProps {
   project: FunnelProject;
   enableConnectionValidation?: boolean;
   onToggleConnectionValidation?: () => void;
+  hasUnsavedChanges?: boolean;
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
@@ -30,7 +31,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   componentsCount = 0,
   project,
   enableConnectionValidation,
-  onToggleConnectionValidation
+  onToggleConnectionValidation,
+  hasUnsavedChanges = false
 }) => {
   const [showAdvancedExport, setShowAdvancedExport] = useState(false);
 
@@ -61,6 +63,15 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               className="bg-transparent border-none text-white text-xs font-medium focus:outline-none focus:bg-gray-900 px-2 py-1 rounded min-w-40 max-w-56"
               placeholder="Project Name"
             />
+            {/* Unsaved changes indicator */}
+            {hasUnsavedChanges && (
+              <div className="flex items-center gap-1 ml-2">
+                <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" />
+                <span className="text-xs text-yellow-500 font-medium">
+                  Unsaved
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -74,7 +85,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                   ? 'text-red-400 hover:text-red-300 bg-red-900/20 hover:bg-red-900/30' 
                   : 'text-green-400 hover:text-green-300 bg-green-900/20 hover:bg-green-900/30'
               }`}
-              title={enableConnectionValidation ? "Conexões Restritas (clique para liberar)" : "Conexões Livres (clique para restringir)"}
+              title={enableConnectionValidation ? "Restricted Connections (click to allow)" : "Free Connections (click to restrict)"}
             >
               <Link size={16} />
             </button>
@@ -82,10 +93,19 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           
           <button
             onClick={onSave}
-            className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-all duration-200"
-            title="Save Project (Ctrl+S)"
+            className={`w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-200 relative ${
+              hasUnsavedChanges 
+                ? 'text-yellow-400 hover:text-yellow-300 bg-yellow-900/20 hover:bg-yellow-900/30' 
+                : 'text-gray-400 hover:text-white hover:bg-gray-800'
+            }`}
+            title={hasUnsavedChanges ? "Save Changes (Ctrl+S)" : "Save Project (Ctrl+S)"}
           >
             <Save size={16} />
+            {hasUnsavedChanges && (
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-500 rounded-full flex items-center justify-center">
+                <AlertCircle size={8} className="text-black" />
+              </div>
+            )}
           </button>
           
           <button

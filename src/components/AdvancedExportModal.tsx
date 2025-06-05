@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -30,11 +29,11 @@ interface AdvancedExportModalProps {
 }
 
 const exportOptions = [
-  { id: 'figma', name: 'Figma', description: 'Para design e prototipagem', icon: Layers, format: 'figma' },
-  { id: 'miro', name: 'Miro', description: 'Para colaboração visual', icon: Share2, format: 'miro' },
-  { id: 'lucidchart', name: 'LucidChart', description: 'Para diagramas profissionais', icon: GitBranch, format: 'lucidchart' },
-  { id: 'drawio', name: 'Draw.io', description: 'Para fluxogramas', icon: Code, format: 'drawio' },
-  { id: 'json', name: 'JSON', description: 'Formato de dados estruturados', icon: FileJson, format: 'json' }
+  { id: 'figma', name: 'Figma', description: 'For design and prototyping', icon: Layers, format: 'figma' },
+  { id: 'miro', name: 'Miro', description: 'For visual collaboration', icon: Share2, format: 'miro' },
+  { id: 'lucidchart', name: 'LucidChart', description: 'For professional diagrams', icon: GitBranch, format: 'lucidchart' },
+  { id: 'drawio', name: 'Draw.io', description: 'For flowcharts', icon: Code, format: 'drawio' },
+  { id: 'json', name: 'JSON', description: 'Structured data format', icon: FileJson, format: 'json' }
 ] as const;
 
 export const AdvancedExportModal: React.FC<AdvancedExportModalProps> = ({
@@ -70,19 +69,19 @@ export const AdvancedExportModal: React.FC<AdvancedExportModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto bg-gray-900 border-gray-700">
         <DialogHeader>
-          <DialogTitle className="text-white">Exportação Avançada</DialogTitle>
+          <DialogTitle className="text-white">Advanced Export</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-6">
-          {/* Estatísticas do projeto */}
+          {/* Project Statistics */}
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
                 <Database className="w-5 h-5" />
-                Estatísticas do Projeto
+                Project Statistics
               </CardTitle>
               <CardDescription className="text-gray-400">
-                Informações sobre o projeto atual
+                Information about the current project
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -91,33 +90,33 @@ export const AdvancedExportModal: React.FC<AdvancedExportModalProps> = ({
                   <div className="text-2xl font-bold text-blue-400">
                     {projectStats.overview.statistics.totalComponents}
                   </div>
-                  <div className="text-sm text-gray-400">Componentes</div>
+                  <div className="text-sm text-gray-400">Components</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-green-400">
                     {projectStats.overview.statistics.totalConnections}
                   </div>
-                  <div className="text-sm text-gray-400">Conexões</div>
+                  <div className="text-sm text-gray-400">Connections</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-purple-400">
                     {Object.keys(projectStats.overview.statistics.componentTypes).length}
                   </div>
-                  <div className="text-sm text-gray-400">Tipos</div>
+                  <div className="text-sm text-gray-400">Types</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-orange-400">
                     {project.updatedAt ? new Date(project.updatedAt).toLocaleDateString() : 'N/A'}
                   </div>
-                  <div className="text-sm text-gray-400">Atualizado</div>
+                  <div className="text-sm text-gray-400">Updated</div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Opções de exportação */}
+          {/* Export options */}
           <div>
-            <h3 className="text-lg font-semibold text-white mb-4">Formatos de Exportação</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">Export Formats</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {exportOptions.map((option) => {
                 const Icon = option.icon;
@@ -138,7 +137,7 @@ export const AdvancedExportModal: React.FC<AdvancedExportModalProps> = ({
                         </div>
                       </div>
                       <Badge variant="outline" className="text-xs">
-                        Compatível
+                        Compatible
                       </Badge>
                     </CardContent>
                   </Card>
@@ -147,9 +146,9 @@ export const AdvancedExportModal: React.FC<AdvancedExportModalProps> = ({
             </div>
           </div>
 
-          {/* Opções especiais */}
+          {/* Special options */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white">Exportações Especiais</h3>
+            <h3 className="text-lg font-semibold text-white">Special Exports</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Button
@@ -159,8 +158,8 @@ export const AdvancedExportModal: React.FC<AdvancedExportModalProps> = ({
               >
                 <FileText className="w-5 h-5 mr-3" />
                 <div className="text-left">
-                  <div className="font-medium">Documentação</div>
-                  <div className="text-sm text-gray-400">Gerar documentação completa</div>
+                  <div className="font-medium">Documentation</div>
+                  <div className="text-sm text-gray-400">Generate complete documentation</div>
                 </div>
               </Button>
 
@@ -172,7 +171,7 @@ export const AdvancedExportModal: React.FC<AdvancedExportModalProps> = ({
                 <GitBranch className="w-5 h-5 mr-3" />
                 <div className="text-left">
                   <div className="font-medium">Git Compatible</div>
-                  <div className="text-sm text-gray-400">Para controle de versão</div>
+                  <div className="text-sm text-gray-400">For version control</div>
                 </div>
               </Button>
             </div>
@@ -181,7 +180,7 @@ export const AdvancedExportModal: React.FC<AdvancedExportModalProps> = ({
 
         <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-gray-700">
           <Button variant="outline" onClick={onClose} className="border-gray-600 text-white">
-            Fechar
+            Close
           </Button>
         </div>
       </DialogContent>

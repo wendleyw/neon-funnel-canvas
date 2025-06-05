@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -51,28 +50,28 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Criar Novo Projeto</DialogTitle>
+          <DialogTitle>Create New Project</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-4">
           <div>
-            <Label htmlFor="projectName">Nome do Projeto</Label>
+            <Label htmlFor="projectName">Project Name</Label>
             <Input
               id="projectName"
               value={projectName}
               onChange={(e) => setProjectName(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Digite o nome do projeto"
+              placeholder="Enter project name"
               autoFocus
             />
           </div>
           
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={onClose}>
-              Cancelar
+              Cancel
             </Button>
             <Button onClick={handleCreate} disabled={!projectName.trim()}>
-              Criar Projeto
+              Create Project
             </Button>
           </div>
         </div>

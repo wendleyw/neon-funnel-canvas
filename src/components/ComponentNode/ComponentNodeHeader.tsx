@@ -25,7 +25,7 @@ export const ComponentNodeHeader: React.FC<ComponentNodeHeaderProps> = ({
         <button
           onClick={onEditClick}
           className="text-gray-400 hover:text-blue-400 transition-colors p-1"
-          title="Editar componente"
+          title="Edit component"
         >
           <Plus className="w-3 h-3" />
         </button>
@@ -34,10 +34,10 @@ export const ComponentNodeHeader: React.FC<ComponentNodeHeaderProps> = ({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                // TODO: Implementar ações avançadas
+                // TODO: Implement advanced actions
               }}
               className="text-gray-400 hover:text-white transition-colors p-1"
-              title="Configurações avançadas"
+              title="Advanced settings"
             >
               <Settings className="w-3 h-3" />
             </button>

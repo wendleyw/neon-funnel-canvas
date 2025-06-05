@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -48,7 +47,7 @@ export const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
   };
 
   const handleDelete = async () => {
-    if (window.confirm('Tem certeza que deseja excluir este projeto? Esta ação não pode ser desfeita.')) {
+    if (window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
       setIsDeleting(true);
       const success = await onDelete(project.id);
       setIsDeleting(false);
@@ -63,17 +62,17 @@ export const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Editar Projeto</DialogTitle>
+          <DialogTitle>Edit Project</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="project-name">Nome do Projeto</Label>
+            <Label htmlFor="project-name">Project Name</Label>
             <Input
               id="project-name"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              placeholder="Digite o nome do projeto"
+              placeholder="Enter project name"
             />
           </div>
 
@@ -85,18 +84,18 @@ export const ProjectEditModal: React.FC<ProjectEditModalProps> = ({
               className="flex items-center gap-2"
             >
               <Trash2 size={16} />
-              {isDeleting ? 'Excluindo...' : 'Excluir Projeto'}
+              {isDeleting ? 'Deleting...' : 'Delete Project'}
             </Button>
 
             <div className="flex gap-2">
               <Button variant="outline" onClick={onClose}>
-                Cancelar
+                Cancel
               </Button>
               <Button
                 onClick={handleUpdateName}
                 disabled={isUpdating || newName.trim() === '' || newName === project.name}
               >
-                {isUpdating ? 'Salvando...' : 'Salvar'}
+                {isUpdating ? 'Saving...' : 'Save'}
               </Button>
             </div>
           </div>

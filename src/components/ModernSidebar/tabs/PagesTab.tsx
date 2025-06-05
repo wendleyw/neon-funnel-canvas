@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ComponentTemplate } from '../../../types/funnel';
-import { Search, Filter, Star } from 'lucide-react';
+import { Search, Filter, Star, RotateCcw } from 'lucide-react';
 import { useIsMobile } from '../../../hooks/use-mobile';
 import { useFavorites } from '../../../hooks/use-favorites';
 import { PageTemplateGrid } from './PageTemplateGrid';
@@ -13,6 +13,7 @@ interface PagesTabProps {
 
 // Helper to convert PageTemplate to ComponentTemplate for favorites
 const pageToComponentTemplate = (page: PageTemplate): ComponentTemplate => ({
+  id: page.id,
   type: page.type,
   icon: page.type,
   label: page.label,
@@ -24,7 +25,7 @@ const pageToComponentTemplate = (page: PageTemplate): ComponentTemplate => ({
     title: page.label,
     description: page.description,
     status: 'active',
-    properties: {}
+    properties: { page_type: page.type, tags: page.tags }
   }
 });
 
@@ -46,7 +47,8 @@ export const PagesTab: React.FC<PagesTabProps> = ({
     isFavorite, 
     toggleFavorite, 
     getFavoritesByType, 
-    getFavoritesCount 
+    getFavoritesCount,
+    notification 
   } = useFavorites();
 
   // Extract unique categories from page templates
@@ -77,67 +79,83 @@ export const PagesTab: React.FC<PagesTabProps> = ({
   const getCategoryLabel = (category: string) => {
     const labels: Record<string, string> = {
       'all': 'All',
-      'lead-capture': 'Lead',
-      'sales': 'Sales',
-      'webinar': 'Webinar',
-      'engagement': 'Engage',
-      'booking': 'Book',
-      'content': 'Content',
-      'membership': 'Member',
-      'confirmation': 'Confirm',
-      'popup': 'Popup'
+      'lead-sales': 'Lead & Sales',
+      'engagement-content': 'Engagement',
+      'member-book': 'Member & Book',
+      'utility': 'Utility'
     };
-    return labels[category] || category;
+    return labels[category] || category.charAt(0).toUpperCase() + category.slice(1).replace(/-/g, ' '); // Fallback for any unmapped or new categories
   };
 
   // Custom handlers for page favorites
-  const handleToggleFavorite = (template: ComponentTemplate, type: 'source' | 'page' | 'action') => {
-    toggleFavorite(template, type);
+  const handleToggleFavorite = (template: PageTemplate) => {
+    const componentTemplate = pageToComponentTemplate(template);
+    console.log(`[PagesTab DEBUG] handleToggleFavorite called with (converted to ComponentTemplate): ID '${componentTemplate.id || componentTemplate.type}', Label: '${componentTemplate.label}'`, componentTemplate);
+    toggleFavorite(componentTemplate, 'page');
   };
 
-  const handleIsFavorite = (template: ComponentTemplate, type: 'source' | 'page' | 'action') => {
-    return isFavorite(template, type);
+  const handleIsFavorite = (template: PageTemplate): boolean => {
+    const componentTemplate = pageToComponentTemplate(template);
+    const isFav = isFavorite(componentTemplate, 'page');
+    console.log(`[PagesTab DEBUG] handleIsFavorite called with (converted to ComponentTemplate): ID '${componentTemplate.id || componentTemplate.type}', Label: '${componentTemplate.label}', IsFavorite: ${isFav}`, componentTemplate);
+    return isFav;
+  };
+
+  // Handler para onDragStart do PageTemplateGrid
+  const handleGridDragStart = (pageTemplate: PageTemplate) => {
+    const componentTemplate = pageToComponentTemplate(pageTemplate);
+    onDragStart(componentTemplate);
+  };
+
+  // Handler para onTemplateClick do PageTemplateGrid
+  const handleGridTemplateClick = (pageTemplate: PageTemplate) => {
+    if (onTemplateClick) {
+      const componentTemplate = pageToComponentTemplate(pageTemplate);
+      onTemplateClick(componentTemplate);
+    }
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col bg-black">
       {/* Search Section */}
-      <div className="p-3 border-b border-gray-800 bg-gray-900/20 flex-shrink-0">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-medium text-white">Pages</h2>
+      <div className="p-3 border-b border-neutral-700 flex-shrink-0 space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-medium text-gray-400 uppercase tracking-wider">PAGES</h3>
           <div className="flex items-center gap-1">
             {getFavoritesCount('page') > 0 && (
               <button
                 onClick={() => setShowOnlyFavorites(!showOnlyFavorites)}
                 className={`flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors ${
                   showOnlyFavorites 
-                    ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' 
-                    : 'bg-gray-800 text-gray-400 hover:text-white border border-gray-700'
+                    ? 'bg-yellow-500/20 text-yellow-400'
+                    : 'text-gray-400 hover:text-yellow-400'
                 }`}
                 title={showOnlyFavorites ? 'Show all pages' : 'Show only favorites'}
               >
-                <Star className={`w-3 h-3 ${showOnlyFavorites ? 'fill-current' : ''}`} />
+                <Star className={`w-3.5 h-3.5 ${showOnlyFavorites ? 'fill-current' : ''}`} />
                 <span>{getFavoritesCount('page')}</span>
               </button>
             )}
+            {getFavoritesCount('page') === 0 && <div className="h-[26px]" />}
           </div>
         </div>
 
-        <div className="relative group">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-400 transition-colors" />
+        <div className="relative">
+          <Search className="w-4 h-4 absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-500" />
           <input
             type="text"
             placeholder={showOnlyFavorites ? "Search favorite templates..." : "Search templates..."}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-gray-800/60 border border-gray-700 text-white placeholder-gray-400 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all duration-200"
+            className="w-full bg-gray-900 border border-neutral-700 rounded-md text-sm text-gray-200 placeholder-gray-500 pl-8 pr-8 py-1.5 focus:outline-none focus:ring-1 focus:ring-neutral-500 focus:border-neutral-500"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 hover:text-white transition-colors text-xs"
+              className="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-300"
+              aria-label="Clear search"
             >
-              ✕
+              <RotateCcw className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
@@ -176,11 +194,11 @@ export const PagesTab: React.FC<PagesTabProps> = ({
         {filteredTemplates.length > 0 ? (
           <PageTemplateGrid
             templates={filteredTemplates}
-            onDragStart={onDragStart}
-            onTemplateClick={onTemplateClick}
+            onDragStart={handleGridDragStart}
+            onTemplateClick={onTemplateClick ? handleGridTemplateClick : undefined}
             showFavorites={true}
-            isFavorite={(template) => handleIsFavorite(pageToComponentTemplate(template), 'page')}
-            toggleFavorite={(template) => handleToggleFavorite(pageToComponentTemplate(template), 'page')}
+            isFavorite={handleIsFavorite}
+            toggleFavorite={handleToggleFavorite}
           />
         ) : (
           <div className="flex flex-col items-center justify-center py-8 text-center px-4">
@@ -221,6 +239,20 @@ export const PagesTab: React.FC<PagesTabProps> = ({
           </div>
         )}
       </div>
+
+      {/* Notification Toast */}
+      {notification && (
+        <div className={`fixed bottom-4 right-4 z-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 transform translate-y-0 opacity-100 ${
+          notification.type === 'added' 
+            ? 'bg-green-600 text-white' 
+            : 'bg-red-600 text-white'
+        }`}>
+          <div className="flex items-center gap-2">
+            <Star className={`w-4 h-4 ${notification.type === 'added' ? 'fill-current' : ''}`} />
+            {notification.message}
+          </div>
+        </div>
+      )}
     </div>
   );
 }; 

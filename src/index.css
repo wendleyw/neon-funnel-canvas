@@ -139,8 +139,12 @@ html {
 
   /* Adicionar animação shimmer para efeito neon */
   @keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
   }
 
   /* Text effects for neon */
@@ -445,8 +449,12 @@ html {
 
 /* Enhanced card and animations - NEW STYLES */
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* Enhanced card interactions */

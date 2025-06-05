@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -22,10 +21,10 @@ export const InstagramMockupModal: React.FC<InstagramMockupModalProps> = ({
   onClose
 }) => {
   const [mockupData, setMockupData] = useState({
-    username: 'minha_empresa',
+    username: 'my_company',
     userAvatar: '/placeholder.svg',
     postImage: '/placeholder.svg',
-    caption: 'Confira nossos produtos incríveis! 🚀 #marketing #vendas',
+    caption: 'Check out our amazing products! 🚀 #marketing #sales',
     likes: 247,
     isVerified: false
   });
@@ -41,16 +40,16 @@ export const InstagramMockupModal: React.FC<InstagramMockupModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Preview Instagram</DialogTitle>
+          <DialogTitle>Instagram Preview</DialogTitle>
         </DialogHeader>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Configurações */}
+          {/* Settings */}
           <div className="space-y-4">
-            <h3 className="font-medium">Configurações do Post</h3>
+            <h3 className="font-medium">Post Settings</h3>
             
             <div>
-              <Label htmlFor="username">Nome de usuário</Label>
+              <Label htmlFor="username">Username</Label>
               <Input
                 id="username"
                 value={mockupData.username}
@@ -59,7 +58,7 @@ export const InstagramMockupModal: React.FC<InstagramMockupModalProps> = ({
             </div>
             
             <div>
-              <Label htmlFor="userAvatar">URL do Avatar</Label>
+              <Label htmlFor="userAvatar">Avatar URL</Label>
               <Input
                 id="userAvatar"
                 value={mockupData.userAvatar}
@@ -69,7 +68,7 @@ export const InstagramMockupModal: React.FC<InstagramMockupModalProps> = ({
             </div>
             
             <div>
-              <Label htmlFor="postImage">URL da Imagem do Post</Label>
+              <Label htmlFor="postImage">Post Image URL</Label>
               <Input
                 id="postImage"
                 value={mockupData.postImage}
@@ -79,7 +78,7 @@ export const InstagramMockupModal: React.FC<InstagramMockupModalProps> = ({
             </div>
             
             <div>
-              <Label htmlFor="caption">Legenda</Label>
+              <Label htmlFor="caption">Caption</Label>
               <Textarea
                 id="caption"
                 value={mockupData.caption}
@@ -89,7 +88,7 @@ export const InstagramMockupModal: React.FC<InstagramMockupModalProps> = ({
             </div>
             
             <div>
-              <Label htmlFor="likes">Número de curtidas</Label>
+              <Label htmlFor="likes">Number of likes</Label>
               <Input
                 id="likes"
                 type="number"
@@ -106,7 +105,7 @@ export const InstagramMockupModal: React.FC<InstagramMockupModalProps> = ({
                 onChange={(e) => handleInputChange('isVerified', e.target.checked)}
                 className="rounded"
               />
-              <Label htmlFor="isVerified">Conta verificada</Label>
+              <Label htmlFor="isVerified">Verified account</Label>
             </div>
           </div>
           
@@ -119,7 +118,7 @@ export const InstagramMockupModal: React.FC<InstagramMockupModalProps> = ({
         
         <div className="flex justify-end gap-2 mt-6">
           <Button variant="outline" onClick={onClose}>
-            Fechar
+            Close
           </Button>
         </div>
       </DialogContent>

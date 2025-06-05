@@ -182,8 +182,8 @@ const mapFunnelTypeToNodeType = (funnelType: FunnelComponent['type']): string =>
   
   const mappedType = typeMap[funnelType];
   
-  // Debug logging for unmapped types
-  if (!mappedType) {
+  // Debug logging for unmapped types - disabled for cleaner console
+  if (!mappedType && process.env.NODE_ENV === 'development' && false) {
     console.warn('🔍 Unmapped funnel type:', funnelType, 'defaulting to "default"');
   }
   

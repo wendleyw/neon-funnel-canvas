@@ -7,14 +7,14 @@ const VISUAL_HELPERS_TEMPLATES: ComponentTemplate[] = [
   {
     type: 'note',
     icon: '📝',
-    label: 'Nota Adesiva',
+    label: 'Note',
     color: '#FBBF24',
     category: 'visual-helpers',
-    title: 'Nota',
-    description: 'Clique para adicionar uma nota...',
+    title: 'Note',
+    description: 'Click to add a note...',
     defaultProps: {
-      title: 'Nota',
-      description: 'Clique para adicionar uma nota...',
+      title: 'Note',
+      description: 'Click to add a note...',
       status: 'draft',
       properties: {
         color: 'yellow'

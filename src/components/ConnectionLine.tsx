@@ -25,7 +25,7 @@ export const ConnectionLine: React.FC<ConnectionLineProps> = ({
   onDelete
 }) => {
   const { isGlobalAnimationEnabled } = useNeonAnimation();
-  const { isSequenceMode, getConnectionDelay, isConnectionInActiveSequence } = useSequenceAnimation();
+  const { isSequenceMode, getConnectionDelay, isConnectionInActiveSequence, getConnectionPositionInSequence } = useSequenceAnimation();
   
   // Calculate intelligent connection points
   const connectionPoints = calculateBestConnectionPoints(fromComponent, toComponent);
@@ -39,6 +39,28 @@ export const ConnectionLine: React.FC<ConnectionLineProps> = ({
   // Determine animation mode
   const inSequence = isConnectionInActiveSequence(connection.id);
   const sequenceDelay = getConnectionDelay(connection.id);
+  const connectionPosition = getConnectionPositionInSequence(connection.id);
+  
+  // NEW APPROACH: Calculate number of balls based on component hierarchy
+  // Get all connections and count the depth/level of this connection
+  const allConnections = (window as any).__currentConnections || [];
+  
+  // SIMPLIFIED: Just use a pattern based on connection or component to show multiple balls
+  let numberOfBalls = 1;
+  
+  if (isSequenceMode && inSequence && connectionPosition > 0) {
+    numberOfBalls = connectionPosition;
+  } else {
+    // Simple fallback: count connections to the target component
+    const connectionsToTarget = allConnections.filter((c: any) => c.to === connection.to).length;
+    numberOfBalls = Math.max(1, connectionsToTarget);
+    
+    // Alternative: use component position to create variety
+    if (numberOfBalls === 1) {
+      const componentHash = (toComponent.position.x + toComponent.position.y) % 3;
+      numberOfBalls = componentHash + 1;
+    }
+  }
   
   // Combine individual animation setting with global toggle and sequence mode
   const isAnimated = connection.animated === true && isGlobalAnimationEnabled;
@@ -63,7 +85,15 @@ export const ConnectionLine: React.FC<ConnectionLineProps> = ({
     globalAnimationEnabled: isGlobalAnimationEnabled,
     sequenceMode: isSequenceMode,
     inSequence,
-    sequenceDelay: sequenceDelay / 1000 + 's'
+    sequenceDelay: sequenceDelay / 1000 + 's',
+    connectionPosition,
+    numberOfBalls,
+    'DEBUG_allConnections': allConnections.length,
+    'DEBUG_calculations': {
+      inSequence,
+      connectionPosition,
+      numberOfBalls
+    }
   });
 
   const getConnectionColor = () => {
@@ -282,167 +312,137 @@ export const ConnectionLine: React.FC<ConnectionLineProps> = ({
         {/* Enhanced animated lead orb traveling along path */}
         {isAnimated && (
           <g className="pointer-events-none">
-            {/* Main lead orb with enhanced effects */}
-            <circle
-              r="8"
-              fill={color}
-              filter={`url(#${neonGlowId})`}
-              opacity="0.8"
-            >
-              <animateMotion 
-                dur="4s" 
-                repeatCount="indefinite" 
-                rotate="auto"
-                begin={isSequenceAnimated ? `${sequenceDelay}ms` : '0s'}
-              >
-                <mpath href={`#path-${connection.id}`}/>
-              </animateMotion>
-              <animate 
-                attributeName="opacity" 
-                values="0;0.8;0.8;0.8;0" 
-                dur="4s" 
-                repeatCount="indefinite" 
-                begin={isSequenceAnimated ? `${sequenceDelay}ms` : '0s'}
-              />
-              <animate 
-                attributeName="r" 
-                values="5;12;8;12;5" 
-                dur="4s" 
-                repeatCount="indefinite" 
-                begin={isSequenceAnimated ? `${sequenceDelay}ms` : '0s'}
-              />
-            </circle>
-            
-            {/* Core bright orb */}
-            <circle
-              r="4"
-              fill="#ffffff"
-              opacity="1"
-            >
-              <animateMotion 
-                dur="4s" 
-                repeatCount="indefinite" 
-                rotate="auto"
-                begin={isSequenceAnimated ? `${sequenceDelay}ms` : '0s'}
-              >
-                <mpath href={`#path-${connection.id}`}/>
-              </animateMotion>
-              <animate 
-                attributeName="opacity" 
-                values="0;1;1;1;0" 
-                dur="4s" 
-                repeatCount="indefinite" 
-                begin={isSequenceAnimated ? `${sequenceDelay}ms` : '0s'}
-              />
-              <animate 
-                attributeName="r" 
-                values="2;6;4;6;2" 
-                dur="4s" 
-                repeatCount="indefinite" 
-                begin={isSequenceAnimated ? `${sequenceDelay}ms` : '0s'}
-              />
-            </circle>
-            
-            {/* Enhanced trailing particles */}
-            <circle
-              r="3"
-              fill={color}
-              opacity="0.6"
-            >
-              <animateMotion 
-                dur="4s" 
-                repeatCount="indefinite" 
-                rotate="auto" 
-                begin={isSequenceAnimated ? `${sequenceDelay + 500}ms` : '0.5s'}
-              >
-                <mpath href={`#path-${connection.id}`}/>
-              </animateMotion>
-              <animate 
-                attributeName="opacity" 
-                values="0;0.6;0.6;0.6;0" 
-                dur="4s" 
-                repeatCount="indefinite" 
-                begin={isSequenceAnimated ? `${sequenceDelay + 500}ms` : '0.5s'}
-              />
-              <animate 
-                attributeName="r" 
-                values="1;6;3;6;1" 
-                dur="4s" 
-                repeatCount="indefinite" 
-                begin={isSequenceAnimated ? `${sequenceDelay + 500}ms` : '0.5s'}
-              />
-            </circle>
-            
-            <circle
-              r="2"
-              fill={color}
-              opacity="0.4"
-            >
-              <animateMotion 
-                dur="4s" 
-                repeatCount="indefinite" 
-                rotate="auto" 
-                begin={isSequenceAnimated ? `${sequenceDelay + 1000}ms` : '1s'}
-              >
-                <mpath href={`#path-${connection.id}`}/>
-              </animateMotion>
-              <animate 
-                attributeName="opacity" 
-                values="0;0.4;0.4;0.4;0" 
-                dur="4s" 
-                repeatCount="indefinite" 
-                begin={isSequenceAnimated ? `${sequenceDelay + 1000}ms` : '1s'}
-              />
-              <animate 
-                attributeName="r" 
-                values="1;4;2;4;1" 
-                dur="4s" 
-                repeatCount="indefinite" 
-                begin={isSequenceAnimated ? `${sequenceDelay + 1000}ms` : '1s'}
-              />
-            </circle>
+            {/* Generate multiple balls based on connection position in sequence */}
+            {Array.from({ length: numberOfBalls }, (_, ballIndex) => {
+              const ballDelay = ballIndex * 300; // 300ms between each ball
+              const baseDelay = isSequenceAnimated ? sequenceDelay : 0;
+              const totalDelay = baseDelay + ballDelay;
+              
+              return (
+                <g key={`ball-${ballIndex}`}>
+                  {/* Main lead orb with enhanced effects */}
+                  <circle
+                    r="8"
+                    fill={color}
+                    filter={`url(#${neonGlowId})`}
+                    opacity="0.8"
+                  >
+                    <animateMotion 
+                      dur="4s" 
+                      repeatCount="indefinite" 
+                      rotate="auto"
+                      begin={`${totalDelay}ms`}
+                    >
+                      <mpath href={`#path-${connection.id}`}/>
+                    </animateMotion>
+                    <animate 
+                      attributeName="opacity" 
+                      values="0;0.8;0.8;0.8;0" 
+                      dur="4s" 
+                      repeatCount="indefinite" 
+                      begin={`${totalDelay}ms`}
+                    />
+                    <animate 
+                      attributeName="r" 
+                      values="5;12;8;12;5" 
+                      dur="4s" 
+                      repeatCount="indefinite" 
+                      begin={`${totalDelay}ms`}
+                    />
+                  </circle>
+                  
+                  {/* Core bright orb */}
+                  <circle
+                    r="4"
+                    fill="#ffffff"
+                    opacity="1"
+                  >
+                    <animateMotion 
+                      dur="4s" 
+                      repeatCount="indefinite" 
+                      rotate="auto"
+                      begin={`${totalDelay}ms`}
+                    >
+                      <mpath href={`#path-${connection.id}`}/>
+                    </animateMotion>
+                    <animate 
+                      attributeName="opacity" 
+                      values="0;1;1;1;0" 
+                      dur="4s" 
+                      repeatCount="indefinite" 
+                      begin={`${totalDelay}ms`}
+                    />
+                    <animate 
+                      attributeName="r" 
+                      values="2;6;4;6;2" 
+                      dur="4s" 
+                      repeatCount="indefinite" 
+                      begin={`${totalDelay}ms`}
+                    />
+                  </circle>
+                  
+                  {/* Enhanced trailing particles */}
+                  <circle
+                    r="3"
+                    fill={color}
+                    opacity="0.6"
+                  >
+                    <animateMotion 
+                      dur="4s" 
+                      repeatCount="indefinite" 
+                      rotate="auto" 
+                      begin={`${totalDelay + 500}ms`}
+                    >
+                      <mpath href={`#path-${connection.id}`}/>
+                    </animateMotion>
+                    <animate 
+                      attributeName="opacity" 
+                      values="0;0.6;0.6;0.6;0" 
+                      dur="4s" 
+                      repeatCount="indefinite" 
+                      begin={`${totalDelay + 500}ms`}
+                    />
+                    <animate 
+                      attributeName="r" 
+                      values="1;6;3;6;1" 
+                      dur="4s" 
+                      repeatCount="indefinite" 
+                      begin={`${totalDelay + 500}ms`}
+                    />
+                  </circle>
+                  
+                  <circle
+                    r="2"
+                    fill={color}
+                    opacity="0.4"
+                  >
+                    <animateMotion 
+                      dur="4s" 
+                      repeatCount="indefinite" 
+                      rotate="auto" 
+                      begin={`${totalDelay + 1000}ms`}
+                    >
+                      <mpath href={`#path-${connection.id}`}/>
+                    </animateMotion>
+                    <animate 
+                      attributeName="opacity" 
+                      values="0;0.4;0.4;0.4;0" 
+                      dur="4s" 
+                      repeatCount="indefinite" 
+                      begin={`${totalDelay + 1000}ms`}
+                    />
+                    <animate 
+                      attributeName="r" 
+                      values="1;4;2;4;1" 
+                      dur="4s" 
+                      repeatCount="indefinite" 
+                      begin={`${totalDelay + 1000}ms`}
+                    />
+                  </circle>
+                </g>
+              );
+            })}
           </g>
-        )}
-        
-        {/* Hidden path for animation reference */}
-        <path
-          id={`path-${connection.id}`}
-          d={pathData}
-          stroke="none"
-          fill="none"
-          className="pointer-events-none"
-          style={{ display: 'none' }}
-        />
-        
-        {/* Selection indicator with enhanced neon effect */}
-        {isSelected && (
-          <>
-            <path
-              d={pathData}
-              stroke={color}
-              strokeWidth="12"
-              fill="none"
-              strokeDasharray="20,10"
-              opacity="0.4"
-              className="pointer-events-none"
-              filter={`url(#${neonGlowId})`}
-              style={{
-                animation: 'selectionPulse 1.5s ease-in-out infinite'
-              }}
-            />
-            <path
-              d={pathData}
-              stroke="#ffffff"
-              strokeWidth="2"
-              fill="none"
-              strokeDasharray="15,8"
-              opacity="0.9"
-              className="pointer-events-none"
-              style={{
-                animation: 'selectionFlow 2s linear infinite'
-              }}
-            />
-          </>
         )}
       </svg>
 

@@ -1,4 +1,3 @@
-
 import { supabase } from '../integrations/supabase/client';
 import { Database } from '../integrations/supabase/types';
 
@@ -15,13 +14,13 @@ export const workspaceService = {
         .single();
 
       if (error) {
-        console.error('Erro ao criar workspace:', error);
+        console.error('Error creating workspace:', error);
         return null;
       }
 
       return data;
     } catch (error) {
-      console.error('Erro ao criar workspace:', error);
+      console.error('Error creating workspace:', error);
       return null;
     }
   },
@@ -34,13 +33,13 @@ export const workspaceService = {
         .eq('id', workspaceId);
 
       if (error) {
-        console.error('Erro ao deletar workspace:', error);
+        console.error('Error deleting workspace:', error);
         return false;
       }
 
       return true;
     } catch (error) {
-      console.error('Erro ao deletar workspace:', error);
+      console.error('Error deleting workspace:', error);
       return false;
     }
   },
@@ -54,13 +53,13 @@ export const workspaceService = {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Erro ao carregar workspaces:', error);
+        console.error('Error loading workspaces:', error);
         return [];
       }
 
       return data || [];
     } catch (error) {
-      console.error('Erro ao carregar workspaces:', error);
+      console.error('Error loading workspaces:', error);
       return [];
     }
   }
