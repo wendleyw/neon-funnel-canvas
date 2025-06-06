@@ -1,16 +1,15 @@
 import React from 'react';
 import { Handle, Position, NodeProps, useReactFlow } from 'reactflow';
 import { 
-  Edit2, 
-  Trash2, 
-  Copy, 
-  Play,
-  Pause,
-  Settings,
-  Zap,
-  X,
-  Image as ImageIcon
+  X
 } from 'lucide-react';
+import { 
+  SourceComponentRenderer, 
+  PageComponentRenderer, 
+  ActionComponentRenderer,
+  detectComponentType 
+} from './renderers';
+import { ComponentTemplate } from '../../../types/funnel';
 
 // Template information map
 const getTemplateInfo = (type: string) => {
@@ -32,107 +31,11 @@ const getTemplateInfo = (type: string) => {
     // Actions
     'webhook': { icon: '🔗', color: '#8B5CF6', label: 'Webhook' },
     'api-call': { icon: '🔌', color: '#10B981', label: 'API Call' },
+    'action-sequence': { icon: '⚡', color: '#F59E0B', label: 'Action Sequence' },
+    'traffic-source': { icon: '🚀', color: '#10B981', label: 'Traffic Source' },
   };
   
   return templateMap[type] || { icon: '🔧', color: '#6B7280', label: type.replace(/-/g, ' '), category: 'unknown' };
-};
-
-// Check if component is a traffic source
-const isTrafficSource = (type: string): boolean => {
-  const template = getTemplateInfo(type);
-  return template.category === 'traffic-source';
-};
-
-// Check if component is a page type
-const isPageComponent = (type: string): boolean => {
-  const pageTypes = ['landing-page', 'sales-page', 'checkout', 'quiz', 'form'];
-  return pageTypes.includes(type);
-};
-
-// Traffic Source Widget
-const TrafficSourceWidget: React.FC<{ 
-  type: string; 
-  title?: string; 
-}> = ({ type, title }) => {
-  const template = getTemplateInfo(type);
-
-  return (
-    <div className="w-full h-16 flex items-center justify-center p-2">
-      <div 
-        className="w-full h-full rounded-lg border flex items-center px-3 gap-3 bg-gray-900"
-        style={{ 
-          borderColor: template.color,
-          boxShadow: `0 0 8px ${template.color}20`
-        }}
-      >
-        <div 
-          className="w-8 h-8 rounded flex items-center justify-center text-sm flex-shrink-0"
-          style={{
-            backgroundColor: template.color + '20',
-            color: template.color
-            }}
-          >
-            {template.icon}
-          </div>
-          <div className="flex-1 min-w-0">
-          <h3 className="font-medium text-white text-sm leading-tight break-words">
-              {title || template.label}
-            </h3>
-              </div>
-              </div>
-    </div>
-  );
-};
-
-// Simple Action Button
-const SimpleActionButton: React.FC<{ type: string; title?: string; color: string }> = ({ type, title, color }) => {
-  const template = getTemplateInfo(type);
-  
-  return (
-    <div className="w-full h-16 flex items-center justify-center p-2">
-      <div 
-        className="w-full h-full rounded-md font-medium text-white text-center transition-all duration-150 hover:opacity-95 cursor-pointer flex items-center justify-center"
-        style={{ backgroundColor: color }}
-      >
-          <div className="text-sm font-medium leading-tight">
-            {title || template.label}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Basic mockup for other components
-const BasicMockup: React.FC<{ type: string; customImage?: string }> = ({ type, customImage }) => {
-  if (customImage) {
-    return (
-      <div className="w-full h-32 rounded border border-gray-600 overflow-hidden">
-        <img 
-          src={customImage} 
-          alt="Custom preview" 
-          className="w-full h-full object-cover"
-        />
-      </div>
-    );
-  }
-
-  return (
-    <div className="w-full h-32 bg-gray-800 rounded border border-gray-600 overflow-hidden">
-          <div className="p-2 space-y-1">
-            <div className="w-full h-2 bg-gray-500 rounded-sm"></div>
-              <div className="w-4/5 h-1 bg-gray-400 rounded-sm"></div>
-              <div className="w-full h-0.5 bg-gray-600 rounded-sm"></div>
-              <div className="w-3/4 h-0.5 bg-gray-600 rounded-sm"></div>
-        <div className="space-y-1 mt-2">
-              <div className="flex gap-1">
-            <div className="w-1/2 h-8 bg-gray-700 rounded-sm"></div>
-            <div className="w-1/2 h-8 bg-gray-700 rounded-sm"></div>
-                </div>
-          <div className="w-2/3 h-6 bg-gray-500 rounded-sm"></div>
-                </div>
-          </div>
-        </div>
-      );
 };
 
 // Edit Modal Component
@@ -202,23 +105,24 @@ const EditNodeModal: React.FC<{
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 h-20 resize-none"
+              className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 resize-none"
+              rows={3}
               placeholder="Component description"
             />
           </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               Custom Image URL
-              </label>
-              <input
-              type="url"
+            </label>
+            <input
+              type="text"
               value={customImage}
               onChange={(e) => setCustomImage(e.target.value)}
               className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
               placeholder="https://example.com/image.jpg"
-              />
-            </div>
+            />
+          </div>
         </div>
 
         <div className="flex gap-3 mt-6">
@@ -248,6 +152,38 @@ export const CustomNode: React.FC<NodeProps> = React.memo(({ data, selected, id 
   
   const template = getTemplateInfo(data.originalType || 'default');
   
+  // Create a component template object for our renderers
+  const componentTemplate: ComponentTemplate = {
+    type: data.originalType || 'default',
+    icon: template.icon,
+    label: template.label,
+    color: template.color,
+    category: template.category || 'unknown',
+    originalType: detectComponentType({
+      originalType: data.originalType,
+      category: template.category,
+      type: data.originalType
+    } as any),
+    defaultProps: data
+  };
+
+  // Create a component object for our renderers
+  const component = {
+    id,
+    type: data.originalType || 'default',
+    position: { x: 0, y: 0 }, // Position handled by ReactFlow
+    data: {
+      title: data.title || template.label,
+      description: data.description,
+      image: data.image,
+      status: data.status,
+      properties: data.properties || {}
+    },
+    connections: [],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+  
   // Monitor connection state to show drop feedback
   React.useEffect(() => {
     const checkConnectionState = () => {
@@ -261,27 +197,14 @@ export const CustomNode: React.FC<NodeProps> = React.memo(({ data, selected, id 
     const interval = setInterval(checkConnectionState, 100);
     return () => clearInterval(interval);
   }, [id]);
-  
-  // Get status info
-  const getStatusInfo = () => {
-    const status = data.status;
-    switch (status) {
-      case 'active': return { color: '#10B981', icon: Play, text: 'Active' };
-      case 'inactive': return { color: '#F59E0B', icon: Pause, text: 'Inactive' };
-      case 'draft': return { color: '#6B7280', icon: Settings, text: 'Draft' };
-      case 'test': return { color: '#8B5CF6', icon: Zap, text: 'Test' };
-      case 'published': return { color: '#10B981', icon: Play, text: 'Published' };
-      default: return { color: '#8B5CF6', icon: Zap, text: 'Ready' };
-    }
-  };
 
-  const handleEdit = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleEdit = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     setIsEditModalOpen(true);
   };
 
-  const handleDuplicate = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleDuplicate = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     
     // Create a duplicate node
     const nodes = reactFlowInstance.getNodes();
@@ -301,8 +224,8 @@ export const CustomNode: React.FC<NodeProps> = React.memo(({ data, selected, id 
     reactFlowInstance.setNodes([...nodes, newNode]);
   };
 
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleDelete = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     // Add confirmation logic if necessary
     if (confirm('Are you sure you want to delete this component?')) {
       // Remove the node
@@ -319,6 +242,12 @@ export const CustomNode: React.FC<NodeProps> = React.memo(({ data, selected, id 
     }
   };
 
+  const handleConnection = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    // Connection logic can be handled by ReactFlow
+    console.log('Connection clicked for node:', id);
+  };
+
   const handleSaveEdit = (newData: any) => {
     const nodes = reactFlowInstance.getNodes();
     const updatedNodes = nodes.map(node => {
@@ -331,21 +260,36 @@ export const CustomNode: React.FC<NodeProps> = React.memo(({ data, selected, id 
     setIsEditModalOpen(false);
   };
 
-  const statusInfo = getStatusInfo();
-  const StatusIcon = statusInfo.icon;
-  
-  // Render component content based on type
-  const renderContent = () => {
-    if (isTrafficSource(data.originalType || '')) {
-      return <TrafficSourceWidget type={data.originalType || ''} title={data.title} />;
+  // Detect component type using our utility
+  const componentType = detectComponentType(componentTemplate);
+
+  // Render specialized component based on type
+  const renderSpecializedComponent = () => {
+    const commonProps = {
+      component,
+      template: componentTemplate,
+      isSelected: selected || false,
+      isConnecting: false,
+      canConnect: isConnectionTarget,
+      onEditClick: handleEdit,
+      onDeleteClick: handleDelete,
+      onConnectionClick: handleConnection,
+      onDuplicateClick: handleDuplicate
+    };
+
+    switch (componentType) {
+      case 'source':
+        return <SourceComponentRenderer {...commonProps} />;
+      
+      case 'page':
+        return <PageComponentRenderer {...commonProps} />;
+      
+      case 'action':
+        return <ActionComponentRenderer {...commonProps} />;
+      
+      default:
+        return <ActionComponentRenderer {...commonProps} />;
     }
-    
-    const isAction = ['webhook', 'api-call'].includes(data.originalType || '');
-    if (isAction) {
-      return <SimpleActionButton type={data.originalType || ''} title={data.title} color={template.color} />;
-    }
-    
-    return <BasicMockup type={data.originalType || ''} customImage={data.image} />;
   };
 
   return (
@@ -366,100 +310,22 @@ export const CustomNode: React.FC<NodeProps> = React.memo(({ data, selected, id 
         )}
         
         {/* Connection handles - always visible for easy connections */}
-          <Handle
-            type="target"
+        <Handle
+          type="target"
           position={Position.Left}
           className="w-3 h-3 !bg-blue-500 !border-2 !border-blue-300 hover:!scale-110 transition-transform"
           style={{ left: -6 }}
-          />
-          
-          <Handle
-            type="source"
-            position={Position.Right}
+        />
+        
+        <Handle
+          type="source"
+          position={Position.Right}
           className="w-3 h-3 !bg-green-500 !border-2 !border-green-300 hover:!scale-110 transition-transform"
           style={{ right: -6 }}
         />
 
-        {/* Node content */}
-        <div
-          className={`
-            relative w-64 bg-gray-900 rounded-lg border-2 overflow-hidden 
-            transition-all duration-200 hover:shadow-lg
-            ${selected ? 'border-blue-500 shadow-blue-500/20' : 'border-gray-700'}
-            ${isConnectionTarget ? 'border-green-400 shadow-green-400/20' : ''}
-          `}
-        >
-          {/* Header with template color */}
-          <div 
-            className="h-1 w-full"
-            style={{ backgroundColor: template.color }}
-          />
-
-            <div className="p-4">
-            {/* Title for page components */}
-            {isPageComponent(data.originalType || '') && (
-              <div className="mb-3">
-                <h3 className="font-semibold text-white text-center text-sm leading-tight">
-                  {data.title || template.label}
-                </h3>
-              </div>
-            )}
-
-            {/* Component preview */}
-              <div className="mb-3">
-              {renderContent()}
-              </div>
-
-            {/* Status indicator */}
-            <div className="flex justify-center mb-3">
-                <div className="flex items-center gap-1">
-                  <StatusIcon className="w-3 h-3" style={{ color: statusInfo.color }} />
-                  <span className="text-xs" style={{ color: statusInfo.color }}>
-                    {statusInfo.text}
-                  </span>
-                  
-                {selected && (
-                  <span className="text-xs text-blue-400 flex items-center gap-1 ml-2">
-                    <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></div>
-                    Selected
-                    </span>
-                  )}
-                </div>
-              </div>
-
-            {/* Action buttons - only when selected */}
-            {selected && (
-              <div className="flex gap-2 justify-center">
-                    <button
-                      onClick={handleEdit}
-                  className="px-3 py-1.5 bg-blue-600/20 border border-blue-500 text-blue-400 hover:bg-blue-600 hover:text-white rounded-md transition-all duration-200 flex items-center gap-1 nodrag"
-                  title="Edit component"
-                >
-                  <Edit2 className="w-4 h-4" />
-                  <span className="text-xs">Edit</span>
-                    </button>
-
-                    <button
-                  onClick={handleDuplicate}
-                  className="px-3 py-1.5 bg-purple-600/20 border border-purple-500 text-purple-400 hover:bg-purple-600 hover:text-white rounded-md transition-all duration-200 flex items-center gap-1 nodrag"
-                  title="Duplicate component"
-                    >
-                      <Copy className="w-4 h-4" />
-                  <span className="text-xs">Copy</span>
-                    </button>
-                  
-                  <button
-                  onClick={handleDelete}
-                  className="px-3 py-1.5 bg-red-600/20 border border-red-500 text-red-400 hover:bg-red-600 hover:text-white rounded-md transition-all duration-200 flex items-center gap-1 nodrag"
-                  title="Delete component"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  <span className="text-xs">Delete</span>
-                  </button>
-                </div>
-              )}
-            </div>
-        </div>
+        {/* Render specialized component */}
+        {renderSpecializedComponent()}
       </div>
 
       {/* Edit Modal */}
@@ -472,7 +338,5 @@ export const CustomNode: React.FC<NodeProps> = React.memo(({ data, selected, id 
     </>
   );
 });
-
-CustomNode.displayName = 'CustomNode';
 
 export default CustomNode; 

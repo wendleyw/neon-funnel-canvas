@@ -42,16 +42,6 @@ export const ComponentNodeCardSimple: React.FC<ComponentNodeCardSimpleProps> = (
 
   const componentType = detectComponentType(template);
 
-  // Debug logging for component type detection
-  console.log('🎨 [ComponentNodeCardSimple] Component type detection:', {
-    componentId: component.id,
-    componentTitle: component.data.title,
-    templateLabel: template.label,
-    originalType: template.originalType,
-    category: template.category,
-    detectedType: componentType
-  });
-
   // Common props for all renderers
   const commonProps = {
     component,

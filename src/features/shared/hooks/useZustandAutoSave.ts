@@ -1,5 +1,6 @@
 import { useUnifiedWorkspace } from '../../../contexts/UnifiedWorkspaceContext';
 import { useProjectStore } from '../../../store/projectStore';
+import { useAuth } from '../../../contexts/AuthContext';
 import { useEffect, useRef, useCallback } from 'react';
 
 /**
@@ -10,19 +11,27 @@ export const useZustandAutoSave = () => {
   const workspace = useUnifiedWorkspace();
   const project = useProjectStore(state => state.project);
   const currentProjectId = useProjectStore(state => state.currentProjectId);
+  const { user } = useAuth();
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (!project || !workspace.currentWorkspace) return;
+    if (!project || !workspace.currentWorkspace || !user) return;
+
+    // Capture user and workspace at this moment to avoid null issues
+    const currentUser = user;
+    const currentWorkspaceId = workspace.currentWorkspace.id;
 
     // Clear any existing timeout
     if (autoSaveTimeoutRef.current) {
       clearTimeout(autoSaveTimeoutRef.current);
     }
 
-    // Schedule auto-save with the unified workspace
+    // Schedule auto-save with captured values
     autoSaveTimeoutRef.current = setTimeout(() => {
-      workspace.scheduleAutoSave(project, workspace.currentWorkspace!.id, currentProjectId || undefined);
+      // Double-check user is still available
+      if (currentUser && currentUser.id) {
+        workspace.scheduleAutoSave(project, currentWorkspaceId, currentProjectId || undefined);
+      }
     }, 2000); // 2 second delay
 
     return () => {
@@ -30,13 +39,13 @@ export const useZustandAutoSave = () => {
         clearTimeout(autoSaveTimeoutRef.current);
       }
     };
-  }, [project, workspace, currentProjectId]);
+  }, [project, workspace, currentProjectId, user]);
 
   /**
    * Force save the current project immediately
    */
   const forceSave = useCallback(async (): Promise<{ success: boolean; projectId?: string }> => {
-    if (!project || !workspace.currentWorkspace) {
+    if (!project || !workspace.currentWorkspace || !user) {
       return { success: false };
     }
 
@@ -48,7 +57,7 @@ export const useZustandAutoSave = () => {
 
     // Save immediately
     return await workspace.saveProject(project, workspace.currentWorkspace.id, currentProjectId || undefined);
-  }, [project, workspace, currentProjectId]);
+  }, [project, workspace, currentProjectId, user]);
 
   /**
    * Cancel any pending auto-save
