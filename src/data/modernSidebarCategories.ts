@@ -110,18 +110,6 @@ export const modernSidebarCategories: SidebarCategory[] = [
       'conversion-tracking',
       'reports'
     ])
-  },
-  {
-    id: 'visual-helpers',
-    name: 'Visual Helpers',
-    icon: '🎨',
-    color: '#EC4899',
-    description: 'Components for visual organization',
-    templates: getTemplatesByTypes([
-      'note',
-      'arrow', 
-      'frame'
-    ])
   }
 ];
 

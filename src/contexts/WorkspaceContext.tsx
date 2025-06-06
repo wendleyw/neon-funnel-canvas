@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useRef, useMemo } from 'react';
-import { useWorkspaces } from '../hooks/useWorkspaces';
-import { useProjects } from '../hooks/useProjects';
-import { useWorkspacePersistence } from '../hooks/useWorkspacePersistence';
+import { useWorkspaces } from '@/features/workspace/hooks/useWorkspaces';
+import { useProjects } from '@/features/workspace/hooks/useProjects';
+import { useWorkspacePersistence } from '@/features/workspace/hooks/useWorkspacePersistence';
 import { useAuth } from './AuthContext';
 
 interface WorkspaceContextType {

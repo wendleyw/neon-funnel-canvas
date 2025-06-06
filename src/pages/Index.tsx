@@ -1,43 +1,65 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { WorkspaceSelector } from '../components/WorkspaceSelector';
-import { FunnelEditor } from '../components/FunnelEditor';
-import { useWorkspace } from '../hooks/useWorkspace';
-import { useProjectState } from '../hooks/useProjectState';
-import { useProjectHandlers } from '../hooks/useProjectHandlers';
+import { WorkspaceSelector } from '@/features/workspace/components/WorkspaceSelector';
+import { FunnelEditor } from '@/features/editor/components/FunnelEditor';
+import { useWorkspace } from '@/features/workspace/hooks/useWorkspace';
+import { useWorkspaceContext } from '../contexts/WorkspaceContext';
+import { useProjectStore, useIsInEditor } from '../store/projectStore';
 
 const Index = () => {
   const { currentWorkspace } = useWorkspace();
+  const { loadProject } = useWorkspaceContext();
+  const isInEditor = useIsInEditor();
   
   const {
-    project,
-    setProject,
-    currentProjectId,
-    setCurrentProjectId,
-    isInEditor,
-    handleProjectNameChange,
-    resetProject,
     loadProjectData,
     enterEditor,
     exitEditor
-  } = useProjectState();
+  } = useProjectStore();
 
-  const projectHandlers = useProjectHandlers({
-    project,
-    setProject,
-    currentProjectId,
-    setCurrentProjectId,
-    loadProjectData,
-    resetProject,
-    enterEditor
-  });
+  // Project handlers for workspace selector
+  const handleProjectSelect = (projectId: string) => {
+    try {
+      console.log('🔍 Attempting to load project with ID:', projectId);
+      
+      // Fetch the full project data by ID
+      const projectRecord = loadProject(projectId);
+      
+      console.log('📄 Project record found:', projectRecord ? 'YES' : 'NO');
+      
+      if (projectRecord && projectRecord.project_data) {
+        // Extract the actual project data from the database record
+        const projectData = projectRecord.project_data;
+        
+        console.log('📊 Project data structure:', {
+          hasId: !!projectData.id,
+          hasName: !!projectData.name,
+          componentsCount: projectData.components?.length || 0,
+          connectionsCount: projectData.connections?.length || 0,
+          type: typeof projectData
+        });
+        
+        loadProjectData(projectData, projectId);
+        console.log('✅ Project loading initiated for:', projectData.name);
+      } else {
+        console.error('❌ Project not found or has no data:', projectId);
+        console.error('Available workspaceProjects:', loadProject.toString());
+      }
+    } catch (error) {
+      console.error('❌ Error loading project:', error);
+    }
+  };
+
+  const handleNewProject = () => {
+    enterEditor();
+  };
 
   if (!isInEditor) {
     return (
       <div className="relative">
         <WorkspaceSelector
-          onProjectSelect={projectHandlers.handleProjectSelect}
-          onNewProject={projectHandlers.handleNewProject}
+          onProjectSelect={handleProjectSelect}
+          onNewProject={handleNewProject}
         />
       </div>
     );
@@ -46,15 +68,7 @@ const Index = () => {
   return (
     <div className="relative">
       <FunnelEditor
-        project={project}
-        setProject={setProject}
-        currentProjectId={currentProjectId}
-        setCurrentProjectId={setCurrentProjectId}
-        loadProjectData={loadProjectData}
-        resetProject={resetProject}
-        enterEditor={enterEditor}
         onBackToWorkspace={exitEditor}
-        handleProjectNameChange={handleProjectNameChange}
         currentWorkspace={currentWorkspace}
       />
     </div>

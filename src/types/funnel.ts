@@ -225,6 +225,9 @@ export interface ComponentTemplate {
   color: string;
   category: string;
   tags?: string[];
+  isPremium?: boolean;
+  databaseType?: string;
+  originalType?: 'source' | 'page' | 'action';
   defaultProps: FunnelComponent['data'];
   title?: string;
   description?: string;
@@ -259,3 +262,5 @@ export type ComponentType =
   | 'calendar-page'
   | 'custom-shape'
   | 'lead-hub'; // New: Central hub for Lead connections
+
+export type NodeSubtype = 'paid' | 'organic' | 'direct' | 'referral';

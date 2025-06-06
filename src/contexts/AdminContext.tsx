@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { useAuth } from './AuthContext';
-import { useProfile } from '../hooks/useProfile';
+import { useProfile } from '../features/auth/hooks/useProfile';
 import { ComponentTemplate } from '../types/funnel';
 import { UserAction } from '../data/userActions';
 import { PageTemplate } from '../data/pageTemplates';

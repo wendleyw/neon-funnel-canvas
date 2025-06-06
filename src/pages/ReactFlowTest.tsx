@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import ConnectionExamplesWrapper from '../components/ReactFlow/ConnectionExamples';
+import ConnectionExamplesWrapper from '@/features/canvas/components/ConnectionExamples';
 
 const ReactFlowTest: React.FC = () => {
   return (

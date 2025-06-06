@@ -9,6 +9,143 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      content_items: {
+        Row: {
+          category: string | null
+          category_id: string | null
+          color: string | null
+          config: Json | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_premium: boolean | null
+          name: string
+          rating: number | null
+          status: string | null
+          tags: string[] | null
+          type: string
+          updated_at: string | null
+          usage: number | null
+        }
+        Insert: {
+          category?: string | null
+          category_id?: string | null
+          color?: string | null
+          config?: Json | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_premium?: boolean | null
+          name: string
+          rating?: number | null
+          status?: string | null
+          tags?: string[] | null
+          type: string
+          updated_at?: string | null
+          usage?: number | null
+        }
+        Update: {
+          category?: string | null
+          category_id?: string | null
+          color?: string | null
+          config?: Json | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_premium?: boolean | null
+          name?: string
+          rating?: number | null
+          status?: string | null
+          tags?: string[] | null
+          type?: string
+          updated_at?: string | null
+          usage?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_items_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "template_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feedback: {
+        Row: {
+          admin_response: string | null
+          category: string | null
+          created_at: string | null
+          id: string
+          message: string
+          priority: string | null
+          resolved_at: string | null
+          status: string | null
+          user_email: string | null
+          user_id: string | null
+          user_name: string | null
+        }
+        Insert: {
+          admin_response?: string | null
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          message: string
+          priority?: string | null
+          resolved_at?: string | null
+          status?: string | null
+          user_email?: string | null
+          user_id?: string | null
+          user_name?: string | null
+        }
+        Update: {
+          admin_response?: string | null
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          message?: string
+          priority?: string | null
+          resolved_at?: string | null
+          status?: string | null
+          user_email?: string | null
+          user_id?: string | null
+          user_name?: string | null
+        }
+        Relationships: []
+      }
+      onboarding_responses: {
+        Row: {
+          answer: Json | null
+          created_at: string | null
+          id: string
+          question_category: string | null
+          question_id: string
+          user_id: string | null
+        }
+        Insert: {
+          answer?: Json | null
+          created_at?: string | null
+          id?: string
+          question_category?: string | null
+          question_id: string
+          user_id?: string | null
+        }
+        Update: {
+          answer?: Json | null
+          created_at?: string | null
+          id?: string
+          question_category?: string | null
+          question_id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -17,8 +154,13 @@ export type Database = {
           created_at: string
           email: string
           full_name: string | null
+          funnels_created: number | null
           id: string
+          last_active: string | null
+          onboarding_completed: boolean | null
+          onboarding_data: Json | null
           role: string | null
+          status: string | null
           updated_at: string
         }
         Insert: {
@@ -28,8 +170,13 @@ export type Database = {
           created_at?: string
           email: string
           full_name?: string | null
+          funnels_created?: number | null
           id: string
+          last_active?: string | null
+          onboarding_completed?: boolean | null
+          onboarding_data?: Json | null
           role?: string | null
+          status?: string | null
           updated_at?: string
         }
         Update: {
@@ -39,9 +186,86 @@ export type Database = {
           created_at?: string
           email?: string
           full_name?: string | null
+          funnels_created?: number | null
           id?: string
+          last_active?: string | null
+          onboarding_completed?: boolean | null
+          onboarding_data?: Json | null
           role?: string | null
+          status?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      template_categories: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          is_system: boolean | null
+          name: string
+          slug: string
+          sort_order: number | null
+          template_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_system?: boolean | null
+          name: string
+          slug: string
+          sort_order?: number | null
+          template_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_system?: boolean | null
+          name?: string
+          slug?: string
+          sort_order?: number | null
+          template_type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_activity: {
+        Row: {
+          action: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -121,7 +345,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_content_usage: {
+        Args: { content_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

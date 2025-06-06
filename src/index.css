@@ -5,6 +5,10 @@
 
 html {
   font-family: 'Inter', system-ui, sans-serif;
+  overflow-y: auto !important;
+  scroll-behavior: smooth !important;
+  height: auto !important;
+  min-height: 100vh !important;
 }
 
 @layer base {
@@ -45,15 +49,90 @@ html {
   }
 
   body {
-    @apply bg-black text-white overflow-hidden;
+    @apply bg-black text-white;
+    overflow-x: hidden !important; /* Prevent horizontal scroll */
+    overflow-y: auto !important; /* Force vertical scroll */
+    height: auto !important;
+    min-height: 100vh !important;
+    max-height: none !important;
   }
 
   html, body, #root {
-    height: 100%;
+    height: auto !important;
+    min-height: 100vh !important;
     width: 100%;
     margin: 0;
     padding: 0;
     background: #000000;
+    overflow-x: hidden !important;
+  }
+
+  /* Force scroll capability on all containers */
+  #root {
+    overflow-y: auto !important;
+    height: auto !important;
+    min-height: 100vh !important;
+  }
+
+  /* Fix scrolling issues in Content Management */
+  .content-management-container {
+    height: auto !important;
+    min-height: 100vh !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding-bottom: 4rem !important;
+  }
+
+  .content-grid-container {
+    height: auto !important;
+    max-height: none !important;
+    min-height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Remove any height restrictions from main containers */
+  .main-app-container {
+    height: auto !important;
+    min-height: 100vh !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+  }
+
+  /* Override any conflicting styles from libraries */
+  .react-flow__renderer {
+    height: auto !important;
+  }
+
+  .react-flow__container {
+    height: auto !important;
+  }
+
+  /* Force all container elements to allow scroll */
+  div[class*="container"],
+  div[class*="wrapper"],
+  div[class*="layout"] {
+    max-height: none !important;
+    overflow-y: visible !important;
+  }
+
+  /* Universal scroll enforcement */
+  * {
+    scroll-behavior: smooth !important;
+  }
+
+  /* Remove overflow hidden from any element that might block scroll */
+  .overflow-hidden,
+  [style*="overflow: hidden"],
+  [style*="overflow:hidden"] {
+    overflow: visible !important;
+  }
+
+  /* Specific fix for any height: 100vh elements */
+  [style*="height: 100vh"],
+  [style*="height:100vh"] {
+    height: auto !important;
+    min-height: 100vh !important;
   }
 
   /* Scrollbar customizada */
@@ -79,8 +158,8 @@ html {
 
   /* Scrollbar para navegadores Firefox */
   * {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(100, 116, 139, 0.5) rgba(30, 41, 59, 0.3);
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(100, 116, 139, 0.6) rgba(30, 41, 59, 0.3) !important;
   }
 }
 
@@ -103,11 +182,6 @@ html {
 
   ::-webkit-scrollbar-thumb:hover {
     background: rgba(100, 116, 139, 0.8);
-  }
-
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(100, 116, 139, 0.5) rgba(30, 41, 59, 0.3);
   }
 
   /* Line clamp utility */
@@ -1654,4 +1728,284 @@ html {
   background: linear-gradient(90deg, #3B82F6, transparent);
   border-radius: 2px;
   opacity: 0.6;
+}
+
+/* Custom Scrollbar Styles */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #374151;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #6B7280;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}
+
+/* Utility for line clamping */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Better focus outline for accessibility */
+*:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+/* Custom backdrop blur for better modal support */
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+}
+
+/* Enhanced transitions for better UX */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+/* Fix scrolling issues in Content Management */
+.content-management-container {
+  height: auto !important;
+  min-height: 100vh;
+  overflow-y: auto;
+  padding-bottom: 2rem;
+}
+
+.content-grid-container {
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* Enhanced scrollbar styles for better visibility and performance */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(30, 41, 59, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.6);
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.9);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 116, 139, 0.6) rgba(30, 41, 59, 0.3);
+}
+
+/* Universal scroll fix - Force scroll capability */
+* {
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(100, 116, 139, 0.6) rgba(30, 41, 59, 0.3) !important;
+}
+
+/* Remove any conflicting overflow restrictions */
+.overflow-hidden {
+  overflow: visible !important;
+}
+
+/* Ensure page can scroll */
+html {
+  overflow-y: auto !important;
+  scroll-behavior: smooth;
+}
+
+/* Enhanced sidebar styles */
+.modern-sidebar {
+  background: linear-gradient(180deg, #000000 0%, #111111 100%);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-header-logo {
+  background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 50%, #F59E0B 100%);
+  animation: logo-glow 3s ease-in-out infinite alternate;
+}
+
+@keyframes logo-glow {
+  0% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 30px rgba(139, 92, 246, 0.7);
+  }
+}
+
+.sidebar-menu-item {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-menu-item::before {
+  content: '';
+  position: absolute;
+  left: -10px;
+  top: 50%;
+  width: 4px;
+  height: 0;
+  background: linear-gradient(180deg, #3B82F6, #8B5CF6);
+  border-radius: 2px;
+  transform: translateY(-50%);
+  transition: height 0.3s ease;
+}
+
+.sidebar-menu-item.active::before {
+  height: 80%;
+}
+
+.sidebar-menu-item:hover {
+  transform: translateX(4px);
+}
+
+.sidebar-connector-line {
+  background: linear-gradient(180deg, 
+    rgba(59, 130, 246, 0.4) 0%, 
+    rgba(139, 92, 246, 0.3) 50%, 
+    rgba(245, 158, 11, 0.4) 100%
+  );
+  animation: connector-pulse 4s ease-in-out infinite;
+}
+
+@keyframes connector-pulse {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.sidebar-content-area {
+  background: linear-gradient(180deg, 
+    rgba(17, 24, 39, 0.8) 0%, 
+    rgba(31, 41, 59, 0.6) 100%
+  );
+  backdrop-filter: blur(8px);
+}
+
+.component-card-enhanced {
+  background: linear-gradient(135deg, 
+    rgba(55, 65, 81, 0.6) 0%, 
+    rgba(75, 85, 99, 0.4) 100%
+  );
+  border: 1px solid rgba(107, 114, 128, 0.3);
+  backdrop-filter: blur(4px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.component-card-enhanced:hover {
+  background: linear-gradient(135deg, 
+    rgba(75, 85, 99, 0.8) 0%, 
+    rgba(107, 114, 128, 0.6) 100%
+  );
+  border-color: rgba(156, 163, 175, 0.5);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.category-header-enhanced {
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(55, 65, 81, 0.3) 50%, 
+    transparent 100%
+  );
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.category-header-enhanced:hover {
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(75, 85, 99, 0.5) 50%, 
+    transparent 100%
+  );
+}
+
+.sidebar-tab-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-tab-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.1), 
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.sidebar-tab-button:hover::before {
+  left: 100%;
+}
+
+/* Enhanced scroll styling for sidebar */
+.sidebar-enhanced-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 92, 246, 0.5) rgba(17, 24, 39, 0.3);
+}
+
+.sidebar-enhanced-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar-enhanced-scroll::-webkit-scrollbar-track {
+  background: linear-gradient(180deg, 
+    rgba(17, 24, 39, 0.3) 0%, 
+    rgba(31, 41, 59, 0.3) 100%
+  );
+  border-radius: 4px;
+}
+
+.sidebar-enhanced-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, 
+    rgba(59, 130, 246, 0.6) 0%, 
+    rgba(139, 92, 246, 0.6) 100%
+  );
+  border-radius: 4px;
+  box-shadow: 0 0 6px rgba(139, 92, 246, 0.3);
+}
+
+.sidebar-enhanced-scroll::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, 
+    rgba(59, 130, 246, 0.8) 0%, 
+    rgba(139, 92, 246, 0.8) 100%
+  );
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
+
+.glow-effect {
+  filter: drop-shadow(0 0 8px currentColor);
+  transition: filter 0.3s ease;
+}
+
+.glow-effect:hover {
+  filter: drop-shadow(0 0 12px currentColor);
 }
