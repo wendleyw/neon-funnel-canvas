@@ -1,2 +1,2 @@
-// Re-export the Supabase workspace hook for backward compatibility
-export { useWorkspaceContext as useWorkspace } from '../../../contexts/WorkspaceContext';
+// Re-export the Unified Workspace hook for backward compatibility
+export { useUnifiedWorkspace as useWorkspace } from '../../../contexts/UnifiedWorkspaceContext';

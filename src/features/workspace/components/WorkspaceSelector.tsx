@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useWorkspaceContext } from '../../../contexts/WorkspaceContext';
+import { useUnifiedWorkspace } from '../../../contexts/UnifiedWorkspaceContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useLoadingHealthCheck } from '@/features/shared/hooks/useLoadingHealthCheck';
 import { Plus, FolderOpen, User, LogIn } from 'lucide-react';
@@ -33,17 +33,7 @@ export const WorkspaceSelector = React.memo<WorkspaceSelectorProps>(({
   onNewProject
 }) => {
   const { user, loading: authLoading } = useAuth();
-  const {
-    currentWorkspace,
-    setCurrentWorkspace,
-    workspaces,
-    createWorkspace,
-    deleteWorkspace,
-    updateProjectName,
-    deleteProject,
-    getWorkspaceProjects,
-    loading: workspaceLoading
-  } = useWorkspaceContext();
+  const workspace = useUnifiedWorkspace();
 
   // Modal states - managing various modal dialogs
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -55,7 +45,7 @@ export const WorkspaceSelector = React.memo<WorkspaceSelectorProps>(({
    * Health check to detect loading issues and prevent infinite loading states
    */
   const { isHealthy, forceRecovery } = useLoadingHealthCheck(
-    { authLoading, workspaceLoading, user },
+    { authLoading, workspaceLoading: workspace.loading, user },
     {
       timeout: 10000, // 10 second timeout
       onTimeout: () => {
@@ -70,17 +60,17 @@ export const WorkspaceSelector = React.memo<WorkspaceSelectorProps>(({
    */
   const handleCreateWorkspace = useCallback(async (name: string, description?: string) => {
     try {
-      const workspace = await createWorkspace(name, description);
-      if (workspace) {
-        setCurrentWorkspace(workspace);
-        console.log('✅ Workspace created successfully:', workspace.name);
+      const newWorkspace = await workspace.createWorkspace(name, description);
+      if (newWorkspace) {
+        workspace.setCurrentWorkspace(newWorkspace);
+        console.log('✅ Workspace created successfully:', newWorkspace.name);
       }
     } catch (error) {
       console.error('❌ Error creating workspace:', error);
     } finally {
       setShowCreateForm(false);
     }
-  }, [createWorkspace, setCurrentWorkspace]);
+  }, [workspace]);
 
   /**
    * Handler for deleting a workspace with confirmation
@@ -90,10 +80,10 @@ export const WorkspaceSelector = React.memo<WorkspaceSelectorProps>(({
     
     const confirmMessage = 'Are you sure you want to delete this workspace? This action cannot be undone.';
     if (window.confirm(confirmMessage)) {
-      deleteWorkspace(workspaceId);
+      workspace.deleteWorkspace(workspaceId);
       console.log('🗑️ Workspace deleted:', workspaceId);
     }
-  }, [deleteWorkspace]);
+  }, [workspace]);
 
   /**
    * Toggle create workspace form visibility
@@ -106,9 +96,9 @@ export const WorkspaceSelector = React.memo<WorkspaceSelectorProps>(({
    * Navigate back to workspaces list
    */
   const handleBackToWorkspaces = useCallback(() => {
-    setCurrentWorkspace(null);
+    workspace.setCurrentWorkspace(null);
     console.log('🔙 Navigated back to workspaces list');
-  }, [setCurrentWorkspace]);
+  }, [workspace]);
 
   /**
    * Open project edit modal
@@ -129,13 +119,13 @@ export const WorkspaceSelector = React.memo<WorkspaceSelectorProps>(({
    * Get projects for the current workspace - memoized for performance
    */
   const projects = useMemo(() => {
-    return currentWorkspace ? getWorkspaceProjects(currentWorkspace.id) : [];
-  }, [currentWorkspace, getWorkspaceProjects]);
+    return workspace.currentWorkspace ? workspace.getProjectsByWorkspace(workspace.currentWorkspace.id) : [];
+  }, [workspace.currentWorkspace, workspace.getProjectsByWorkspace]);
 
   /**
    * Render loading state while authentication or workspace data is loading
    */
-  if (authLoading || workspaceLoading) {
+  if (authLoading || workspace.loading) {
     return (
       <div className="flex-1 flex items-center justify-center bg-black text-white min-h-screen">
         <LoadingSpinner 
@@ -185,7 +175,7 @@ export const WorkspaceSelector = React.memo<WorkspaceSelectorProps>(({
   /**
    * Render workspaces list when no workspace is selected
    */
-  if (!currentWorkspace) {
+  if (!workspace.currentWorkspace) {
     return (
       <ErrorBoundary>
         <div className="flex-1 flex flex-col bg-black text-white">
@@ -204,18 +194,18 @@ export const WorkspaceSelector = React.memo<WorkspaceSelectorProps>(({
 
           <div className="flex-1 flex flex-col items-center justify-center p-8">
             <div className="max-w-md w-full">
-              {workspaces.length === 0 ? (
+              {workspace.workspaces.length === 0 ? (
                 <div className="text-center mb-8">
                   <p className="text-gray-400 mb-4">No workspaces found</p>
                   <p className="text-sm text-gray-500">Create your first workspace to get started</p>
                 </div>
               ) : (
                 <div className="space-y-2 mb-8">
-                  {workspaces.map((workspace) => (
+                  {workspace.workspaces.map((workspaceItem) => (
                     <WorkspaceCard
-                      key={workspace.id}
-                      workspace={workspace}
-                      onSelect={setCurrentWorkspace}
+                      key={workspaceItem.id}
+                      workspace={workspaceItem}
+                      onSelect={workspace.setCurrentWorkspace}
                       onDelete={handleDeleteWorkspace}
                     />
                   ))}
@@ -267,9 +257,9 @@ export const WorkspaceSelector = React.memo<WorkspaceSelectorProps>(({
             </button>
           </div>
           
-          <h1 className="text-2xl font-bold">{currentWorkspace.name}</h1>
-          {currentWorkspace.description && (
-            <p className="text-gray-400 text-sm">{currentWorkspace.description}</p>
+          <h1 className="text-2xl font-bold">{workspace.currentWorkspace.name}</h1>
+          {workspace.currentWorkspace.description && (
+            <p className="text-gray-400 text-sm">{workspace.currentWorkspace.description}</p>
           )}
         </div>
 
@@ -323,16 +313,6 @@ export const WorkspaceSelector = React.memo<WorkspaceSelectorProps>(({
           isOpen={showProfileModal} 
           onClose={() => setShowProfileModal(false)} 
         />
-        
-        {projectToEdit && (
-          <ProjectEditModal
-            isOpen={true}
-            project={projectToEdit}
-            onClose={handleCloseEditModal}
-            onUpdateName={updateProjectName}
-            onDelete={deleteProject}
-          />
-        )}
       </div>
     </ErrorBoundary>
   );

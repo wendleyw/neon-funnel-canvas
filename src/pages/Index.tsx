@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom';
 import { WorkspaceSelector } from '@/features/workspace/components/WorkspaceSelector';
 import { FunnelEditor } from '@/features/editor/components/FunnelEditor';
 import { useWorkspace } from '@/features/workspace/hooks/useWorkspace';
-import { useWorkspaceContext } from '../contexts/WorkspaceContext';
+import { useUnifiedWorkspace } from '../contexts/UnifiedWorkspaceContext';
 import { useProjectStore, useIsInEditor } from '../store/projectStore';
 
 const Index = () => {
   const { currentWorkspace } = useWorkspace();
-  const { loadProject } = useWorkspaceContext();
+  const workspace = useUnifiedWorkspace();
   const isInEditor = useIsInEditor();
   
   const {
@@ -22,14 +22,14 @@ const Index = () => {
     try {
       console.log('🔍 Attempting to load project with ID:', projectId);
       
-      // Fetch the full project data by ID
-      const projectRecord = loadProject(projectId);
+      // Fetch the full project data by ID using the unified workspace
+      const projectRecord = workspace.getProject(projectId);
       
       console.log('📄 Project record found:', projectRecord ? 'YES' : 'NO');
       
       if (projectRecord && projectRecord.project_data) {
         // Extract the actual project data from the database record
-        const projectData = projectRecord.project_data;
+        const projectData = projectRecord.project_data as any;
         
         console.log('📊 Project data structure:', {
           hasId: !!projectData.id,
@@ -43,7 +43,6 @@ const Index = () => {
         console.log('✅ Project loading initiated for:', projectData.name);
       } else {
         console.error('❌ Project not found or has no data:', projectId);
-        console.error('Available workspaceProjects:', loadProject.toString());
       }
     } catch (error) {
       console.error('❌ Error loading project:', error);
