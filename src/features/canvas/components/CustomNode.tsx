@@ -261,13 +261,16 @@ export const CustomNode: React.FC<NodeProps> = React.memo(({ data, selected, id 
 
   // Debug log only once per component load (not on every render)
   React.useEffect(() => {
-    console.log('🎨 [CustomNode] Component type detection:', {
+    console.log(`🎨 [CustomNode] ${id}: ${data.originalType} → ${componentType}`, {
       componentId: id,
       componentTitle: data.title,
       templateLabel: template.label,
       originalType: data.originalType,
       category: template.category,
-      detectedType: componentType
+      detectedType: componentType,
+      renderingAs: componentType === 'source' ? 'SourceComponentRenderer' :
+                   componentType === 'page' ? 'PageComponentRenderer' :
+                   'ActionComponentRenderer'
     });
   }, [id, data.originalType, componentType]); // Only log when these values change
 
@@ -304,6 +307,8 @@ export const CustomNode: React.FC<NodeProps> = React.memo(({ data, selected, id 
     <>
       <div className="group relative">
         {/* Connection handles - positioned to work with all renderer types */}
+        {/* Temporarily commented out to debug rendering issues */}
+        {/*
         <Handle
           type="target"
           position={Position.Left}
@@ -317,6 +322,7 @@ export const CustomNode: React.FC<NodeProps> = React.memo(({ data, selected, id 
           className="w-3 h-3 !bg-green-500 !border-2 !border-green-300 hover:!scale-110 transition-transform"
           style={{ right: -6, top: '50%', transform: 'translateY(-50%)' }}
         />
+        */}
 
         {/* Render specialized component */}
         {renderSpecializedComponent()}
