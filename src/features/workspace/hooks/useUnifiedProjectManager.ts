@@ -164,29 +164,6 @@ export const useUnifiedProjectManager = () => {
   }, [user, updateState, clearCache, setCachedProject]);
 
   /**
-   * Auto-save functionality with debouncing
-   */
-  const scheduleAutoSave = useCallback((projectData: unknown, workspaceId: string, projectId?: string) => {
-    // Clear existing timeout
-    if (autoSaveTimeoutRef.current) {
-      clearTimeout(autoSaveTimeoutRef.current);
-    }
-
-    // Create hash for change detection
-    const dataHash = JSON.stringify(projectData);
-    if (dataHash === lastSavedProjectDataRef.current) {
-      logger.log('No changes detected, skipping auto-save');
-      return;
-    }
-
-    logger.log('Scheduling auto-save in', AUTO_SAVE_DELAY, 'ms');
-    
-    autoSaveTimeoutRef.current = setTimeout(async () => {
-      await saveProject(projectData, workspaceId, projectId, true);
-    }, AUTO_SAVE_DELAY);
-  }, []);
-
-  /**
    * Core save functionality - used by both manual and auto-save
    */
   const saveProject = useCallback(async (
@@ -287,6 +264,50 @@ export const useUnifiedProjectManager = () => {
       return { success: false };
     }
   }, [user, updateState, setCachedProject]);
+
+  /**
+   * Schedule an auto-save with debouncing
+   */
+  const scheduleAutoSave = useCallback((
+    projectData: unknown, 
+    workspaceId: string, 
+    projectId?: string
+  ) => {
+    // Capture current user to avoid null issues in timeout
+    const currentUser = user;
+    
+    // Don't schedule if user is not authenticated
+    if (!currentUser || !currentUser.id) {
+      logger.error('Cannot schedule auto-save: user not authenticated', { 
+        user: currentUser, 
+        userId: currentUser?.id,
+        userType: typeof currentUser,
+        projectId,
+        workspaceId
+      });
+      return;
+    }
+
+    // Cancel any existing timeout
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
+    }
+
+    // Skip if data hasn't changed (to prevent unnecessary saves)
+    const currentDataString = JSON.stringify(projectData);
+    if (lastSavedProjectDataRef.current === currentDataString) {
+      return;
+    }
+
+    logger.log('Scheduling auto-save in', AUTO_SAVE_DELAY, 'ms');
+    
+    autoSaveTimeoutRef.current = setTimeout(async () => {
+      // Double-check user is still authenticated at execution time
+      if (currentUser && currentUser.id) {
+        await saveProject(projectData, workspaceId, projectId, true);
+      }
+    }, AUTO_SAVE_DELAY);
+  }, [user, saveProject]);
 
   /**
    * Manual save - cancels auto-save and saves immediately

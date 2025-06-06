@@ -80,9 +80,43 @@ export const splitTextIntoLines = (text: string, maxLength: number = 12): string
  * Detect component type from template properties
  */
 export const detectComponentType = (template: any): 'source' | 'page' | 'action' => {
-  // First check originalType from template
-  if (template.originalType) {
+  const type = template.type || template.originalType;
+  
+  // Check if it's explicitly set to one of our target types
+  if (template.originalType === 'source' || template.originalType === 'page' || template.originalType === 'action') {
     return template.originalType;
+  }
+  
+  // Map specific component types to our categories
+  const sourceTypes = [
+    'traffic-source', 'facebook-ads', 'instagram-ads', 'google-ads', 
+    'email-marketing', 'sms-marketing', 'organic-social', 'referral',
+    'direct-traffic', 'youtube-ads', 'tiktok-ads', 'linkedin-ads'
+  ];
+  
+  const pageTypes = [
+    'landing-page', 'sales-page', 'checkout', 'quiz', 'form', 
+    'thank-you-page', 'webinar-page', 'video-page', 'survey',
+    'opt-in-page', 'squeeze-page', 'bridge-page'
+  ];
+  
+  const actionTypes = [
+    'action-sequence', 'webhook', 'api-call', 'email-trigger',
+    'sms-trigger', 'tag-action', 'automation', 'integration',
+    'custom-code', 'redirect', 'tracking-pixel'
+  ];
+  
+  // Check type against our mappings
+  if (sourceTypes.includes(type)) {
+    return 'source';
+  }
+  
+  if (pageTypes.includes(type)) {
+    return 'page';
+  }
+  
+  if (actionTypes.includes(type)) {
+    return 'action';
   }
   
   // Fallback to category-based classification
@@ -90,7 +124,7 @@ export const detectComponentType = (template: any): 'source' | 'page' | 'action'
     return 'source';
   }
   
-  if (template.category?.includes('page') || template.type === 'landing-page') {
+  if (template.category?.includes('page')) {
     return 'page';
   }
   

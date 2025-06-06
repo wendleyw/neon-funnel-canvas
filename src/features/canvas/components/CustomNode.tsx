@@ -159,11 +159,7 @@ export const CustomNode: React.FC<NodeProps> = React.memo(({ data, selected, id 
     label: template.label,
     color: template.color,
     category: template.category || 'unknown',
-    originalType: detectComponentType({
-      originalType: data.originalType,
-      category: template.category,
-      type: data.originalType
-    } as any),
+    originalType: data.originalType || 'default',
     defaultProps: data
   };
 
@@ -263,6 +259,18 @@ export const CustomNode: React.FC<NodeProps> = React.memo(({ data, selected, id 
   // Detect component type using our utility
   const componentType = detectComponentType(componentTemplate);
 
+  // Debug log only once per component load (not on every render)
+  React.useEffect(() => {
+    console.log('🎨 [CustomNode] Component type detection:', {
+      componentId: id,
+      componentTitle: data.title,
+      templateLabel: template.label,
+      originalType: data.originalType,
+      category: template.category,
+      detectedType: componentType
+    });
+  }, [id, data.originalType, componentType]); // Only log when these values change
+
   // Render specialized component based on type
   const renderSpecializedComponent = () => {
     const commonProps = {
@@ -295,33 +303,19 @@ export const CustomNode: React.FC<NodeProps> = React.memo(({ data, selected, id 
   return (
     <>
       <div className="group relative">
-        {/* Enhanced selection and connection target indicator */}
-        {selected && (
-          <div className="absolute -top-2 -left-2 -right-2 -bottom-2 border-2 border-blue-500 rounded-xl bg-blue-500/5"></div>
-        )}
-        
-        {/* Connection target indicator */}
-        {isConnectionTarget && (
-          <div className="absolute -top-3 -left-3 -right-3 -bottom-3 border-2 border-dashed border-green-400 rounded-xl bg-green-400/10 animate-pulse">
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white px-2 py-1 rounded text-xs font-medium">
-              Drop to connect
-            </div>
-          </div>
-        )}
-        
-        {/* Connection handles - always visible for easy connections */}
+        {/* Connection handles - positioned to work with all renderer types */}
         <Handle
           type="target"
           position={Position.Left}
           className="w-3 h-3 !bg-blue-500 !border-2 !border-blue-300 hover:!scale-110 transition-transform"
-          style={{ left: -6 }}
+          style={{ left: -6, top: '50%', transform: 'translateY(-50%)' }}
         />
         
         <Handle
           type="source"
           position={Position.Right}
           className="w-3 h-3 !bg-green-500 !border-2 !border-green-300 hover:!scale-110 transition-transform"
-          style={{ right: -6 }}
+          style={{ right: -6, top: '50%', transform: 'translateY(-50%)' }}
         />
 
         {/* Render specialized component */}

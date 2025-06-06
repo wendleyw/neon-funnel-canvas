@@ -11,6 +11,8 @@ export const useZustandAutoSave = () => {
   const workspace = useUnifiedWorkspace();
   const project = useProjectStore(state => state.project);
   const currentProjectId = useProjectStore(state => state.currentProjectId);
+  const markAsSaved = useProjectStore(state => state.markAsSaved);
+  const setSaving = useProjectStore(state => state.setSaving);
   const { user } = useAuth();
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -27,10 +29,20 @@ export const useZustandAutoSave = () => {
     }
 
     // Schedule auto-save with captured values
-    autoSaveTimeoutRef.current = setTimeout(() => {
+    autoSaveTimeoutRef.current = setTimeout(async () => {
       // Double-check user is still available
       if (currentUser && currentUser.id) {
-        workspace.scheduleAutoSave(project, currentWorkspaceId, currentProjectId || undefined);
+        setSaving(true);
+        try {
+          const result = await workspace.saveProject(project, currentWorkspaceId, currentProjectId || undefined);
+          if (result?.success) {
+            markAsSaved();
+          }
+        } catch (error) {
+          console.error('Auto-save failed:', error);
+        } finally {
+          setSaving(false);
+        }
       }
     }, 2000); // 2 second delay
 
@@ -39,7 +51,7 @@ export const useZustandAutoSave = () => {
         clearTimeout(autoSaveTimeoutRef.current);
       }
     };
-  }, [project, workspace, currentProjectId, user]);
+  }, [project, workspace, currentProjectId, user, markAsSaved, setSaving]);
 
   /**
    * Force save the current project immediately
@@ -55,9 +67,21 @@ export const useZustandAutoSave = () => {
       autoSaveTimeoutRef.current = null;
     }
 
-    // Save immediately
-    return await workspace.saveProject(project, workspace.currentWorkspace.id, currentProjectId || undefined);
-  }, [project, workspace, currentProjectId, user]);
+    setSaving(true);
+    try {
+      // Save immediately
+      const result = await workspace.saveProject(project, workspace.currentWorkspace.id, currentProjectId || undefined);
+      if (result?.success) {
+        markAsSaved();
+      }
+      return result;
+    } catch (error) {
+      console.error('Force save failed:', error);
+      return { success: false };
+    } finally {
+      setSaving(false);
+    }
+  }, [project, workspace, currentProjectId, user, markAsSaved, setSaving]);
 
   /**
    * Cancel any pending auto-save
