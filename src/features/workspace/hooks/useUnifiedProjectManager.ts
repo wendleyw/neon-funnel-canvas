@@ -44,6 +44,7 @@ export const useUnifiedProjectManager = () => {
   const cacheRef = useRef<Map<string, WorkspaceProject>>(new Map());
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastSavedProjectDataRef = useRef<string>('');
+  const isLoadingRef = useRef<boolean>(false);
   const initializationRef = useRef({
     isInitialized: false,
     userId: null as string | null,
@@ -103,6 +104,9 @@ export const useUnifiedProjectManager = () => {
         autoSaveTimeoutRef.current = null;
       }
       
+      // Reset loading ref
+      isLoadingRef.current = false;
+      
       // Update initialization state
       initializationRef.current = {
         isInitialized: false,
@@ -121,11 +125,12 @@ export const useUnifiedProjectManager = () => {
       return;
     }
 
-    if (state.loading && !forceRefresh) {
+    if (isLoadingRef.current && !forceRefresh) {
       logger.log('Project loading already in progress');
       return;
     }
 
+    isLoadingRef.current = true;
     updateState({ loading: true });
 
     try {
@@ -148,8 +153,10 @@ export const useUnifiedProjectManager = () => {
       logger.error('Failed to load projects:', error);
       toast.error('Failed to load projects');
       updateState({ loading: false });
+    } finally {
+      isLoadingRef.current = false;
     }
-  }, [user, state.loading, updateState, clearCache, setCachedProject]);
+  }, [user, updateState, clearCache, setCachedProject]);
 
   /**
    * Auto-save functionality with debouncing

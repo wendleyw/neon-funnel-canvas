@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useRef } from 'react';
 import { useWorkspaces } from '@/features/workspace/hooks/useWorkspaces';
 import { useUnifiedProjectManager } from '@/features/workspace/hooks/useUnifiedProjectManager';
 import { useWorkspacePersistence } from '@/features/workspace/hooks/useWorkspacePersistence';
@@ -86,6 +86,9 @@ export const UnifiedWorkspaceProvider: React.FC<{ children: React.ReactNode }> =
   
   // Use unified project manager for project state and actions
   const projectManager = useUnifiedProjectManager();
+  
+  // Ref to track if projects have been loaded for this user
+  const projectsLoadedRef = useRef<Set<string>>(new Set());
 
   // Combined loading state
   const loading = useMemo(() => {
@@ -118,14 +121,20 @@ export const UnifiedWorkspaceProvider: React.FC<{ children: React.ReactNode }> =
   }, [workspaces, currentWorkspace, loadSavedWorkspace]);
 
   /**
-   * Auto-load projects when user is available
+   * Auto-load projects when user is available (only once per user)
    */
   useEffect(() => {
-    if (user && !projectManager.loading) {
+    if (user && user.id && !projectsLoadedRef.current.has(user.id)) {
       logger.log('User available, loading projects');
+      projectsLoadedRef.current.add(user.id);
       projectManager.loadProjects();
     }
-  }, [user, projectManager]);
+    
+    // Cleanup when user changes
+    if (!user) {
+      projectsLoadedRef.current.clear();
+    }
+  }, [user, projectManager.loadProjects]);
 
   /**
    * Enhanced save project function with workspace context
