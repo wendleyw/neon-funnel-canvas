@@ -24,15 +24,15 @@ export const ComponentNodeActions: React.FC<ComponentNodeActionsProps> = ({
   onEditClick,
   onDeleteClick
 }) => {
-  if (!isSelected || isConnecting) {
-    return null;
-  }
-
   const actionStyle = useMemo(() => ({
     left: component.position.x + 5000 + 220, // Position to the right of the component
     top: component.position.y + 5000,
     zIndex: 10000 // Always above components
   }), [component.position.x, component.position.y]);
+
+  if (!isSelected || isConnecting) {
+    return null;
+  }
 
   return (
     <div 

@@ -33,7 +33,7 @@ const queryClient = new QueryClient({
 });
 
 // Wrapper component to connect contexts
-const AppProviders: React.FC<React.PropsWithChildren<{}>> = ({ children }) => (
+const AppProviders: React.FC<React.PropsWithChildren> = ({ children }) => (
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
