@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 import { AuthProvider } from './contexts/AuthContext';
-import { WorkspaceProvider } from './contexts/WorkspaceContext';
+import { UnifiedWorkspaceProvider } from './contexts/UnifiedWorkspaceContext';
 import { NeonAnimationProvider } from './contexts/NeonAnimationContext';
 import { SequenceAnimationProvider, useSequenceAnimation } from './contexts/SequenceAnimationContext';
 import { OptimizedTemplateProvider } from './contexts/OptimizedTemplateContext';
@@ -39,13 +39,13 @@ const AppProviders: React.FC<React.PropsWithChildren> = ({ children }) => (
       <AuthProvider>
         <AdminProvider>
           <OptimizedTemplateProvider>
-            <WorkspaceProvider>
+            <UnifiedWorkspaceProvider>
               <SequenceAnimationProvider>
                 <NeonAnimationProvider>
                   {children}
                 </NeonAnimationProvider>
               </SequenceAnimationProvider>
-            </WorkspaceProvider>
+            </UnifiedWorkspaceProvider>
           </OptimizedTemplateProvider>
         </AdminProvider>
       </AuthProvider>
