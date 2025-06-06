@@ -313,6 +313,16 @@ export const WorkspaceSelector = React.memo<WorkspaceSelectorProps>(({
           isOpen={showProfileModal} 
           onClose={() => setShowProfileModal(false)} 
         />
+        
+        {projectToEdit && (
+          <ProjectEditModal
+            isOpen={true}
+            project={projectToEdit}
+            onClose={handleCloseEditModal}
+            onUpdateName={workspace.updateProjectName}
+            onDelete={workspace.deleteProject}
+          />
+        )}
       </div>
     </ErrorBoundary>
   );

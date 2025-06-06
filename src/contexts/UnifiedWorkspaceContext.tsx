@@ -35,6 +35,7 @@ interface UnifiedWorkspaceContextType {
   saveProject: (projectData: unknown, workspaceId: string, projectId?: string) => Promise<{ success: boolean; projectId?: string }>;
   scheduleAutoSave: (projectData: unknown, workspaceId: string, projectId?: string) => void;
   deleteProject: (projectId: string) => Promise<boolean>;
+  updateProjectName: (projectId: string, newName: string) => Promise<boolean>;
   
   // Utility functions
   getProjectsByWorkspace: (workspaceId: string) => WorkspaceProject[];
@@ -229,6 +230,7 @@ export const UnifiedWorkspaceProvider: React.FC<{ children: React.ReactNode }> =
     saveProject,
     scheduleAutoSave,
     deleteProject: projectManager.deleteProject,
+    updateProjectName: projectManager.updateProjectName,
     
     // Utility functions
     getProjectsByWorkspace,
@@ -252,6 +254,7 @@ export const UnifiedWorkspaceProvider: React.FC<{ children: React.ReactNode }> =
     deleteWorkspace,
     projectManager.loadProjects,
     projectManager.deleteProject,
+    projectManager.updateProjectName,
     isInitialized,
   ]);
 

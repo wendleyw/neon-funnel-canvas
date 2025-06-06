@@ -83,7 +83,12 @@ export const useUnifiedProjectManager = () => {
    */
   useEffect(() => {
     if (user?.id !== initializationRef.current.userId) {
-      logger.log('User changed, initializing project manager for:', user?.id);
+      if (user?.id) {
+        logger.log('User changed, initializing project manager for:', user.id);
+      } else if (initializationRef.current.userId) {
+        // Only log when actually clearing an existing user, not on initial load
+        logger.log('User logged out, clearing project manager');
+      }
       
       // Reset state
       updateState({
@@ -358,6 +363,58 @@ export const useUnifiedProjectManager = () => {
     };
   }, []);
 
+  /**
+   * Update project name
+   */
+  const updateProjectName = useCallback(async (projectId: string, newName: string): Promise<boolean> => {
+    if (!user) {
+      toast.error('Cannot update project: user not authenticated');
+      return false;
+    }
+
+    if (!newName.trim()) {
+      toast.error('Project name cannot be empty');
+      return false;
+    }
+
+    updateState({ saving: true });
+
+    try {
+      const project = getProject(projectId);
+      if (!project) {
+        throw new Error('Project not found');
+      }
+
+      const success = await projectService.update(projectId, { 
+        name: newName.trim() 
+      }, user.id);
+      
+      if (success) {
+        // Update project in state and cache
+        const updatedProject = { ...project, name: newName.trim() };
+        setCachedProject(updatedProject);
+        
+        setState(prev => ({
+          ...prev,
+          projects: prev.projects.map(p => p.id === projectId ? updatedProject : p),
+          saving: false,
+        }));
+
+        toast.success('Project name updated successfully!');
+        logger.log('Project name updated:', projectId, newName);
+        return true;
+      } else {
+        throw new Error('Update operation failed');
+      }
+
+    } catch (error) {
+      logger.error('Failed to update project name:', error);
+      updateState({ saving: false });
+      toast.error('Failed to update project name');
+      return false;
+    }
+  }, [user, updateState, getProject, setCachedProject]);
+
   // Public API following clear interface pattern
   return {
     // State
@@ -377,6 +434,7 @@ export const useUnifiedProjectManager = () => {
     getProjectsByWorkspace,
     getProject,
     setCurrentContext,
+    updateProjectName,
 
     // Utilities
     clearCache,
