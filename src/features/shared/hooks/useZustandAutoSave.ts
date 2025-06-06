@@ -1,6 +1,6 @@
 import { useUnifiedWorkspace } from '../../../contexts/UnifiedWorkspaceContext';
 import { useProjectStore } from '../../../store/projectStore';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 
 /**
  * Hook that integrates Zustand project store with WorkspaceContext auto-save
@@ -32,8 +32,38 @@ export const useZustandAutoSave = () => {
     };
   }, [project, workspace, currentProjectId]);
 
+  /**
+   * Force save the current project immediately
+   */
+  const forceSave = useCallback(async (): Promise<{ success: boolean; projectId?: string }> => {
+    if (!project || !workspace.currentWorkspace) {
+      return { success: false };
+    }
+
+    // Cancel any pending auto-save
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
+      autoSaveTimeoutRef.current = null;
+    }
+
+    // Save immediately
+    return await workspace.saveProject(project, workspace.currentWorkspace.id, currentProjectId || undefined);
+  }, [project, workspace, currentProjectId]);
+
+  /**
+   * Cancel any pending auto-save
+   */
+  const cancelSave = useCallback(() => {
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
+      autoSaveTimeoutRef.current = null;
+    }
+  }, []);
+
   return {
     isSaving: workspace.saving,
-    lastSaved: workspace.lastSaved
+    lastSaved: workspace.lastSaved,
+    forceSave,
+    cancelSave
   };
 }; 

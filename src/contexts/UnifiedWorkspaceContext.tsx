@@ -145,8 +145,9 @@ export const UnifiedWorkspaceProvider: React.FC<{ children: React.ReactNode }> =
     workspaceId: string, 
     projectId?: string
   ): Promise<{ success: boolean; projectId?: string }> => {
-    if (!user) {
-      logger.error('Cannot save project: user not authenticated');
+    const currentUser = user;
+    if (!currentUser || !currentUser.id) {
+      logger.error('Cannot save project: user not authenticated', { user: currentUser });
       return { success: false };
     }
 
@@ -166,8 +167,9 @@ export const UnifiedWorkspaceProvider: React.FC<{ children: React.ReactNode }> =
    * Enhanced auto-save with context awareness
    */
   const scheduleAutoSave = (projectData: unknown, workspaceId: string, projectId?: string): void => {
-    if (!user) {
-      logger.warn('Cannot schedule auto-save: user not authenticated');
+    const currentUser = user;
+    if (!currentUser || !currentUser.id) {
+      logger.warn('Cannot schedule auto-save: user not authenticated', { user: currentUser });
       return;
     }
 

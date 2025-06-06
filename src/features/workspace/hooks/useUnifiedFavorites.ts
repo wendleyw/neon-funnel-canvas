@@ -85,11 +85,14 @@ export const useUnifiedFavorites = () => {
   useEffect(() => {
     if (user?.id !== currentUserIdRef.current) {
       if (user?.id) {
-        logger.log('User changed, initializing favorites manager for:', user.id);
+        // Only log when actually getting a new user, not during initialization
+        if (currentUserIdRef.current !== null) {
+          logger.log('User changed, initializing favorites manager for:', user.id);
+        }
         currentUserIdRef.current = user.id;
         loadFavorites();
       } else {
-        // Only log when actually clearing, not on initial undefined
+        // Only log when actually clearing an existing user, not on initial load
         if (currentUserIdRef.current) {
           logger.log('User logged out, clearing favorites');
         }

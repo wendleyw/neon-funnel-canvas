@@ -195,9 +195,31 @@ export const useUnifiedProjectManager = () => {
     projectId?: string,
     isAutoSave: boolean = false
   ): Promise<{ success: boolean; projectId?: string }> => {
-    if (!user) {
+    // Additional null checks for user
+    const currentUser = user;
+    
+    // Debug logging for user state
+    if (!isAutoSave) {
+      logger.log('💾 Save attempt:', { 
+        projectId, 
+        workspaceId, 
+        isAutoSave, 
+        userExists: !!currentUser, 
+        userId: currentUser?.id,
+        userEmail: currentUser?.email 
+      });
+    }
+    
+    if (!currentUser || !currentUser.id) {
       const message = 'Cannot save project: user not authenticated';
-      logger.error(message);
+      logger.error(message, { 
+        user: currentUser, 
+        userId: currentUser?.id,
+        userType: typeof currentUser,
+        isAutoSave,
+        projectId,
+        workspaceId
+      });
       if (!isAutoSave) toast.error(message);
       return { success: false };
     }
@@ -211,7 +233,7 @@ export const useUnifiedProjectManager = () => {
         project_data: projectData as Json,
         components_count: (projectData as { components?: unknown[] })?.components?.length || 0,
         connections_count: (projectData as { connections?: unknown[] })?.connections?.length || 0,
-        user_id: user.id,
+        user_id: currentUser.id,
       };
 
       let result: WorkspaceProject | null;
@@ -219,7 +241,7 @@ export const useUnifiedProjectManager = () => {
       if (projectId) {
         // Update existing project
         logger.log('Updating existing project:', projectId);
-        result = await projectService.update(projectId, payload, user.id);
+        result = await projectService.update(projectId, payload, currentUser.id);
       } else {
         // Create new project
         logger.log('Creating new project:', payload.name);
@@ -287,7 +309,8 @@ export const useUnifiedProjectManager = () => {
    * Delete project
    */
   const deleteProject = useCallback(async (projectId: string): Promise<boolean> => {
-    if (!user) {
+    const currentUser = user;
+    if (!currentUser || !currentUser.id) {
       toast.error('Cannot delete project: user not authenticated');
       return false;
     }
@@ -295,7 +318,7 @@ export const useUnifiedProjectManager = () => {
     updateState({ loading: true });
 
     try {
-      const success = await projectService.delete(projectId, user.id);
+      const success = await projectService.delete(projectId, currentUser.id);
       
       if (success) {
         // Remove from cache and state
@@ -367,7 +390,8 @@ export const useUnifiedProjectManager = () => {
    * Update project name
    */
   const updateProjectName = useCallback(async (projectId: string, newName: string): Promise<boolean> => {
-    if (!user) {
+    const currentUser = user;
+    if (!currentUser || !currentUser.id) {
       toast.error('Cannot update project: user not authenticated');
       return false;
     }
@@ -387,7 +411,7 @@ export const useUnifiedProjectManager = () => {
 
       const success = await projectService.update(projectId, { 
         name: newName.trim() 
-      }, user.id);
+      }, currentUser.id);
       
       if (success) {
         // Update project in state and cache
