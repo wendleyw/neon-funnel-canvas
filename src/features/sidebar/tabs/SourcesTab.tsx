@@ -189,7 +189,7 @@ export const SourcesTab: React.FC<SourcesTabProps> = ({ onDragStart, onTemplateC
                 <div className="pt-2 pl-2 border-l-2 border-gray-800 ml-2 space-y-2">
                   {templates.map(template => (
                     <ComponentTemplateItem
-                      key={`${template.type}-${template.id || Math.random()}`}
+                      key={template.id || template.type}
                       template={template}
                       subtitle={template.category}
                       onDragStart={(e) => handleDragStart(e, template)}

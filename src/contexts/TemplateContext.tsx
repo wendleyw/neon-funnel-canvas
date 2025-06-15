@@ -72,15 +72,15 @@ const mapFrontendToComponentTemplate = (template: FrontendTemplate): ComponentTe
     defaultProps: {
       title: template.name,
       description: template.description,
-      image: template.config?.mockupUrl || '',
+      image: (template.config as any)?.mockupUrl || '',
       status: 'active',
       properties: {
-        customMockup: template.config?.mockupUrl || ''
+        customMockup: (template.config as any)?.mockupUrl || ''
       }
     }
   };
 
-  if (template.config?.mockupUrl) {
+  if ((template.config as any)?.mockupUrl) {
     logger.log('🔄 [TemplateContext] Converted ComponentTemplate with mockup:', {
       label: componentTemplate.label,
       defaultPropsImage: componentTemplate.defaultProps.image,
@@ -115,7 +115,7 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({ children }) 
 
       if (contentError) throw contentError;
 
-      const items = rawContentItems || [];
+      const items = (rawContentItems || []) as ContentItem[];
       const mappedFrontendTemplates = items.map(mapContentItemToFrontendTemplate);
       const mappedComponentTemplates = [
         ...mappedFrontendTemplates.map(mapFrontendToComponentTemplate)
@@ -172,7 +172,7 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({ children }) 
           name: testemonicaItem.name,
           config: testemonicaItem.config,
           configKeys: Object.keys(testemonicaItem.config || {}),
-          mockupUrl: testemonicaItem.config?.mockupUrl
+          mockupUrl: (testemonicaItem.config as any)?.mockupUrl
         });
 
         const frontendTemplate = mappedFrontendTemplates.find(t => t.name.includes('testemonica'));
@@ -180,7 +180,7 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({ children }) 
           logger.log('🔍 [TemplateContext] DEBUG - testemonica frontend template:', {
             name: frontendTemplate.name,
             config: frontendTemplate.config,
-            mockupUrl: frontendTemplate.config?.mockupUrl
+            mockupUrl: (frontendTemplate.config as any)?.mockupUrl
           });
 
           const componentTemplate = mappedComponentTemplates.find(t => t.label.includes('testemonica'));
@@ -501,4 +501,4 @@ export const useTemplateContext = (): TemplateContextType => {
     throw new Error('useTemplateContext must be used within a TemplateProvider');
   }
   return context;
-}; 
+};

@@ -1,9 +1,10 @@
+
 import { useCallback, useMemo, useRef } from 'react';
 import { FunnelComponent } from '../../../types/funnel';
-import { useCanvasDragDrop } from '@/features/shared/hooks/canvas/useCanvasDragDrop';
-import { useCanvasZoom } from '@/features/shared/hooks/canvas/useCanvasZoom';
-import { useCanvasSelection } from '@/features/shared/hooks/canvas/useCanvasSelection';
-import { useCanvasPan } from '@/features/shared/hooks/canvas/useCanvasPan';
+import { useCanvasDragDrop } from '../hooks/useCanvasDragDrop';
+import { useCanvasZoom } from '../hooks/useCanvasZoom';
+import { useCanvasSelection } from '../hooks/useCanvasSelection';
+import { useCanvasPan } from '../hooks/useCanvasPan';
 
 interface UseCanvasEventHandlersProps {
   onComponentAdd: (component: FunnelComponent) => void;

@@ -1,19 +1,19 @@
 
 import React, { useCallback, useState, useEffect } from 'react';
-import { FunnelComponent, Connection } from '../types/funnel';
-import { DrawingShape } from '../types/drawing';
-import { CanvasGrid } from './Canvas/CanvasGrid';
-import { CanvasControls } from './Canvas/CanvasControls';
-import { CanvasHelpers } from './Canvas/CanvasHelpers';
-import { CanvasContainer } from './Canvas/CanvasContainer';
-import { CanvasNavigationHelp } from './Canvas/CanvasNavigationHelp';
-import { ErrorBoundary } from './ErrorBoundary';
-import { useCanvasEventHandlers } from './Canvas/CanvasEventHandlers';
-import { CanvasProvider } from '../contexts/CanvasContext';
-import { useSequenceAnimation } from '../contexts/SequenceAnimationContext';
+import { FunnelComponent, Connection } from '../../../types/funnel';
+import { DrawingShape } from '../../../types/drawing';
+import { CanvasGrid } from './CanvasGrid';
+import { CanvasControls } from './CanvasControls';
+import { CanvasHelpers } from './CanvasHelpers';
+import { CanvasContainer } from './CanvasContainer';
+import { CanvasNavigationHelp } from './CanvasNavigationHelp';
+import { ErrorBoundary } from '../../shared/components/ErrorBoundary';
+import { useCanvasEventHandlers } from './CanvasEventHandlers';
+import { CanvasProvider } from '../../../contexts/CanvasContext';
+import { useSequenceAnimation } from '../../../contexts/SequenceAnimationContext';
 import { MiniMap } from './MiniMap';
-import { MobilePreviewButton } from './Canvas/MobilePreviewButton';
-import { InstagramMockupModal } from '../features/social-media/instagram/components/InstagramMockupModal';
+import { MobilePreviewButton } from './MobilePreviewButton';
+import { InstagramMockupModal } from '../../social-media/instagram/components/InstagramMockupModal';
 import { info } from '@/lib/logger';
 
 interface CanvasProps {

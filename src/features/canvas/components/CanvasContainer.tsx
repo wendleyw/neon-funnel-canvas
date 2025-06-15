@@ -1,9 +1,8 @@
-
 import React, { useMemo, useCallback } from 'react';
 import { FunnelComponent } from '../../../types/funnel';
-import { ComponentNode } from '../ComponentNode';
+import { ComponentNode } from './ComponentNode';
 import { ConnectionManager } from './ConnectionManager';
-import { FlowAnimation } from '../FlowAnimation';
+import { FlowAnimation } from '../../shared/components/FlowAnimation';
 import { ErrorBoundary } from '@/features/shared/components/ErrorBoundary';
 import {
   useCanvas,
