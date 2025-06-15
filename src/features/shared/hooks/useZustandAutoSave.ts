@@ -7,21 +7,36 @@ import { useEffect, useRef, useCallback } from 'react';
  * Hook that integrates Zustand project store with WorkspaceContext auto-save
  * Replaces the useDebounceProjectSave functionality
  */
-export const useZustandAutoSave = () => {
+export function useZustandAutoSave() {
   const workspace = useUnifiedWorkspace();
   const project = useProjectStore(state => state.project);
   const currentProjectId = useProjectStore(state => state.currentProjectId);
+  const hasUnsavedChanges = useProjectStore(state => state.hasUnsavedChanges);
   const markAsSaved = useProjectStore(state => state.markAsSaved);
   const setSaving = useProjectStore(state => state.setSaving);
   const { user } = useAuth();
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastSavedDataRef = useRef<string>('');
 
   useEffect(() => {
-    if (!project || !workspace.currentWorkspace || !user) return;
+    // Only auto-save if there are actual unsaved changes
+    if (!project || !workspace.currentWorkspace || !user || !hasUnsavedChanges) return;
 
     // Capture user and workspace at this moment to avoid null issues
     const currentUser = user;
     const currentWorkspaceId = workspace.currentWorkspace.id;
+
+    // Create a stable representation of the data that matters for saving
+    const projectDataString = JSON.stringify({
+      name: project.name,
+      components: project.components,
+      connections: project.connections,
+    });
+
+    // Don't save if data hasn't actually changed
+    if (lastSavedDataRef.current === projectDataString) {
+      return;
+    }
 
     // Clear any existing timeout
     if (autoSaveTimeoutRef.current) {
@@ -30,12 +45,13 @@ export const useZustandAutoSave = () => {
 
     // Schedule auto-save with captured values
     autoSaveTimeoutRef.current = setTimeout(async () => {
-      // Double-check user is still available
-      if (currentUser && currentUser.id) {
+      // Double-check user is still available and data hasn't changed
+      if (currentUser && currentUser.id && lastSavedDataRef.current !== projectDataString) {
         setSaving(true);
         try {
           const result = await workspace.saveProject(project, currentWorkspaceId, currentProjectId || undefined);
           if (result?.success) {
+            lastSavedDataRef.current = projectDataString;
             markAsSaved();
           }
         } catch (error) {
@@ -44,14 +60,14 @@ export const useZustandAutoSave = () => {
           setSaving(false);
         }
       }
-    }, 2000); // 2 second delay
+    }, 3000); // 3 second delay (increased from 2)
 
     return () => {
       if (autoSaveTimeoutRef.current) {
         clearTimeout(autoSaveTimeoutRef.current);
       }
     };
-  }, [project, workspace, currentProjectId, user, markAsSaved, setSaving]);
+  }, [project, workspace, currentProjectId, user, hasUnsavedChanges, markAsSaved, setSaving]);
 
   /**
    * Force save the current project immediately
@@ -72,6 +88,13 @@ export const useZustandAutoSave = () => {
       // Save immediately
       const result = await workspace.saveProject(project, workspace.currentWorkspace.id, currentProjectId || undefined);
       if (result?.success) {
+        // Update the last saved data reference
+        const projectDataString = JSON.stringify({
+          name: project.name,
+          components: project.components,
+          connections: project.connections,
+        });
+        lastSavedDataRef.current = projectDataString;
         markAsSaved();
       }
       return result;
@@ -99,4 +122,4 @@ export const useZustandAutoSave = () => {
     forceSave,
     cancelSave
   };
-}; 
+} 

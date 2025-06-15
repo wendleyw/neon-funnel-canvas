@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, ReactNode } from 'react';
 import { FunnelComponent, Connection } from '../types/funnel';
 
@@ -62,23 +61,23 @@ interface CanvasContextType extends CanvasState, CanvasActions {
 
 const CanvasContext = createContext<CanvasContextType | undefined>(undefined);
 
-export const useCanvas = () => {
-  const context = useContext(CanvasContext);
-  if (context === undefined) {
-    throw new Error('useCanvas must be used within a CanvasProvider');
-  }
-  return context;
-};
-
 interface CanvasProviderProps {
   children: ReactNode;
   value: CanvasContextType;
 }
 
-export const CanvasProvider: React.FC<CanvasProviderProps> = ({ children, value }) => {
+export function CanvasProvider({ children, value }: CanvasProviderProps) {
   return (
     <CanvasContext.Provider value={value}>
       {children}
     </CanvasContext.Provider>
   );
-};
+}
+
+export function useCanvas() {
+  const context = useContext(CanvasContext);
+  if (context === undefined) {
+    throw new Error('useCanvas must be used within a CanvasProvider');
+  }
+  return context;
+}

@@ -77,7 +77,7 @@ export const CanvasOverlays: React.FC<CanvasOverlaysProps> = ({
           {/* Menu Header */}
           <div className="px-4 py-2 border-b border-gray-700">
             <div className="text-white text-sm font-medium">
-              Connection: {edgeContextMenu.edge.data?.label || 'Lead'}
+              Connection Details
             </div>
             <div className="text-gray-400 text-xs">
               {nodeMap.get(edgeContextMenu.edge.source)?.data.title} → {nodeMap.get(edgeContextMenu.edge.target)?.data.title}

@@ -14,7 +14,7 @@ import {
   getEdgeStyle, 
   getConnectionLabel, 
   calculateBestConnectionPoints 
-} from '../../utils/reactFlowHelpers';
+} from '../../../utils/reactFlowHelpers';
 import { MarkerType } from 'reactflow';
 
 interface UseNodeManagerProps {
@@ -136,15 +136,15 @@ export const useNodeManager = ({
             height: 20,
           },
           labelStyle: {
-            background: getConnectionLabel(sourceComp.type, targetComp.type) === 'Lead' ? '#10B981' : '#374151',
-            color: '#ffffff',
-            padding: '8px 16px',
-            borderRadius: '20px',
-            border: getConnectionLabel(sourceComp.type, targetComp.type) === 'Lead' ? '2px solid #34D399' : '1px solid #6B7280',
-            fontSize: '12px',
-            fontWeight: 'bold',
+            background: getConnectionLabel(sourceComp.type, targetComp.type) === '' ? 'transparent' : '#374151',
+            color: getConnectionLabel(sourceComp.type, targetComp.type) === '' ? 'transparent' : '#ffffff',
+            padding: getConnectionLabel(sourceComp.type, targetComp.type) === '' ? '0px' : '8px 16px',
+            borderRadius: getConnectionLabel(sourceComp.type, targetComp.type) === '' ? '0px' : '20px',
+            border: getConnectionLabel(sourceComp.type, targetComp.type) === '' ? 'none' : '1px solid #6B7280',
+            fontSize: getConnectionLabel(sourceComp.type, targetComp.type) === '' ? '0px' : '12px',
+            fontWeight: getConnectionLabel(sourceComp.type, targetComp.type) === '' ? 'normal' : 'bold',
             cursor: 'pointer',
-            boxShadow: getConnectionLabel(sourceComp.type, targetComp.type) === 'Lead' ? '0 4px 6px rgba(16, 185, 129, 0.3)' : 'none'
+            boxShadow: 'none'
           },
           labelBgStyle: {
             fill: 'transparent'
@@ -172,7 +172,7 @@ export const useNodeManager = ({
         animated: true,
         data: {
           ...edge.data,
-          label: 'Lead',
+          label: '',
         },
         style: { 
           stroke: '#10B981', 
@@ -185,15 +185,15 @@ export const useNodeManager = ({
           height: 20,
         },
         labelStyle: {
-          background: '#10B981',
-          color: '#ffffff',
-          padding: '8px 16px',
-          borderRadius: '20px',
-          border: '2px solid #34D399',
-          fontSize: '12px',
-          fontWeight: 'bold',
+          background: 'transparent',
+          color: 'transparent',
+          padding: '0px',
+          borderRadius: '0px',
+          border: 'none',
+          fontSize: '0px',
+          fontWeight: 'normal',
           cursor: 'pointer',
-          boxShadow: '0 4px 6px rgba(16, 185, 129, 0.3)'
+          boxShadow: 'none'
         },
         labelBgStyle: {
           fill: 'transparent'

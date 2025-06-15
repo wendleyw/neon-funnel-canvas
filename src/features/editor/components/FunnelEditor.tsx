@@ -64,7 +64,7 @@ export const FunnelEditor: React.FC<FunnelEditorProps> = ({
   } = useProjectStore();
   
   // Auto-save integration
-  const { forceSave, cancelSave } = useZustandAutoSave();
+  const { forceSave, cancelSave, isSaving } = useZustandAutoSave();
   
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isOpenModalOpen, setIsOpenModalOpen] = useState(false);
@@ -84,12 +84,15 @@ export const FunnelEditor: React.FC<FunnelEditorProps> = ({
     try {
       const result = await forceSave();
       if (result.success) {
-        toast.success('Project saved successfully!');
+        // Toast removed - using icon feedback only
+        // toast.success('Project saved successfully!');
       } else {
+        // Keep error toast for now as it's critical feedback
         toast.error('Error saving project. Please try again.');
       }
     } catch (error) {
       console.error('Error saving project:', error);
+      // Keep error toast for now as it's critical feedback
       toast.error('Error saving project. Please try again.');
     }
   }, [forceSave]);
@@ -485,6 +488,7 @@ export const FunnelEditor: React.FC<FunnelEditorProps> = ({
             enableConnectionValidation={enableConnectionValidation}
             onToggleConnectionValidation={() => setEnableConnectionValidation(!enableConnectionValidation)}
             hasUnsavedChanges={hasUnsavedChanges}
+            isSaving={isSaving}
           />
         </div>
         

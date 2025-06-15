@@ -1,0 +1,443 @@
+# 🛡️ CURSOR RULES - Enterprise Security & Clean Code Standards
+
+## 🎯 OBJETIVOS PRINCIPAIS
+- Manter segurança de nível enterprise em 100% do código
+- Garantir performance otimizada e custos baixos  
+- Aplicar clean code e boas práticas consistentemente
+- Automatizar verificações de qualidade
+
+---
+
+## 🔒 REGRAS DE SEGURANÇA (CRITICAL)
+
+### Input Validation & Sanitization
+- SEMPRE validar e sanitizar TODOS os inputs do usuário
+- USAR express-validator para APIs, react-hook-form para frontend  
+- NUNCA confiar em dados de entrada sem validação
+- SEMPRE aplicar length limits, format validation e content filtering
+
+```typescript
+// ✅ CORRETO
+const validateUrl = [
+  query('url')
+    .isURL({ protocols: ['http', 'https'] })
+    .isLength({ max: 2000 })
+    .custom(validateNoScriptTags)
+];
+
+// ❌ INCORRETO  
+const url = req.query.url; // Sem validação
+```
+
+### XSS Prevention
+- SEMPRE sanitizar conteúdo HTML antes de renderizar
+- USAR bibliotecas testadas como DOMPurify ou custom sanitizers
+- APLICAR CSP headers rigorosos
+- VALIDAR todas as URLs de imagens e recursos externos
+
+```typescript
+// ✅ CORRETO
+const sanitizeHtml = (html: string): string => {
+  return html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/javascript:/gi, '')
+    .trim();
+};
+
+// ❌ INCORRETO
+<div dangerouslySetInnerHTML={{__html: userInput}} />
+```
+
+### SSRF Protection  
+- SEMPRE usar whitelist de domínios permitidos
+- BLOQUEAR ranges de IP privados e localhost
+- IMPLEMENTAR cache de segurança para URLs validadas
+- APLICAR timeouts rigorosos para requests externos
+
+```typescript
+// ✅ CORRETO
+const ALLOWED_DOMAINS = ['github.com', 'google.com'];
+const isUrlSafe = async (url: string): Promise<boolean> => {
+  const urlObj = new URL(url);
+  return ALLOWED_DOMAINS.includes(urlObj.hostname);
+};
+
+// ❌ INCORRETO
+fetch(userProvidedUrl); // Qualquer URL
+```
+
+### Authentication & Authorization
+- SEMPRE implementar rate limiting multi-tier
+- USAR JWT com expiration e refresh tokens
+- APLICAR principle of least privilege
+- IMPLEMENTAR logging de todas as tentativas de acesso
+
+### Error Handling
+- NUNCA expor stack traces ou informações sensíveis
+- SEMPRE retornar mensagens de erro sanitizadas
+- IMPLEMENTAR logging estruturado de todos os erros
+- USAR diferentes níveis de log (error, warn, info, debug)
+
+---
+
+## ⚡ REGRAS DE PERFORMANCE
+
+### Frontend Optimization
+- SEMPRE usar React.memo para componentes que re-renderizam frequentemente
+- IMPLEMENTAR debounce em inputs (500ms minimum)
+- USAR lazy loading para imagens e componentes pesados
+- APLICAR code splitting em rotas e features
+
+```typescript
+// ✅ CORRETO
+const UrlPreviewCard = React.memo(({ url }: Props) => {
+  const [debouncedUrl] = useDebounce(url, 500);
+  // Component logic
+});
+
+// ❌ INCORRETO
+const UrlPreviewCard = ({ url }: Props) => {
+  // Re-renderiza a cada keystroke
+});
+```
+
+### Backend Optimization
+- SEMPRE implementar cache inteligente (NodeCache, Redis)
+- USAR connection pooling para databases
+- APLICAR timeout configuráveis em todas as operações
+- IMPLEMENTAR graceful shutdown procedures
+
+```typescript
+// ✅ CORRETO
+const cache = new NodeCache({ stdTTL: 3600, checkperiod: 600 });
+const timeoutPromise = new Promise((_, reject) => 
+  setTimeout(() => reject(new Error('Timeout')), 8000)
+);
+
+// ❌ INCORRETO
+const data = await expensiveOperation(); // Sem cache nem timeout
+```
+
+### Bundle Optimization
+- MANTER bundle principal < 500KB (gzipped)
+- USAR tree shaking e eliminar dead code
+- IMPLEMENTAR code splitting por rota/feature
+- AUDITAR dependências mensalmente (npm audit)
+
+---
+
+## 🧹 REGRAS DE CLEAN CODE
+
+### Naming Conventions
+- USAR nomes descritivos e consistentes em inglês
+- APLICAR camelCase para variables/functions, PascalCase para components
+- USAR UPPER_SNAKE_CASE para constants globais
+- EVITAR abreviações desnecessárias
+
+```typescript
+// ✅ CORRETO
+const urlPreviewCache = new NodeCache();
+const MAX_RETRY_ATTEMPTS = 3;
+const UserProfileCard: React.FC = () => {};
+
+// ❌ INCORRETO  
+const cache = new NodeCache(); // Muito genérico
+const maxRetries = 3; // Deveria ser constant
+const UPC: React.FC = () => {}; // Abreviação confusa
+```
+
+### Function Structure
+- MANTER funções < 20 linhas sempre que possível
+- USAR single responsibility principle rigorosamente  
+- IMPLEMENTAR pure functions sempre que possível
+- APLICAR early returns para reduzir nesting
+
+```typescript
+// ✅ CORRETO
+const validateUrl = (url: string): boolean => {
+  if (!url) return false;
+  if (url.length > 2000) return false;
+  if (!isValidUrlFormat(url)) return false;
+  return true;
+};
+
+// ❌ INCORRETO
+const validateUrl = (url: string): boolean => {
+  if (url) {
+    if (url.length <= 2000) {
+      if (isValidUrlFormat(url)) {
+        return true;
+      }
+    }
+  }
+  return false;
+};
+```
+
+### Component Architecture
+- SEPARAR presentation de business logic
+- USAR custom hooks para logic reutilizável
+- IMPLEMENTAR error boundaries em componentes críticos
+- APLICAR prop drilling limits (max 3 levels)
+
+```typescript
+// ✅ CORRETO
+const useUrlPreview = (url: string) => {
+  // Business logic aqui
+  return { data, loading, error };
+};
+
+const UrlPreviewCard: React.FC = ({ url }) => {
+  const { data, loading, error } = useUrlPreview(url);
+  // Apenas rendering logic
+};
+
+// ❌ INCORRETO
+const UrlPreviewCard: React.FC = ({ url }) => {
+  // Business logic misturada com rendering
+};
+```
+
+### File Organization
+- AGRUPAR arquivos por feature, não por tipo
+- USAR index.ts para exports limpos
+- MANTER max 200 linhas por arquivo
+- IMPLEMENTAR consistent import ordering
+
+```
+// ✅ CORRETO
+features/
+├── url-preview/
+│   ├── components/UrlPreviewCard.tsx
+│   ├── hooks/useUrlPreview.ts
+│   ├── types/index.ts
+│   └── index.ts
+```
+
+---
+
+## 📊 REGRAS DE TYPESCRIPT
+
+### Type Safety
+- USAR strict mode SEMPRE
+- EVITAR 'any' type completamente
+- IMPLEMENTAR discriminated unions para complex states
+- APLICAR readonly para immutable data
+
+```typescript
+// ✅ CORRETO
+interface UrlPreviewData {
+  readonly url: string;
+  readonly title: string;
+  readonly description: string;
+  readonly timestamp: Date;
+}
+
+type LoadingState = 
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'success'; data: UrlPreviewData }
+  | { status: 'error'; error: string };
+
+// ❌ INCORRETO
+interface UrlPreviewData {
+  [key: string]: any; // Muito permissivo
+}
+```
+
+### Generic Types
+- USAR generics para code reusability
+- IMPLEMENTAR constraints apropriados
+- APLICAR default types quando adequado
+
+```typescript
+// ✅ CORRETO
+interface ApiResponse<T> {
+  data: T;
+  success: boolean;
+  timestamp: string;
+}
+
+const fetchApi = <T>(url: string): Promise<ApiResponse<T>> => {
+  // Implementation
+};
+
+// ❌ INCORRETO
+const fetchApi = (url: string): Promise<any> => {
+  // Perde type safety
+};
+```
+
+---
+
+## 🧪 REGRAS DE TESTING
+
+### Test Coverage
+- MANTER coverage > 95% sempre
+- IMPLEMENTAR testes de segurança obrigatórios
+- APLICAR integration tests para fluxos críticos
+- USAR TDD para features complexas
+
+```typescript
+// ✅ CORRETO
+describe('Security Tests', () => {
+  it('should block SSRF attempts', async () => {
+    const response = await request(app)
+      .get('/api/preview')
+      .query({ url: 'http://localhost:8080' });
+    
+    expect(response.status).toBe(403);
+    expect(response.body.error).toBe('URL not allowed');
+  });
+});
+
+// ❌ INCORRETO
+// Apenas happy path testing
+```
+
+### Test Structure
+- USAR AAA pattern (Arrange, Act, Assert)
+- IMPLEMENTAR descriptive test names
+- APLICAR data-driven testing para edge cases
+- MANTER tests independentes e deterministic
+
+---
+
+## 💰 REGRAS DE COST OPTIMIZATION
+
+### Resource Management
+- IMPLEMENTAR cleanup em useEffect hooks
+- USAR AbortController para cancelar requests
+- APLICAR connection pooling e reuse
+- MONITORAR memory leaks continuamente
+
+```typescript
+// ✅ CORRETO
+useEffect(() => {
+  const controller = new AbortController();
+  
+  fetchData(url, { signal: controller.signal })
+    .then(setData)
+    .catch(setError);
+    
+  return () => controller.abort();
+}, [url]);
+
+// ❌ INCORRETO
+useEffect(() => {
+  fetchData(url).then(setData); // Pode vazar memory
+}, [url]);
+```
+
+### Dependency Management
+- AUDITAR dependencies mensalmente
+- USAR exact versions em production
+- IMPLEMENTAR bundle analyzer regular
+- REMOVER unused dependencies automaticamente
+
+---
+
+## 📝 REGRAS DE DOCUMENTATION
+
+### Code Comments
+- EXPLICAR WHY, não WHAT
+- USAR JSDoc para funções públicas
+- IMPLEMENTAR TODO comments com deadlines
+- MANTER comments atualizados com code changes
+
+```typescript
+// ✅ CORRETO
+/**
+ * Validates URL safety to prevent SSRF attacks
+ * Uses whitelist approach with security cache for performance
+ * @param url - The URL to validate
+ * @returns Promise<{safe: boolean, reason?: string}>
+ */
+const isUrlSafe = async (url: string) => {
+  // Implementation
+};
+
+// ❌ INCORRETO
+// This function checks if URL is safe
+const isUrlSafe = async (url: string) => {};
+```
+
+### README Updates
+- ATUALIZAR README com cada feature nova
+- MANTER security section sempre current
+- IMPLEMENTAR clear setup instructions
+- DOCUMENTAR all environment variables
+
+---
+
+## 🔄 REGRAS DE CI/CD
+
+### Pre-commit Hooks
+- EXECUTAR linting e type checking
+- RODAR security tests obrigatórios
+- VERIFICAR no console.log em production code
+- VALIDAR commit message format
+
+### Automated Testing
+- RODAR full test suite em PRs
+- EXECUTAR security scans automaticamente
+- IMPLEMENTAR performance regression tests
+- APLICAR dependency vulnerability scans
+
+---
+
+## 🚨 VIOLATION SEVERITY LEVELS
+
+### 🔴 CRITICAL (Block deployment)
+- Security vulnerabilities
+- Type errors
+- Failed security tests
+- Performance regressions > 20%
+
+### 🟡 WARNING (Review required)  
+- Code complexity > 10
+- Function length > 20 lines
+- Missing tests for new code
+- Dependency updates
+
+### 🟢 INFO (Best practice)
+- Naming conventions
+- Comment improvements
+- Code organization
+- Documentation updates
+
+---
+
+## 📋 DAILY CHECKLIST
+
+### Before Coding
+- [ ] Pull latest security updates
+- [ ] Check for dependency vulnerabilities  
+- [ ] Review security guidelines
+- [ ] Plan code structure
+
+### During Development
+- [ ] Follow naming conventions
+- [ ] Implement security measures
+- [ ] Write tests for new code
+- [ ] Add appropriate comments
+
+### Before Commit
+- [ ] Run full test suite
+- [ ] Check bundle size impact
+- [ ] Review security implications
+- [ ] Update documentation if needed
+
+### Weekly Tasks
+- [ ] Audit dependencies
+- [ ] Review performance metrics
+- [ ] Update security configs
+- [ ] Analyze bundle composition
+
+---
+
+## 🎯 REMEMBER: SECURITY FIRST, PERFORMANCE SECOND, CLEAN CODE ALWAYS
+
+Estas regras são OBRIGATÓRIAS e devem ser seguidas em 100% do código.
+Violações serão destacadas automaticamente pelo Cursor.
+Para questões de segurança crítica, SEMPRE consulte a documentação em docs/SECURITY_GUIDE.md 

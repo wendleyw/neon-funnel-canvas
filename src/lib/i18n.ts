@@ -656,7 +656,7 @@ export const translations: Record<Language, Translation> = {
 let currentLanguage: Language = 'en';
 let currentTranslations: Translation = translations.en;
 
-export const useTranslation = () => {
+export function useTranslation() {
   const setLanguage = (language: Language) => {
     currentLanguage = language;
     currentTranslations = translations[language];
@@ -684,7 +684,7 @@ export const useTranslation = () => {
     setLanguage,
     availableLanguages: Object.keys(translations) as Language[],
   };
-};
+}
 
 // Initialize language from localStorage
 export const initializeI18n = () => {

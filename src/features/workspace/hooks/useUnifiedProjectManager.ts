@@ -51,7 +51,7 @@ export const useUnifiedProjectManager = () => {
   });
 
   // Auto-save configuration
-  const AUTO_SAVE_DELAY = 2000; // 2 seconds
+  const AUTO_SAVE_DELAY = 5000; // 5 seconds (increased from 2)
   const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
   /**
@@ -244,9 +244,10 @@ export const useUnifiedProjectManager = () => {
         lastSavedProjectDataRef.current = JSON.stringify(projectData);
 
         logger.log('✅ Project saved successfully:', result.id);
-        if (!isAutoSave) {
-          toast.success('Project saved successfully!');
-        }
+        // Toast removed - using icon feedback only
+        // if (!isAutoSave) {
+        //   toast.success('Project saved successfully!');
+        // }
 
         return { success: true, projectId: result.id };
       } else {
@@ -257,9 +258,10 @@ export const useUnifiedProjectManager = () => {
       logger.error('Failed to save project:', error);
       updateState({ saving: false });
       
-      if (!isAutoSave) {
-        toast.error('Failed to save project');
-      }
+      // Toast removed - using icon feedback only  
+      // if (!isAutoSave) {
+      //   toast.error('Failed to save project');
+      // }
       
       return { success: false };
     }

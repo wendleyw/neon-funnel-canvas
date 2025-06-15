@@ -281,12 +281,23 @@ export const ContentCRUD: React.FC = () => {
     });
   }, [frontendTemplates, selectedType, searchTerm]);
 
-  // Load categories
-  const loadCategories = async (type?: 'source' | 'page' | 'action') => {
+  // Enhanced category loading with notification system
+  const loadCategories = async () => {
     try {
-      const { data, error } = await categoryService.getCategories(type);
-      if (error) throw error;
-      setCategories(data || []);
+      const { data: sourceCats } = await categoryService.getCategories('source');
+      const { data: pageCats } = await categoryService.getCategories('page');
+      const { data: actionCats } = await categoryService.getCategories('action');
+      
+      setCategories([
+        ...(sourceCats || []),
+        ...(pageCats || []),
+        ...(actionCats || [])
+      ]);
+      
+      // Force refresh template data when categories change
+      await refreshData();
+      
+      console.log('✅ Categories loaded and templates refreshed');
     } catch (error) {
       console.error('❌ Error loading categories:', error);
     }

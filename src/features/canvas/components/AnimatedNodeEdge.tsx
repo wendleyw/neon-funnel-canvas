@@ -185,25 +185,6 @@ export const AnimatedNodeEdge: React.FC<EdgeProps<AnimatedNodeEdgeData>> = ({
           </div>
         </div>
 
-        {/* Static Label "Lead" in the center with improved positioning */}
-        <div
-          style={{
-            position: 'absolute',
-            transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
-            fontSize: 11,
-            pointerEvents: 'none',
-            zIndex: 999,
-          }}
-          className="nodrag nopan"
-        >
-          <div className="lead-label bg-gray-800/95 backdrop-blur-sm text-green-400 px-3 py-1.5 rounded-full text-xs font-semibold border border-green-500/40 shadow-xl">
-            <div className="flex items-center gap-1">
-              <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
-              {data?.label || 'Lead'}
-            </div>
-          </div>
-        </div>
-
         {/* Path direction indicator dots */}
         {[0.15, 0.35, 0.55, 0.75].map((position, index) => {
           const dotPos = getAnimatedPosition(position);

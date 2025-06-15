@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { FunnelProject } from '../types/funnel';
+import { FunnelProject } from '../../../types/funnel';
 import { toast } from 'sonner';
 
 interface ExportFormat {
@@ -10,7 +10,7 @@ interface ExportFormat {
   json: () => any;
 }
 
-export const useProjectIntegration = () => {
+export function useProjectIntegration() {
   const exportToFormat = useCallback((project: FunnelProject, format: keyof ExportFormat) => {
     const formatters: ExportFormat = {
       figma: () => ({
@@ -265,4 +265,4 @@ export const useProjectIntegration = () => {
     exportToFormat,
     generateDocumentation
   };
-};
+}

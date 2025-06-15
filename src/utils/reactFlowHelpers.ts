@@ -124,52 +124,8 @@ export const getEdgeStyle = (sourceType: string, targetType: string) => {
  * @returns Human-readable connection label
  */
 export const getConnectionLabel = (sourceType?: string, targetType?: string): string => {
-  if (!sourceType || !targetType) {
-    return 'Lead';
-  }
-  
-  const labelMap: Record<string, Record<string, string>> = {
-    'landing-page': {
-      'quiz': 'Visitor',
-      'opt-in-page': 'CTA Click',
-      'sales-page': 'Warm Lead',
-      'email-sequence': 'Subscriber'
-    },
-    'quiz': {
-      'sales-page': 'Qualified Lead',
-      'thank-you-page': 'Quiz Complete',
-      'email-sequence': 'Subscriber'
-    },
-    'sales-page': {
-      'checkout': 'Interest',
-      'thank-you-page': 'Customer'
-    },
-    'email-sequence': {
-      'sales-page': 'Nurtured Lead',
-      'webinar-live': 'Registered',
-      'checkout': 'Ready to Buy'
-    },
-    'checkout': {
-      'thank-you-page': 'Purchase'
-    },
-    'webinar-live': {
-      'sales-page': 'Engaged',
-      'checkout': 'Hot Lead'
-    },
-    'opt-in-page': {
-      'email-sequence': 'Subscriber',
-      'download-page': 'Download'
-    }
-  };
-  
-  const sourceLabels = labelMap[sourceType];
-  const label = sourceLabels?.[targetType] || 'Lead';
-  
-  // Disabled for cleaner console
-  if (label !== 'Lead' && process.env.NODE_ENV === 'development' && false) {
-    console.log(`🔗 Connection label: ${sourceType} -> ${targetType} = "${label}"`);
-  }
-  return label;
+  // Return empty string to hide all connection labels
+  return '';
 };
 
 /**

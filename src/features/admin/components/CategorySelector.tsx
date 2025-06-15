@@ -30,6 +30,7 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
   const [showNewCategoryForm, setShowNewCategoryForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [similarCategories, setSimilarCategories] = useState<Category[]>([]);
+  const [isCreating, setIsCreating] = useState(false);
   const [newCategoryData, setNewCategoryData] = useState({
     name: '',
     description: '',
@@ -94,6 +95,10 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
       return;
     }
 
+    if (isCreating) {
+      return; // Prevent double submission
+    }
+
     // Check for similar categories
     const exactMatch = categories.find(cat => 
       cat.name.toLowerCase() === newCategoryData.name.toLowerCase()
@@ -119,6 +124,8 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
     }
 
     try {
+      setIsCreating(true);
+      
       const slug = newCategoryData.name
         .toLowerCase()
         .normalize('NFD')
@@ -141,9 +148,15 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
 
       toast.success(`Category "${newCategoryData.name}" created!`);
       
-      // Update list and select new category
+      // Update list first, THEN select the new category
       await loadCategories();
-      onCategorySelect(data.id, data.slug);
+      
+      // Only auto-select if the user explicitly created this category
+      // Don't auto-select if they just opened the form
+      if (data && data.id) {
+        onCategorySelect(data.id, data.slug);
+      }
+      
       resetForm();
 
     } catch (error: any) {
@@ -153,6 +166,8 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
       } else {
         toast.error('Error creating category: ' + error.message);
       }
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -166,6 +181,7 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
     setShowNewCategoryForm(false);
     setSimilarCategories([]);
     setSearchTerm('');
+    setIsCreating(false);
   };
 
   const getTypeIcon = () => {
@@ -209,11 +225,12 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
           {getTypeIcon()} Category ({getTypeLabel()})
         </label>
         <button
-          onClick={() => setShowNewCategoryForm(true)}
+          type="button"
+          onClick={() => setShowNewCategoryForm(!showNewCategoryForm)}
           className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 transition-colors"
         >
           <Plus className="w-3 h-3" />
-          New
+          {showNewCategoryForm ? 'Cancel' : 'New'}
         </button>
       </div>
 
@@ -267,6 +284,7 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
               New Category
             </h4>
             <button
+              type="button"
               onClick={resetForm}
               className="text-gray-400 hover:text-white transition-colors"
             >
@@ -287,6 +305,7 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
                     {similarCategories.map(cat => (
                       <button
                         key={cat.id}
+                        type="button"
                         onClick={() => {
                           onCategorySelect(cat.id, cat.slug);
                           resetForm();
@@ -313,6 +332,7 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
                 value={newCategoryData.name}
                 onChange={(e) => setNewCategoryData(prev => ({ ...prev, name: e.target.value }))}
                 className="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-white text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                disabled={isCreating}
               />
             </div>
 
@@ -323,6 +343,7 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
                 value={newCategoryData.description}
                 onChange={(e) => setNewCategoryData(prev => ({ ...prev, description: e.target.value }))}
                 className="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-white text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                disabled={isCreating}
               />
             </div>
 
@@ -334,6 +355,7 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
                   value={newCategoryData.icon}
                   onChange={(e) => setNewCategoryData(prev => ({ ...prev, icon: e.target.value }))}
                   className="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-white text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  disabled={isCreating}
                 />
               </div>
               <div className="w-20">
@@ -342,21 +364,35 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
                   value={newCategoryData.color}
                   onChange={(e) => setNewCategoryData(prev => ({ ...prev, color: e.target.value }))}
                   className="w-full h-10 bg-gray-900 border border-gray-600 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  disabled={isCreating}
                 />
               </div>
             </div>
 
             <div className="flex gap-2">
               <button
+                type="button"
                 onClick={handleCreateCategory}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm transition-colors flex items-center justify-center gap-2"
+                disabled={isCreating || !newCategoryData.name.trim()}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-3 py-2 rounded text-sm transition-colors flex items-center justify-center gap-2"
               >
-                <Check className="w-4 h-4" />
-                Create
+                {isCreating ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4" />
+                    Create
+                  </>
+                )}
               </button>
               <button
+                type="button"
                 onClick={resetForm}
-                className="px-3 py-2 border border-gray-600 text-gray-300 hover:text-white hover:border-gray-500 rounded text-sm transition-colors"
+                disabled={isCreating}
+                className="px-3 py-2 border border-gray-600 text-gray-300 hover:text-white hover:border-gray-500 disabled:opacity-50 disabled:cursor-not-allowed rounded text-sm transition-colors"
               >
                 Cancel
               </button>
@@ -372,6 +408,7 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
             {searchTerm ? 'No categories found' : 'No categories available'}
           </p>
           <button
+            type="button"
             onClick={() => setShowNewCategoryForm(true)}
             className="text-blue-400 hover:text-blue-300 text-sm mt-2 transition-colors"
           >

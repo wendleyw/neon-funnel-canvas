@@ -55,6 +55,13 @@ html {
     height: auto !important;
     min-height: 100vh !important;
     max-height: none !important;
+    color: rgb(255 255 255 / 0.87);
+    background-color: #242424;
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   html, body, #root {
@@ -2008,4 +2015,45 @@ html {
 
 .glow-effect:hover {
   filter: drop-shadow(0 0 12px currentColor);
+}
+
+/* Dark theme styles for UrlPreviewCard */
+.preview-card-dark .bg-white {
+  background-color: #374151 !important;
+}
+
+.preview-card-dark .text-gray-900 {
+  color: #f9fafb !important;
+}
+
+.preview-card-dark .text-gray-600 {
+  color: #d1d5db !important;
+}
+
+.preview-card-dark .text-gray-500 {
+  color: #9ca3af !important;
+}
+
+.preview-card-dark .border-gray-200 {
+  border-color: #4b5563 !important;
+}
+
+.preview-card-dark .bg-red-50 {
+  background-color: #7f1d1d !important;
+}
+
+.preview-card-dark .text-red-800 {
+  color: #fca5a5 !important;
+}
+
+.preview-card-dark .bg-red-100 {
+  background-color: #991b1b !important;
+}
+
+.preview-card-dark .text-red-900 {
+  color: #fecaca !important;
+}
+
+.preview-card-dark .text-red-700 {
+  color: #f87171 !important;
 }

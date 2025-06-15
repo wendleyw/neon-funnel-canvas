@@ -49,18 +49,6 @@ interface UnifiedWorkspaceContextType {
 const UnifiedWorkspaceContext = createContext<UnifiedWorkspaceContextType | undefined>(undefined);
 
 /**
- * Custom hook to use the Unified Workspace Context
- * Throws an error if used outside of provider (fail-fast pattern)
- */
-export const useUnifiedWorkspace = (): UnifiedWorkspaceContextType => {
-  const context = useContext(UnifiedWorkspaceContext);
-  if (context === undefined) {
-    throw new Error('useUnifiedWorkspace must be used within a UnifiedWorkspaceProvider');
-  }
-  return context;
-};
-
-/**
  * Unified Workspace Provider Component
  * 
  * This provider consolidates workspace and project management following the custom rules:
@@ -70,7 +58,7 @@ export const useUnifiedWorkspace = (): UnifiedWorkspaceContextType => {
  * - Performance optimized
  * - English naming and clear interfaces
  */
-export const UnifiedWorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+function UnifiedWorkspaceProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   
   // Use the persistence hook for current workspace
@@ -265,4 +253,20 @@ export const UnifiedWorkspaceProvider: React.FC<{ children: React.ReactNode }> =
       {children}
     </UnifiedWorkspaceContext.Provider>
   );
-}; 
+}
+
+export { UnifiedWorkspaceProvider };
+
+/**
+ * Custom hook to use the Unified Workspace Context
+ * Throws an error if used outside of provider (fail-fast pattern)
+ */
+function useUnifiedWorkspace(): UnifiedWorkspaceContextType {
+  const context = useContext(UnifiedWorkspaceContext);
+  if (context === undefined) {
+    throw new Error('useUnifiedWorkspace must be used within a UnifiedWorkspaceProvider');
+  }
+  return context;
+}
+
+export { useUnifiedWorkspace }; 

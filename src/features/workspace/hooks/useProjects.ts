@@ -108,7 +108,8 @@ export const useProjects = () => { // Renamed from useOptimizedWorkspaceProjects
     try {
       const result = await saveProjectOptimized(project);
       if (result.success) {
-        toast.success('Project saved successfully!');
+        // Toast removed - using icon feedback only
+        // toast.success('Project saved successfully!');
       } else {
         toast.error('Error saving project');
       }

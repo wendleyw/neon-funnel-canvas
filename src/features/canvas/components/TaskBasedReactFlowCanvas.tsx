@@ -345,7 +345,7 @@ const TaskBasedReactFlowCanvas: React.FC<TaskBasedReactFlowCanvasProps> = ({
         }
 
         if (createConnectionResult.data.id === 'initial-task' || createConnectionResult.data.id === 'intuitive-task') {
-          toast.success('🔗 "Lead" Connection Created', {
+          toast.success('🔗 Connection Created', {
             description: `From ${sourceComp?.data?.label} to ${targetComp?.data?.label}`,
           });
         } else {
@@ -619,7 +619,7 @@ const TaskBasedReactFlowCanvas: React.FC<TaskBasedReactFlowCanvasProps> = ({
         {/* Connection instructions overlay */}
         {isConnecting && (
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-800 text-white p-6 rounded-lg shadow-lg z-30 border border-gray-600 max-w-md">
-            <h3 className="font-semibold mb-3 text-center text-blue-400">🔗 Creating "Lead" Connection</h3>
+            <h3 className="font-semibold mb-3 text-center text-blue-400">🔗 Creating Connection</h3>
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-blue-500 rounded-full"></div>

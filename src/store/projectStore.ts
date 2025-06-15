@@ -169,6 +169,20 @@ export const useProjectStore = create<ProjectState>()(
       setProject: (project) => {
         logger.log('🔄 Project updated in store:', project.name);
         set((state) => {
+          // Check if project data actually changed to prevent unnecessary updates
+          const existingProject = state.project;
+          const hasActualChanges = 
+            existingProject.name !== project.name ||
+            existingProject.components.length !== project.components.length ||
+            existingProject.connections.length !== project.connections.length ||
+            JSON.stringify(existingProject.components) !== JSON.stringify(project.components) ||
+            JSON.stringify(existingProject.connections) !== JSON.stringify(project.connections);
+
+          if (!hasActualChanges) {
+            // No actual changes, don't update state
+            return state;
+          }
+
           const nodes = project.components.map(componentToNode);
           const edges = project.connections.map(connectionToEdge);
           
