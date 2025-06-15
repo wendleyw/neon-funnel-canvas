@@ -1,8 +1,9 @@
+
 import React, { useState, useMemo } from 'react';
-import { FunnelComponent } from '../types/funnel';
-import { useComponentTemplates } from '@/features/shared/hooks/useComponentTemplates';
-import { useComponentDrag } from '@/features/shared/hooks/canvas/useComponentDrag';
-import { useComponentNodeHandlers } from '@/features/shared/hooks/useComponentNodeHandlers';
+import { FunnelComponent } from '../../../types/funnel';
+import { useComponentTemplates } from '../../shared/hooks/useComponentTemplates';
+import { useComponentDrag } from '../hooks/useComponentDrag';
+import { useComponentNodeHandlers } from '../hooks/useComponentNodeHandlers';
 import { ComponentEditor } from './ComponentEditor';
 import { ComponentNodeCardSimple } from './ComponentNode/ComponentNodeCardSimple';
 import { ComponentNodeSpecialRenderer } from './ComponentNode/ComponentNodeSpecialRenderer';

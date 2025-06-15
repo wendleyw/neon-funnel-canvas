@@ -1,4 +1,5 @@
-import { FunnelProject } from '../types';
+
+import { FunnelProject } from '../types/funnel';
 
 export const initialProject: FunnelProject = {
   id: 'new-project',

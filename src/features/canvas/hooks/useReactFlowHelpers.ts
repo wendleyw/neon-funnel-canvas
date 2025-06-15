@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { Node, Edge, Connection, useReactFlow } from 'reactflow';
-import { FunnelComponent, Connection as FunnelConnection } from '../types/funnel';
+import { FunnelComponent, Connection as FunnelConnection } from '../../../types/funnel';
 
 interface UseReactFlowHelpersProps {
   components: FunnelComponent[];
@@ -371,4 +371,4 @@ export const useReactFlowHelpers = ({ components, connections, onComponentUpdate
     highlightPath,
     nodeMap
   };
-}; 
+};

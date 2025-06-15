@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { FunnelComponent, Connection } from '../../../types/funnel';
-import { ConnectionLine } from '../ConnectionLine';
+import { ConnectionLine } from './ConnectionLine';
 
 interface ConnectionManagerProps {
   components: FunnelComponent[];

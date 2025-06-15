@@ -9,7 +9,7 @@ import {
   useCanvasState,
   useCanvasActions,
   useCanvasInteractions,
-} from '../hooks/useCanvasContext';
+} from '../../../contexts/CanvasContext';
 
 export const CanvasContainer: React.FC = () => {
   const { canvasRef } = useCanvas();

@@ -9,7 +9,7 @@ import {
   getEdgeStyle, 
   getConnectionLabel, 
   calculateBestConnectionPoints 
-} from '../../utils/reactFlowHelpers';
+} from '../utils/reactFlowHelpers';
 
 interface UseConnectionManagerProps {
   connections: FunnelConnection[];
@@ -370,4 +370,4 @@ export const useConnectionManager = ({
     handleCanvasClick,
     setEdges: reactFlowInstance.setEdges
   };
-}; 
+};

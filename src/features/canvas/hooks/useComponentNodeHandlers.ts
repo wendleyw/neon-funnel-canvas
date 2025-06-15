@@ -1,5 +1,6 @@
+
 import { useCallback } from 'react';
-import { FunnelComponent } from '../types/funnel';
+import { FunnelComponent } from '../../../types/funnel';
 
 interface UseComponentNodeHandlersProps {
   component: FunnelComponent;
