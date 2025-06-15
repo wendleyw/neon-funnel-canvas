@@ -15,7 +15,7 @@ import {
   Info
 } from 'lucide-react';
 import { useReactFlow } from 'reactflow';
-import { useReactFlowHelpers } from '@/features/shared/hooks/useReactFlowHelpers';
+import { useReactFlowHelpers } from '../hooks/useReactFlowHelpers';
 import { FunnelComponent, Connection } from '../../../types/funnel';
 
 interface ReactFlowToolbarProps {
@@ -271,4 +271,4 @@ export const ReactFlowToolbar: React.FC<ReactFlowToolbarProps> = ({
       </div>
     </div>
   );
-}; 
+};

@@ -11,7 +11,7 @@ import {
   Star,
   Zap,
   Link,
-  Grid3X3,
+  LayoutGrid,
   Layers,
   Download,
   Upload,
@@ -175,7 +175,7 @@ export const DrawingToolbar: React.FC<DrawingToolbarProps> = ({
             }`}
             title="Toggle Grid (Ctrl+G)"
           >
-            <Grid3X3 className="h-4 w-4" />
+            <LayoutGrid className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"
@@ -285,4 +285,4 @@ export const DrawingToolbar: React.FC<DrawingToolbarProps> = ({
       </div>
     </div>
   );
-}; 
+};

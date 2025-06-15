@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { DrawingTool, DrawingShape, FunnelTemplate, Point, Size } from '../types/drawing';
-import { TemplatePanel } from './DrawingTools/TemplatePanel';
-import { ShapeRenderer } from './DrawingTools/ShapeRenderer';
-import { marketingFunnelTemplates } from '../data/funnelTemplates';
+import { DrawingTool, DrawingShape, FunnelTemplate, Point, Size } from '../../../types/drawing';
+import { TemplatePanel } from './TemplatePanel';
+import { ShapeRenderer } from './ShapeRenderer';
+import { marketingFunnelTemplates } from '../../../data/funnelTemplates';
 
 interface DrawingCanvasProps {
   className?: string;
@@ -422,4 +422,4 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
       />
     </div>
   );
-}; 
+};
