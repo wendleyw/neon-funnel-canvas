@@ -1,3 +1,4 @@
+
 export interface ContentTag {
   id: string;
   name: string;
@@ -31,6 +32,14 @@ export interface SystemStats {
       page: number;
       action: number;
     };
+    system?: {
+      total: number;
+      byType: {
+        source: number;
+        page: number;
+        action: number;
+      };
+    };
     user: {
       total: number;
       byType: {
@@ -40,7 +49,7 @@ export interface SystemStats {
       };
     };
   };
-  system: {
+  system?: {
     total: number;
     byType: {
       source: number;
