@@ -1,4 +1,3 @@
-
 export interface ContentTag {
   id: string;
   name: string;
@@ -61,11 +60,7 @@ export interface SystemStats {
     total_size: string;
     total_files: number;
   };
-  syncStatus?: {
-    lastSynced: string;
-    status: 'syncing' | 'synced' | 'error';
-    error?: string;
-  };
+  syncStatus?: any;
 }
 
 export interface ContentItem {
