@@ -6,7 +6,7 @@ export interface ComponentData {
   description?: string;
   image?: string;
   url?: string;
-  status: 'active' | 'inactive' | 'draft' | 'published' | 'test';
+  status: 'active' | 'inactive' | 'draft' | 'published' | 'test' | 'paused';
   properties: Record<string, any>;
   metrics?: any;
   journey?: any;
@@ -34,19 +34,19 @@ export interface Connection {
 
 export interface ComponentTemplate {
   id: string;
-  name: string;
+  name?: string;
   type: string;
   category: string;
   icon: React.ComponentType<{ className?: string }> | string;
   description: string;
-  data: Partial<ComponentData>;
+  data?: Partial<ComponentData>;
   // Optional fields for backward compatibility and flexibility
   label?: string;
   originalType?: string;
   defaultProps?: any;
   color?: string;
   title?: string;
-  diagramType?: 'shape' | 'card';
+  diagramType?: 'shape' | 'card' | 'marketing-funnel' | 'customer-journey' | 'process-flow';
 }
 
 export interface FunnelProject {
@@ -56,4 +56,5 @@ export interface FunnelProject {
     connections: Connection[];
     viewport: any;
     createdAt?: string | number;
+    updatedAt?: string | number;
 }
