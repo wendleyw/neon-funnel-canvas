@@ -46,6 +46,7 @@ export interface ComponentTemplate {
   defaultProps?: any;
   color?: string;
   title?: string;
+  diagramType?: 'shape' | 'card';
 }
 
 export interface FunnelProject {
@@ -54,4 +55,5 @@ export interface FunnelProject {
     components: FunnelComponent[];
     connections: Connection[];
     viewport: any;
+    createdAt?: string | number;
 }
