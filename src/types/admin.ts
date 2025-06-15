@@ -31,14 +31,6 @@ export interface SystemStats {
       page: number;
       action: number;
     };
-    system: {
-      total: number;
-      byType: {
-        source: number;
-        page: number;
-        action: number;
-      };
-    };
     user: {
       total: number;
       byType: {
@@ -48,9 +40,22 @@ export interface SystemStats {
       };
     };
   };
+  system: {
+    total: number;
+    byType: {
+      source: number;
+      page: number;
+      action: number;
+    };
+  };
   storage: {
     total_size: string;
     total_files: number;
+  };
+  syncStatus?: {
+    lastSynced: string;
+    status: 'syncing' | 'synced' | 'error';
+    error?: string;
   };
 }
 

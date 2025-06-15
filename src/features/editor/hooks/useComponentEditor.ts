@@ -1,8 +1,8 @@
 
 import { useState, useCallback, useEffect } from 'react';
-import { FunnelComponent } from '@/types/funnel';
+import { FunnelComponent } from '../../../types/funnel';
 import { useImageUpload } from './useImageUpload';
-import { type UrlPreviewData } from '@/features/shared/components/UrlPreviewCard';
+import { type UrlPreviewData } from '../../shared/components/UrlPreviewCard';
 
 interface UseComponentEditorArgs {
   component: FunnelComponent;

@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { Eye, Link, Share2 } from 'lucide-react';
 import { FunnelComponent } from '../../../types/funnel';
-import { StatusBadge } from '../StatusBadge';
+import { StatusBadge } from '../../shared/components/StatusBadge';
 import {
   Tooltip,
   TooltipContent,

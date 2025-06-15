@@ -1,11 +1,11 @@
 
 import React, { useRef } from 'react';
-import { FunnelComponent } from '@/types/funnel';
-import { ComponentEditorHeader } from './ComponentEditor/ComponentEditorHeader';
-import { ComponentEditorFooter } from './ComponentEditor/ComponentEditorFooter';
-import { ComponentEditorForm } from './ComponentEditor/ComponentEditorForm';
-import { useComponentEditor } from '@/features/editor/hooks/useComponentEditor';
-import { EditorModalBase } from '@/features/shared/components/shared/EditorModalBase';
+import { FunnelComponent } from '../../../types/funnel';
+import { ComponentEditorHeader } from './ComponentEditorHeader';
+import { ComponentEditorFooter } from './ComponentEditorFooter';
+import { ComponentEditorForm } from './ComponentEditorForm';
+import { useComponentEditor } from '../hooks/useComponentEditor';
+import { EditorModalBase } from '../../shared/components/shared/EditorModalBase';
 
 interface ComponentEditorProps {
   component: FunnelComponent;
