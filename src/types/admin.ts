@@ -23,6 +23,12 @@ export interface SystemStatDetail {
   };
 }
 
+export interface SyncStatus {
+  lastSynced: string;
+  status: 'syncing' | 'synced' | 'error';
+  error?: string;
+}
+
 export interface SystemStats {
   database: {
     total: number;
@@ -60,7 +66,7 @@ export interface SystemStats {
     total_size: string;
     total_files: number;
   };
-  syncStatus?: any;
+  syncStatus?: SyncStatus;
 }
 
 export interface ContentItem {

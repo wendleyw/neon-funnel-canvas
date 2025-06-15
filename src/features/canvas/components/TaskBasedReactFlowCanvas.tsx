@@ -21,13 +21,13 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import { toast } from 'sonner';
 
-import { FunnelComponent, Connection as FunnelConnection, ComponentTemplate } from '../types/funnel';
+import { FunnelComponent, Connection as FunnelConnection, ComponentTemplate } from '../../../types/funnel';
 import { 
   ReactFlowNode, 
   ReactFlowEdge, 
   convertFunnelComponentToNode, 
   convertConnectionToEdge
-} from '../types/reactflow';
+} from '../../../types/reactflow';
 import CustomNode from './ReactFlow/CustomNode';
 import { FunnelComponentNode } from './ReactFlow/FunnelComponentNode';
 import { AnimatedNodeEdge } from './ReactFlow/AnimatedNodeEdge';
@@ -662,4 +662,4 @@ export const TaskBasedReactFlowCanvasWrapper: React.FC<TaskBasedReactFlowCanvasP
   );
 };
 
-export default TaskBasedReactFlowCanvasWrapper; 
+export default TaskBasedReactFlowCanvasWrapper;
