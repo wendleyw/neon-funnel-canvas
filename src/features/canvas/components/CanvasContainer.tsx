@@ -56,8 +56,7 @@ export const CanvasContainer: React.FC = () => {
         data: {
           ...originalComponent.data,
           title: `${originalComponent.data.title} (Copy)`
-        },
-        connections: []
+        }
       };
       onComponentAdd(newComponent);
     }

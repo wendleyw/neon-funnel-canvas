@@ -1,4 +1,3 @@
-
 import React, { useCallback, useState, useEffect } from 'react';
 import { FunnelComponent, Connection } from '../../../types/funnel';
 import { DrawingShape } from '../../../types/drawing';
@@ -79,7 +78,7 @@ export const Canvas = React.memo<CanvasProps>(({
       // Convert DrawingShape to FunnelComponent for now
       // This is a temporary solution - ideally we'd have proper diagram integration
       const funnelComponent: FunnelComponent = {
-        id: shape.id,
+        id: shape.id!,
         type: 'note', // Map to note component as it's more appropriate for diagram elements
         position: shape.position,
         data: {
@@ -98,7 +97,6 @@ export const Canvas = React.memo<CanvasProps>(({
             borderRadius: shape.style?.borderRadius || 0,
           },
         },
-        connections: []
       };
       
       onComponentAdd(funnelComponent);

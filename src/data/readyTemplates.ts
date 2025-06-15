@@ -62,8 +62,7 @@ export const readyTemplates: ReadyTemplate[] = [
             demographics: { age: '25-45', income: 'R$ 3.000-10.000' },
             goals: ['Increase brand visibility', 'Generate qualified leads', 'Improve ROI']
           }
-        },
-        connections: []
+        }
       },
       {
         id: 'template-offer-1',
@@ -81,8 +80,7 @@ export const readyTemplates: ReadyTemplate[] = [
             price: 497,
             urgencyFactor: 'Últimas 48 horas'
           }
-        },
-        connections: []
+        }
       },
       {
         id: 'template-traffic-organic-1',
@@ -98,8 +96,7 @@ export const readyTemplates: ReadyTemplate[] = [
             frequency: 'Diário',
             topics: ['Dicas de marketing', 'Cases de sucesso', 'Tutoriais']
           }
-        },
-        connections: []
+        }
       },
       {
         id: 'template-lead-capture-1',
@@ -115,8 +112,7 @@ export const readyTemplates: ReadyTemplate[] = [
             formFields: ['nome', 'email', 'whatsapp'],
             crmIntegration: 'RD Station'
           }
-        },
-        connections: []
+        }
       },
       {
         id: 'template-nurturing-1',
@@ -137,8 +133,7 @@ export const readyTemplates: ReadyTemplate[] = [
             socialProof: ['Depoimentos', 'Resultados de alunos'],
             duration: '7 dias'
           }
-        },
-        connections: []
+        }
       },
       {
         id: 'template-webinar-1',
@@ -161,8 +156,7 @@ export const readyTemplates: ReadyTemplate[] = [
             objectionHandling: ['Preço', 'Tempo', 'Funciona para mim?'],
             cta: 'Garanta sua vaga com desconto especial'
           }
-        },
-        connections: []
+        }
       }
     ],
     connections: [
@@ -221,8 +215,7 @@ export const readyTemplates: ReadyTemplate[] = [
             frequency: '3x por semana',
             topics: ['Dicas do nicho', 'Motivação']
           }
-        },
-        connections: []
+        }
       },
       {
         id: 'template-capture-2',
@@ -238,8 +231,7 @@ export const readyTemplates: ReadyTemplate[] = [
             formFields: ['nome', 'email'],
             crmIntegration: 'Mailchimp'
           }
-        },
-        connections: []
+        }
       },
       {
         id: 'template-nurture-2',
@@ -261,8 +253,7 @@ export const readyTemplates: ReadyTemplate[] = [
             socialProof: ['Depoimentos simples'],
             duration: '5 dias'
           }
-        },
-        connections: []
+        }
       }
     ],
     connections: [
@@ -307,8 +298,7 @@ export const readyTemplates: ReadyTemplate[] = [
             targetingCriteria: ['Interesse em empreendedorismo', 'Idade 25-50'],
             adTypes: ['Vídeo', 'Carrossel']
           }
-        },
-        connections: []
+        }
       },
       {
         id: 'template-webinar-registration',
@@ -324,8 +314,7 @@ export const readyTemplates: ReadyTemplate[] = [
             formFields: ['nome', 'email', 'whatsapp'],
             crmIntegration: 'ActiveCampaign'
           }
-        },
-        connections: []
+        }
       },
       {
         id: 'template-webinar-show',
@@ -347,8 +336,7 @@ export const readyTemplates: ReadyTemplate[] = [
             objectionHandling: ['Funciona para mim?', 'Tenho tempo?'],
             cta: 'Oferta especial só para participantes'
           }
-        },
-        connections: []
+        }
       },
       {
         id: 'template-webinar-sales',
@@ -365,8 +353,7 @@ export const readyTemplates: ReadyTemplate[] = [
             pricing: { original: 997, current: 497 },
             guarantees: ['30 dias de garantia']
           }
-        },
-        connections: []
+        }
       }
     ],
     connections: [

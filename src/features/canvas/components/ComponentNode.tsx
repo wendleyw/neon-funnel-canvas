@@ -56,13 +56,14 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
     
     if (!foundTemplate) {
       return {
+        id: `custom-${component.type}`,
+        name: component.data.title || 'Unknown',
         type: component.type,
-        icon: '🔧',
-        label: component.data.title || 'Unknown Component',
-        color: '#6B7280',
         category: 'custom',
-        defaultProps: component.data
-      } as const;
+        icon: '🔧',
+        description: component.data.description || 'Custom component',
+        data: component.data,
+      };
     }
     
     return foundTemplate;

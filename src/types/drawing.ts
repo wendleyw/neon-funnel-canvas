@@ -13,27 +13,41 @@ export type DrawingTool =
   | 'text';
 
 export interface DrawingShape {
-  id: string;
+  id?: string;
   type: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  color: string;
+  position: { x: number; y: number };
+  size: { width: number; height: number };
+  style?: any;
   text?: string;
+  textStyle?: any;
+  color?: string;
+  funnelStage?: string;
+  conversionRate?: number;
+  metrics?: any;
+}
+
+interface ConnectionEndpoint {
+    shapeId: string;
+    point: { x: number; y: number };
+    side: string;
 }
 
 export interface DrawingConnection {
-  id: string;
-  from: string;
-  to: string;
-  type: 'success' | 'failure' | 'redirect';
+  id?: string;
+  from: ConnectionEndpoint;
+  to: ConnectionEndpoint;
+  style?: any;
+  label?: any;
+  type?: 'success' | 'failure' | 'redirect';
 }
 
 export interface FunnelTemplate {
   id: string;
   name: string;
   description: string;
+  category: string;
+  thumbnail: string;
+  metrics?: any;
   shapes: DrawingShape[];
   connections: DrawingConnection[];
 }

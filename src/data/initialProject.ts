@@ -6,6 +6,7 @@ export const initialProject: FunnelProject = {
   name: 'New Project',
   components: [],
   connections: [],
+  viewport: { x: 0, y: 0, zoom: 1 },
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString()
 };
