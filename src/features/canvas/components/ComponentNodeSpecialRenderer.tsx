@@ -1,11 +1,10 @@
-
 import React from 'react';
 import { FunnelComponent } from '../../../types/funnel';
-import { ComponentEditor } from './ComponentEditor';
-import { NoteComponent } from './VisualHelpers/NoteComponent';
-import { ArrowComponent } from './VisualHelpers/ArrowComponent';
-import { FrameComponent } from './VisualHelpers/FrameComponent';
-import { DiagramComponent } from './VisualHelpers/DiagramComponent';
+import { ComponentEditor } from '../../editor/components/ComponentEditor';
+import { NoteComponent } from './NoteComponent';
+import { ArrowComponent } from './ArrowComponent';
+import { FrameComponent } from './FrameComponent';
+import { DiagramComponent } from './DiagramComponent';
 
 interface ComponentNodeSpecialRendererProps {
   component: FunnelComponent;

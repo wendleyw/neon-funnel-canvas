@@ -22,8 +22,7 @@ import {
   Database,
   Users,
   Activity,
-  PanelLeft,
-  Activity
+  PanelLeft
 } from 'lucide-react';
 import { 
   DropdownMenu,
@@ -608,4 +607,4 @@ const AdminPanelComponent: React.FC = () => {
   );
 };
 
-export const AdminPanel = withAdminAccess(AdminPanelComponent); 
+export const AdminPanel = withAdminAccess(AdminPanelComponent);

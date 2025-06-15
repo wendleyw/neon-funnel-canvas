@@ -5,11 +5,11 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+} from '@/features/shared/ui/dialog';
+import { Button } from '@/features/shared/ui/button';
+import { Input } from '@/features/shared/ui/input';
+import { Label } from '@/features/shared/ui/label';
+import { Textarea } from '@/features/shared/ui/textarea';
 import { InstagramMockup } from './InstagramMockup';
 
 interface InstagramMockupModalProps {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Connection, FunnelComponent } from '../../../types/funnel';
 import { ConnectionEditor } from './ConnectionEditor';
-import { calculateBestConnectionPoints, createOptimizedConnectionPath } from '../utils/connectionUtils';
+import { calculateBestConnectionPoints, createOptimizedConnectionPath } from '../../../utils/connectionUtils';
 import { useNeonAnimation } from '../../../contexts/NeonAnimationContext';
 import { useSequenceAnimation } from '../../../contexts/SequenceAnimationContext';
 

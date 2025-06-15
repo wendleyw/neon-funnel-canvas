@@ -1,7 +1,7 @@
 
 import { useCallback, useState } from 'react';
 import { ComponentTemplate, FunnelComponent } from '../../../types/funnel';
-import { screenToCanvas, type ViewportInfo } from '../utils/canvasPositioning';
+import { screenToCanvas, type ViewportInfo } from '../../../utils/canvasPositioning';
 import { debug, warn, error } from '@/lib/logger';
 
 interface UseCanvasDragDropProps {
