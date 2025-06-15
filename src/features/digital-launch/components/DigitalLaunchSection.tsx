@@ -1,7 +1,6 @@
-
 import React from 'react';
-import { ComponentTemplateItem } from '../../../components/Sidebar/ComponentTemplateItem';
-import { useDigitalLaunchTemplates } from '@/features/shared/hooks/useDigitalLaunchTemplates';
+import { ComponentTemplateItem } from '../../sidebar/components/ComponentTemplateItem';
+import { useDigitalLaunchTemplates } from '../../shared/hooks/useDigitalLaunchTemplates';
 
 interface DigitalLaunchSectionProps {
   onDragStart: (template: any) => void;
