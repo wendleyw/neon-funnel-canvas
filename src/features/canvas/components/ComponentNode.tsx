@@ -5,7 +5,7 @@ import { useComponentTemplates } from '../../templates/hooks/useComponentTemplat
 import { useComponentDrag } from '../hooks/useComponentDrag';
 import { useComponentNodeHandlers } from '../hooks/useComponentNodeHandlers';
 import { ComponentEditor } from '../../editor/components/ComponentEditor';
-import { ComponentNodeCardSimple } from './ComponentNode/ComponentNodeCardSimple';
+import { ComponentNodeCardSimple } from './ComponentNodeCardSimple';
 import { ComponentNodeSpecialRenderer } from './ComponentNodeSpecialRenderer';
 import { ComponentNodeActions } from './ComponentNodeActions';
 
@@ -37,7 +37,7 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
   onDuplicate
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const { getTemplateByType } = useComponentTemplates();
+  const { templates: componentTemplates } = useComponentTemplates();
 
   const dragHandlers = useMemo(() => ({
     componentId: component.id,
@@ -52,7 +52,7 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
   } = useComponentDrag(dragHandlers);
 
   const template = useMemo(() => {
-    const foundTemplate = getTemplateByType(component.type);
+    const foundTemplate = componentTemplates.find(t => t.type === component.type);
     
     if (!foundTemplate) {
       return {
@@ -66,7 +66,7 @@ export const ComponentNode = React.memo<ComponentNodeProps>(({
     }
     
     return foundTemplate;
-  }, [component.type, component.data, getTemplateByType]);
+  }, [component.type, component.data, componentTemplates]);
 
   const handlers = useComponentNodeHandlers({
     component,
