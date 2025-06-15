@@ -1,6 +1,6 @@
 import { ComponentTemplate } from '../types/funnel';
 
-export const MARKETING_COMPONENT_TEMPLATES: ComponentTemplate[] = [
+const templates: (Omit<ComponentTemplate, 'id' | 'name' | 'data'> & {label: string, defaultProps: any})[] = [
   // ========================
   // PAID TRAFFIC SOURCES
   // ========================
@@ -1770,6 +1770,13 @@ export const MARKETING_COMPONENT_TEMPLATES: ComponentTemplate[] = [
     }
   }
 ];
+
+export const MARKETING_COMPONENT_TEMPLATES: ComponentTemplate[] = templates.map(t => ({
+  ...t,
+  id: t.type,
+  name: t.label,
+  data: t.defaultProps,
+}));
 
 // Organizar templates por categoria SIMPLIFICADO
 export const TEMPLATE_CATEGORIES = {

@@ -1,6 +1,7 @@
+
 import { ComponentTemplate } from '../../../types/funnel';
 
-export const digitalLaunchTemplates: ComponentTemplate[] = [
+const rawTemplates = [
   {
     type: 'offer',
     icon: '🎁',
@@ -204,3 +205,11 @@ export const digitalLaunchTemplates: ComponentTemplate[] = [
     }
   }
 ];
+
+export const digitalLaunchTemplates: ComponentTemplate[] = rawTemplates.map(t => ({
+  ...t,
+  id: t.type,
+  name: t.label,
+  description: t.defaultProps.description || '',
+  data: t.defaultProps,
+}));

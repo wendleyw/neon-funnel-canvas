@@ -7,10 +7,19 @@ export interface UserAction extends ComponentTemplate {
   iconEmoji: string;
 }
 
+function processActions<T extends UserAction>(actions: (Omit<T, 'id'|'name'|'data'> & {label: string, defaultProps: any})[]): T[] {
+  return actions.map(a => ({
+    ...a,
+    id: a.type,
+    name: a.label,
+    data: a.defaultProps,
+  } as T));
+}
+
 // ========================
 // CONVERSION ACTIONS (Ações de Conversão)
 // ========================
-export const conversionActions: UserAction[] = [
+export const conversionActions: UserAction[] = processActions([
   {
     type: 'purchase',
     icon: '🛒',
@@ -96,12 +105,12 @@ export const conversionActions: UserAction[] = [
       }
     }
   }
-];
+]);
 
 // ========================
 // ENGAGEMENT ACTIONS (Ações de Engajamento)
 // ========================
-export const engagementActions: UserAction[] = [
+export const engagementActions: UserAction[] = processActions([
   {
     type: 'watch-video',
     icon: '📺',
@@ -209,12 +218,12 @@ export const engagementActions: UserAction[] = [
       }
     }
   }
-];
+]);
 
 // ========================
 // INTEGRATION ACTIONS (Ações de Integração)
 // ========================
-export const integrationActions: UserAction[] = [
+export const integrationActions: UserAction[] = processActions([
   {
     type: 'ghl-appointment',
     icon: '📞',
@@ -345,12 +354,12 @@ export const integrationActions: UserAction[] = [
       }
     }
   }
-];
+]);
 
 // ========================
 // CUSTOM ACTIONS (Ações Personalizadas)
 // ========================
-export const customActions: UserAction[] = [
+export const customActions: UserAction[] = processActions([
   {
     type: 'add-to-list',
     icon: '📋',
@@ -499,7 +508,7 @@ export const customActions: UserAction[] = [
       }
     }
   }
-];
+]);
 
 // Organização das ações por seções
 export const actionSections = {
@@ -541,4 +550,4 @@ export const allUserActions: UserAction[] = [
   ...customActions
 ];
 
-export default allUserActions; 
+export default allUserActions;

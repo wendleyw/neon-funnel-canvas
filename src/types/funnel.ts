@@ -37,9 +37,15 @@ export interface ComponentTemplate {
   name: string;
   type: string;
   category: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<{ className?: string }> | string;
   description: string;
   data: Partial<ComponentData>;
+  // Optional fields for backward compatibility and flexibility
+  label?: string;
+  originalType?: string;
+  defaultProps?: any;
+  color?: string;
+  title?: string;
 }
 
 export interface FunnelProject {

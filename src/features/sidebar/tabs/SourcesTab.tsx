@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { ComponentTemplate } from '../../../types/funnel';
 import { Search, Star, ChevronDown, RotateCcw, Plus, Globe } from 'lucide-react';
@@ -80,7 +81,7 @@ export const SourcesTab: React.FC<SourcesTabProps> = ({ onDragStart, onTemplateC
     if (debouncedQuery.trim()) {
       const query = debouncedQuery.toLowerCase();
       templates = templates.filter(template =>
-        template.label.toLowerCase().includes(query) ||
+        (template.name || template.label || '').toLowerCase().includes(query) ||
         template.description?.toLowerCase().includes(query) ||
         template.category?.toLowerCase().includes(query)
       );
