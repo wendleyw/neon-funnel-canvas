@@ -1,6 +1,8 @@
+
 import { useState, useCallback, useEffect } from 'react';
-import { FunnelComponent } from '../types/funnel';
+import { FunnelComponent } from '@/types/funnel';
 import { useImageUpload } from './useImageUpload';
+import { type UrlPreviewData } from '@/features/shared/components/UrlPreviewCard';
 
 interface UseComponentEditorArgs {
   component: FunnelComponent;
@@ -64,6 +66,27 @@ export const useComponentEditor = ({
   const handleInputChange = useCallback((field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   }, []);
+
+  const handlePreviewFetched = useCallback((previewData: UrlPreviewData | null) => {
+    if (previewData?.image && isImageUrlSafe(previewData.image)) {
+      handleImageUrlChange(previewData.image);
+    }
+  }, [handleImageUrlChange]);
+
+  // Helper to check for safe image URLs (copied from UrlPreviewCard logic)
+  const isImageUrlSafe = (url: string): boolean => {
+    if (!url) return false;
+    try {
+      const urlObj = new URL(url);
+      if (!['http:', 'https:'].includes(urlObj.protocol)) return false;
+      const hostname = urlObj.hostname.toLowerCase();
+      const blockedPatterns = [/^localhost$/i, /^127\./, /^10\./, /^192\.168\./, /^172\.(1[6-9]|2[0-9]|3[0-1])\./, /^169\.254\./];
+      if (blockedPatterns.some(pattern => pattern.test(hostname))) return false;
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
 
   const handleSubmitCallback = useCallback((e: React.FormEvent) => {
     e.preventDefault();
@@ -136,5 +159,6 @@ export const useComponentEditor = ({
     handleSubmitCallback,
     isSocialMediaComponent,
     dimensionsInfo: getDimensionsInfo(), // Call the function to get current dimensions info
+    handlePreviewFetched,
   };
-}; 
+};

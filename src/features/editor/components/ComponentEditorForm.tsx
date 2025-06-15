@@ -1,15 +1,17 @@
+
 import React from 'react';
-import { FunnelComponent } from '../../../types/funnel';
+import { FunnelComponent } from '@/types/funnel';
 import { BasicInfoForm } from './BasicInfoForm';
 import { SocialMediaSpecs } from './SocialMediaSpecs';
 import { ImageUploadSection } from './ImageUploadSection';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import UrlPreviewCard, { UrlPreviewData } from '@/features/shared/components/UrlPreviewCard';
 
 interface ComponentEditorFormProps {
   component: FunnelComponent;
   formData: {
     title: string;
-    description: string;
+    description:string;
     url: string;
     status: string;
   };
@@ -25,6 +27,7 @@ interface ComponentEditorFormProps {
   onImageUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onImageChangeForUrlInput: (url: string) => void;
   onRemoveImage: () => void;
+  onPreviewFetched: (previewData: UrlPreviewData | null) => void;
 }
 
 export const ComponentEditorForm: React.FC<ComponentEditorFormProps> = ({
@@ -42,6 +45,7 @@ export const ComponentEditorForm: React.FC<ComponentEditorFormProps> = ({
   onImageUpload,
   onImageChangeForUrlInput,
   onRemoveImage,
+  onPreviewFetched,
 }) => {
   return (
     <div className="flex-1 min-h-0 overflow-hidden relative">
@@ -62,6 +66,19 @@ export const ComponentEditorForm: React.FC<ComponentEditorFormProps> = ({
           onInputChange={onInputChange} 
         />
         
+        {formData.url && (
+          <div className="pt-2">
+            <h3 className="text-sm font-semibold text-cyan-400 mb-2">URL Preview</h3>
+            <UrlPreviewCard
+              initialUrl={formData.url}
+              onPreviewFetched={onPreviewFetched}
+              showUrlInput={false}
+              compact={true}
+              className="preview-card-dark bg-gray-800/50"
+            />
+          </div>
+        )}
+
         <ImageUploadSection 
           image={image || ''}
           isUploading={isUploading} 
@@ -102,4 +119,4 @@ export const ComponentEditorForm: React.FC<ComponentEditorFormProps> = ({
       )}
     </div>
   );
-}; 
+};

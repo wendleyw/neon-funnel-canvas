@@ -84,7 +84,7 @@ const isSafeExternalUrl = (url: string): boolean => {
 };
 
 // Type definitions
-interface UrlPreviewData {
+export interface UrlPreviewData {
   url: string;
   title: string;
   description: string;
@@ -97,7 +97,7 @@ interface UrlPreviewData {
   timestamp: string;
 }
 
-interface UrlPreviewError {
+export interface UrlPreviewError {
   error: string;
   message: string;
   fallback?: {
@@ -566,4 +566,4 @@ export const UrlPreviewCard: React.FC<UrlPreviewCardProps> = ({
   );
 };
 
-export default UrlPreviewCard; 
+export default UrlPreviewCard;

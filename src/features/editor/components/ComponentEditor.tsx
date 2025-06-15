@@ -1,11 +1,11 @@
+
 import React, { useRef } from 'react';
-// createPortal is now handled by EditorModalBase
-import { FunnelComponent } from '../types/funnel';
+import { FunnelComponent } from '@/types/funnel';
 import { ComponentEditorHeader } from './ComponentEditor/ComponentEditorHeader';
 import { ComponentEditorFooter } from './ComponentEditor/ComponentEditorFooter';
 import { ComponentEditorForm } from './ComponentEditor/ComponentEditorForm';
-import { useComponentEditor } from '@/features/shared/hooks/useComponentEditor';
-import { EditorModalBase } from '@/components/shared/EditorModalBase'; // Using path alias based on tsconfig.app.json
+import { useComponentEditor } from '@/features/editor/hooks/useComponentEditor';
+import { EditorModalBase } from '@/features/shared/components/shared/EditorModalBase';
 
 interface ComponentEditorProps {
   component: FunnelComponent;
@@ -37,6 +37,7 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
     handleSubmitCallback,
     isSocialMediaComponent,
     dimensionsInfo,
+    handlePreviewFetched,
   } = useComponentEditor({
     component,
     onUpdate,
@@ -45,21 +46,12 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
     scrollContainerRef,
   });
 
-  // The isOpen check is now handled by EditorModalBase
-  // if (!isOpen) {
-  //   return null;
-  // }
-
-  // The modal structure is now provided by EditorModalBase
-  // The children of EditorModalBase will be the specific editor content
   return (
     <EditorModalBase
-      isOpen={isOpen} // Pass isOpen from props (managed by useComponentEditor's args)
-      onClose={onClose} // Pass onClose from props
-      isMaximized={isMaximized} // Pass isMaximized from useComponentEditor
-      // modalClassName can be used here if specific styling for this modal instance is needed beyond defaults
+      isOpen={isOpen}
+      onClose={onClose}
+      isMaximized={isMaximized}
     >
-      {/* Content specific to the ComponentEditor */}
       <ComponentEditorHeader 
         componentType={component.type}
         isMaximized={isMaximized}
@@ -82,6 +74,7 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
         onImageUpload={handleImageUpload}
         onImageChangeForUrlInput={handleImageUrlChange}
         onRemoveImage={handleRemoveImage}
+        onPreviewFetched={handlePreviewFetched}
       />
       
       <ComponentEditorFooter 
@@ -90,5 +83,4 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
       />
     </EditorModalBase>
   );
-  // The createPortal call is also handled by EditorModalBase
 };
