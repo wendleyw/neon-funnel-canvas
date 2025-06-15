@@ -1,14 +1,20 @@
+
 import React, { useMemo, useCallback } from 'react';
 import { FunnelComponent } from '../../../types/funnel';
 import { ComponentNode } from '../ComponentNode';
 import { ConnectionManager } from './ConnectionManager';
 import { FlowAnimation } from '../FlowAnimation';
 import { ErrorBoundary } from '@/features/shared/components/ErrorBoundary';
-import { useCanvas } from '../../../contexts/CanvasContext';
+import {
+  useCanvas,
+  useCanvasState,
+  useCanvasActions,
+  useCanvasInteractions,
+} from '../hooks/useCanvasContext';
 
 export const CanvasContainer: React.FC = () => {
+  const { canvasRef } = useCanvas();
   const {
-    canvasRef,
     components,
     connections,
     selectedComponent,
@@ -18,6 +24,8 @@ export const CanvasContainer: React.FC = () => {
     zoom,
     isPanning,
     isDragOver,
+  } = useCanvasState();
+  const {
     onComponentUpdate,
     onComponentDelete,
     onComponentAdd,
@@ -26,6 +34,8 @@ export const CanvasContainer: React.FC = () => {
     onComponentSelect,
     startConnection,
     handleComponentConnect,
+  } = useCanvasActions();
+  const {
     handleCanvasMouseDown,
     handleMouseMove,
     handleMouseUp,
@@ -36,8 +46,8 @@ export const CanvasContainer: React.FC = () => {
     handleDragEnter,
     handleDragLeave,
     handleMouseDown,
-    handleContextMenu
-  } = useCanvas();
+    handleContextMenu,
+  } = useCanvasInteractions();
 
   const handleComponentDrag = useCallback((id: string, position: { x: number; y: number }) => {
     onComponentUpdate(id, { position });

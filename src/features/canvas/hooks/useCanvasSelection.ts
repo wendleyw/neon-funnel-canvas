@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { Connection } from '../../../types/funnel';
+import { info, debug } from '@/lib/logger';
 
 interface UseCanvasSelectionOptions {
   onConnectionAdd: (connection: Connection) => void;
@@ -18,7 +19,7 @@ export const useCanvasSelection = ({
 
   const handleComponentConnect = useCallback((toComponentId: string) => {
     if (connectingFrom && connectingFrom !== toComponentId) {
-      console.log('✨ Creating connection from', connectingFrom, 'to', toComponentId);
+      info('✨ Creating connection from', connectingFrom, 'to', toComponentId);
       
       const newConnection: Connection = {
         id: `connection-${Date.now()}`,
@@ -38,7 +39,7 @@ export const useCanvasSelection = ({
   const handleComponentSelect = useCallback((componentId: string) => {
     // Keep component selected during connection
     if (connectingFrom) {
-      console.log('🔄 Connection state active. Click another component to connect.');
+      debug('🔄 Connection state active. Click another component to connect.');
       return;
     }
     
@@ -67,7 +68,7 @@ export const useCanvasSelection = ({
   }, [connectingFrom, handleComponentConnect]);
 
   const handleConnectionSelect = useCallback((connectionId: string) => {
-    console.log('🔗 Connection selected:', connectionId);
+    debug('🔗 Connection selected:', connectionId);
     
     // Clear component selection when selecting connection
     setSelectedComponent(null);
@@ -83,21 +84,21 @@ export const useCanvasSelection = ({
   }, [selectedConnection]);
 
   const handleConnectionColorChange = useCallback((connectionId: string, updates: Partial<Connection>) => {
-    console.log('🎨 Updating connection:', connectionId, 'with:', updates);
+    debug('🎨 Updating connection:', connectionId, 'with:', updates);
     if (onConnectionUpdate) {
       onConnectionUpdate(connectionId, updates);
     }
   }, [onConnectionUpdate]);
 
   const clearSelection = useCallback(() => {
-    console.log('🧹 Clearing all selections');
+    debug('🧹 Clearing all selections');
     setSelectedComponent(null);
     setConnectingFrom(null);
     setSelectedConnection(null);
   }, []);
 
   // Log current state for debug
-  console.log('🔍 Current selection state:', {
+  debug('🔍 Current selection state:', {
     selectedComponent,
     connectingFrom,
     selectedConnection,

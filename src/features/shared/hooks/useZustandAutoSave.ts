@@ -2,6 +2,7 @@ import { useUnifiedWorkspace } from '../../../contexts/UnifiedWorkspaceContext';
 import { useProjectStore } from '../../../store/projectStore';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useEffect, useRef, useCallback } from 'react';
+import { error } from '@/lib/logger';
 
 /**
  * Hook that integrates Zustand project store with WorkspaceContext auto-save
@@ -54,8 +55,8 @@ export function useZustandAutoSave() {
             lastSavedDataRef.current = projectDataString;
             markAsSaved();
           }
-        } catch (error) {
-          console.error('Auto-save failed:', error);
+        } catch (err) {
+          error('Auto-save failed:', err);
         } finally {
           setSaving(false);
         }
@@ -98,8 +99,8 @@ export function useZustandAutoSave() {
         markAsSaved();
       }
       return result;
-    } catch (error) {
-      console.error('Force save failed:', error);
+    } catch (err) {
+      error('Force save failed:', err);
       return { success: false };
     } finally {
       setSaving(false);
@@ -122,4 +123,4 @@ export function useZustandAutoSave() {
     forceSave,
     cancelSave
   };
-} 
+}

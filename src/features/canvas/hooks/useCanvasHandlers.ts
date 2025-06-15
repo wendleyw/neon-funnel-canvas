@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { useReactFlow } from 'reactflow';
 import { toast } from 'sonner';
 import { ComponentTemplate, FunnelComponent } from '../../../types/funnel';
+import { error as logError, warn } from '@/lib/logger';
 
 interface UseCanvasHandlersProps {
   onComponentAdd: (component: FunnelComponent) => void;
@@ -67,7 +68,7 @@ export const useCanvasHandlers = ({
 
       // Validate template
       if (!template.type || !template.label) {
-        console.error('❌ Template inválido:', template);
+        logError('❌ Template inválido:', template);
         toast.error('Template inválido: faltam campos obrigatórios');
         return;
       }
@@ -118,8 +119,8 @@ export const useCanvasHandlers = ({
           } else {
             reactFlowInstance.setCenter(position.x, position.y, { zoom: 1.2, duration: 800 });
           }
-        } catch (error) {
-          console.warn('Failed to center on new component:', error);
+        } catch (err) {
+          warn('Failed to center on new component:', err);
         }
       }, 200);
 
@@ -136,8 +137,8 @@ export const useCanvasHandlers = ({
               minZoom: 0.1
             });
           }
-        } catch (error) {
-          console.warn('Failed to fit view:', error);
+        } catch (err) {
+          warn('Failed to fit view:', err);
         }
       }, 800);
 
@@ -147,8 +148,8 @@ export const useCanvasHandlers = ({
             zoom: 1.0,
             duration: 600 
           });
-        } catch (error) {
-          console.warn('Failed to force center:', error);
+        } catch (err) {
+          warn('Failed to force center:', err);
         }
       }, 1500);
 
@@ -179,8 +180,8 @@ export const useCanvasHandlers = ({
         }
       });
       
-    } catch (error) {
-      console.error('❌ Error in drop handler:', error);
+    } catch (err) {
+      logError('❌ Error in drop handler:', err);
       toast.error('Erro ao adicionar componente. Verifique o console para mais detalhes.');
     }
   }, [reactFlowInstance, onComponentAdd, components.length, setHighlightedNodeId]);
@@ -192,4 +193,4 @@ export const useCanvasHandlers = ({
     onDragLeave,
     onDrop
   };
-}; 
+};

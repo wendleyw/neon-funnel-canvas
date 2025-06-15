@@ -1,3 +1,4 @@
+
 import React, { useCallback, useState, useEffect } from 'react';
 import { FunnelComponent, Connection } from '../types/funnel';
 import { DrawingShape } from '../types/drawing';
@@ -13,6 +14,7 @@ import { useSequenceAnimation } from '../contexts/SequenceAnimationContext';
 import { MiniMap } from './MiniMap';
 import { MobilePreviewButton } from './Canvas/MobilePreviewButton';
 import { InstagramMockupModal } from '../features/social-media/instagram/components/InstagramMockupModal';
+import { info } from '@/lib/logger';
 
 interface CanvasProps {
   components: FunnelComponent[];
@@ -48,7 +50,7 @@ export const Canvas = React.memo<CanvasProps>(({
   // Detect connection changes and analyze sequences
   useEffect(() => {
     if (connections.length > 0 && components.length > 0) {
-      console.log('[Canvas] Connections or components changed, analyzing sequences...');
+      info('[Canvas] Connections or components changed, analyzing sequences...');
       analyzeAndStartSequences(connections, components);
     }
   }, [connections, components, analyzeAndStartSequences]);

@@ -1,9 +1,11 @@
+
 import React, { useCallback, useState } from 'react';
 import { ComponentTemplate } from '../types/funnel';
 import { DrawingShape } from '../types/drawing';
 import { ErrorBoundary } from './ErrorBoundary';
 import { IconSidebar } from './ModernSidebar/IconSidebar';
 import { FunnelComponent, Connection } from '../types/funnel';
+import { error, debug } from '@/lib/logger';
 
 interface SidebarProps {
   onDragStart: (template: ComponentTemplate) => void;
@@ -37,22 +39,22 @@ export const Sidebar = React.memo<SidebarProps>(({
       // Called with (template) pattern
       template = eventOrTemplate;
     } else {
-      console.error('[Sidebar] No valid template found in drag start parameters:', { eventOrTemplate, maybeTemplate });
+      error('[Sidebar] No valid template found in drag start parameters:', { eventOrTemplate, maybeTemplate });
       return;
     }
     
     if (!template || !template.label) {
-      console.error('[Sidebar] Template is invalid or undefined:', template);
+      error('[Sidebar] Template is invalid or undefined:', template);
       return;
     }
     
-    console.log('[Sidebar] Drag start adapter called with template:', template.label);
+    debug('[Sidebar] Drag start adapter called with template:', template.label);
     
     try {
       // Just pass the template directly - no synthetic events needed
       onDragStart(template);
-    } catch (error) {
-      console.error('[Sidebar] Error in handleDragStartAdapter:', error);
+    } catch (err) {
+      error('[Sidebar] Error in handleDragStartAdapter:', err);
     }
   }, [onDragStart]);
 

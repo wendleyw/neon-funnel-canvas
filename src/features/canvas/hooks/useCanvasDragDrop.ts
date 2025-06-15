@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { ComponentTemplate, FunnelComponent } from '../../../types/funnel';
 import { screenToCanvas, type ViewportInfo } from '../../utils/canvasPositioning';
+import { debug, warn, error } from '@/lib/logger';
 
 interface UseCanvasDragDropProps {
   onAddComponent: (component: FunnelComponent) => void;
@@ -45,22 +46,22 @@ export const useCanvasDragDrop = ({
     e.preventDefault();
     setIsDragOver(false);
     
-    console.log('[CanvasDragDrop] Drop event triggered');
+    debug('[CanvasDragDrop] Drop event triggered');
     
     try {
       const templateData = e.dataTransfer.getData('application/json');
       
       if (!templateData) {
-        console.warn('[CanvasDragDrop] No template data found');
+        warn('[CanvasDragDrop] No template data found');
         return;
       }
       
       const template: ComponentTemplate = JSON.parse(templateData);
-      console.log('[CanvasDragDrop] Template:', template.label);
+      debug('[CanvasDragDrop] Template:', template.label);
       
       // Debug mockup personalizado
       if (template.defaultProps?.image) {
-        console.log('🖼️ [CanvasDragDrop] Template has custom mockup:', {
+        debug('🖼️ [CanvasDragDrop] Template has custom mockup:', {
           label: template.label,
           imageUrl: template.defaultProps.image,
           customMockup: template.defaultProps.properties?.customMockup
@@ -69,7 +70,7 @@ export const useCanvasDragDrop = ({
       
       const canvasContainer = canvasRef.current;
       if (!canvasContainer) {
-        console.error('[CanvasDragDrop] Canvas container not found');
+        error('[CanvasDragDrop] Canvas container not found');
         return;
       }
       
@@ -88,11 +89,10 @@ export const useCanvasDragDrop = ({
       const position = screenToCanvas(e.clientX, e.clientY, viewport, canvasRect);
 
       // Add small random offset to avoid exact overlapping when dropping multiple items
-      const randomOffset = () => (Math.random() - 0.5) * 20; // ±10px variation
-      position.x += randomOffset();
-      position.y += randomOffset();
+      position.x += (Math.random() - 0.5) * 20;
+      position.y += (Math.random() - 0.5) * 20;
 
-      console.log('[CanvasDragDrop] Smart drop positioning:', { 
+      debug('[CanvasDragDrop] Smart drop positioning:', { 
         screen: { x: e.clientX, y: e.clientY },
         canvas: position,
         viewport,
@@ -114,10 +114,10 @@ export const useCanvasDragDrop = ({
         }
       };
 
-      console.log('[CanvasDragDrop] Creating component at:', newComponent.position);
+      debug('[CanvasDragDrop] Creating component at:', newComponent.position);
       onAddComponent(newComponent);
-    } catch (error) {
-      console.error('[CanvasDragDrop] Error:', error);
+    } catch (err) {
+      error('[CanvasDragDrop] Error:', err);
     }
   }, [onAddComponent, canvasRef, scale, panOffset]);
 
