@@ -1,3 +1,4 @@
+
 import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import ReactFlow, {
   Background,
@@ -229,7 +230,7 @@ const TaskBasedReactFlowCanvas: React.FC<TaskBasedReactFlowCanvasProps> = ({
         // TASK-BASED: Show success toast
         await executeTask('ui.show-toast', {
           type: 'success' as const,
-          message: `✅ ${template.label} added!`,
+          message: `✅ ${template.name} added!`,
           description: `Component created at position (${Math.round(dropResult.data.dropPosition.x)}, ${Math.round(dropResult.data.dropPosition.y)})`
         });
 
@@ -346,11 +347,11 @@ const TaskBasedReactFlowCanvas: React.FC<TaskBasedReactFlowCanvasProps> = ({
 
         if (createConnectionResult.data.id === 'initial-task' || createConnectionResult.data.id === 'intuitive-task') {
           toast.success('🔗 Connection Created', {
-            description: `From ${sourceComp?.data?.label} to ${targetComp?.data?.label}`,
+            description: `From ${sourceComp?.data?.title} to ${targetComp?.data?.title}`,
           });
         } else {
           toast.success('🔗 Connection Created', {
-            description: `From ${sourceComp?.data?.label} to ${targetComp?.data?.label}`,
+            description: `From ${sourceComp?.data?.title} to ${targetComp?.data?.title}`,
           });
         }
       }

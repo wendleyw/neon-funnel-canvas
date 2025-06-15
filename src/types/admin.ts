@@ -66,7 +66,7 @@ export interface SystemStats {
     total_size: string;
     total_files: number;
   };
-  syncStatus?: SyncStatus;
+  syncStatus?: any;
 }
 
 export interface ContentItem {
