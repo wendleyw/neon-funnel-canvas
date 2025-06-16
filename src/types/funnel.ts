@@ -26,8 +26,9 @@ export interface Connection {
   id: string;
   from: string;
   to: string;
-  type: 'success' | 'failure' | 'redirect';
+  type: 'success' | 'failure' | 'redirect' | 'conditional';
   color?: string;
+  customColor?: string;
   animated?: boolean;
   connectionData?: any;
 }
@@ -54,7 +55,7 @@ export interface FunnelProject {
     name: string;
     components: FunnelComponent[];
     connections: Connection[];
-    viewport: any;
+    viewport: { x: number; y: number; zoom: number };
     createdAt?: string | number;
     updatedAt?: string | number;
 }

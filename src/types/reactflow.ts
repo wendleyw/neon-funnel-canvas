@@ -27,3 +27,27 @@ export const convertConnectionToEdge = (connection: Connection): ReactFlowEdge =
         style: { stroke: connection.color || '#666' }
     };
 };
+
+export const convertNodeToFunnelComponent = (node: ReactFlowNode): FunnelComponent => {
+    return {
+        id: node.id,
+        type: node.data.originalType || 'unknown',
+        position: node.position,
+        data: {
+            title: node.data.title,
+            description: node.data.description,
+            status: node.data.status,
+            properties: {}
+        }
+    };
+};
+
+export const convertEdgeToConnection = (edge: ReactFlowEdge): Connection => {
+    return {
+        id: edge.id,
+        from: edge.source,
+        to: edge.target,
+        type: 'success',
+        animated: edge.animated
+    };
+};

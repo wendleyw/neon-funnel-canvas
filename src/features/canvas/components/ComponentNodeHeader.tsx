@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Plus, Settings } from 'lucide-react';
 import { ComponentTemplate } from '../../../types/funnel';
@@ -15,10 +16,17 @@ export const ComponentNodeHeader: React.FC<ComponentNodeHeaderProps> = ({
   onEditClick,
   onDeleteClick
 }) => {
+  const renderIcon = () => {
+    if (typeof template.icon === 'string') {
+      return <span className="text-white text-sm">{template.icon}</span>;
+    }
+    return <span className="text-white text-sm">🔧</span>;
+  };
+
   return (
     <div className="bg-gray-800 rounded-t-lg p-3 flex items-center justify-between">
       <div className="flex items-center space-x-2 flex-1 min-w-0">
-        <span className="text-white text-sm">{template.icon}</span>
+        {renderIcon()}
         <span className="text-white font-medium text-xs truncate">{template.label}</span>
       </div>
       <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">

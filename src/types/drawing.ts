@@ -12,11 +12,21 @@ export type DrawingTool =
   | 'funnel'
   | 'text';
 
+export interface Point {
+  x: number;
+  y: number;
+}
+
+export interface Size {
+  width: number;
+  height: number;
+}
+
 export interface DrawingShape {
   id?: string;
   type: string;
-  position: { x: number; y: number };
-  size: { width: number; height: number };
+  position: Point;
+  size: Size;
   style?: any;
   text?: string;
   textStyle?: any;
@@ -24,11 +34,12 @@ export interface DrawingShape {
   funnelStage?: string;
   conversionRate?: number;
   metrics?: any;
+  rotation?: number;
 }
 
 interface ConnectionEndpoint {
     shapeId: string;
-    point: { x: number; y: number };
+    point: Point;
     side: string;
 }
 

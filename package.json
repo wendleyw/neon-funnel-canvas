@@ -64,6 +64,7 @@
     "express-validator": "^7.0.1",
     "helmet": "^7.1.0",
     "link-preview-js": "^3.0.5",
+    "lovable-tagger": "^1.1.8",
     "lucide-react": "^0.263.1",
     "node-cache": "^5.1.2",
     "react": "^18.2.0",

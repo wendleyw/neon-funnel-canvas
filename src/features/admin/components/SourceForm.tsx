@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Input } from '@/features/shared/ui/input';
 import { Textarea } from '@/features/shared/ui/textarea';
@@ -15,11 +16,14 @@ interface SourceFormProps {
 }
 
 const defaultSourceData: ComponentTemplate = {
-  type: '' as FunnelComponent['type'], // Will be validated
+  id: '',
+  type: '', 
   label: '',
-  icon: '🔗', // Moved icon to root
-  color: '#6B7280', // Moved color to root
-  category: 'Other Sources', // Default category
+  name: '',
+  icon: '🔗', 
+  color: '#6B7280', 
+  category: 'Other Sources', 
+  description: '',
   defaultProps: {
     title: '',
     description: '',
@@ -35,7 +39,7 @@ export const SourceForm: React.FC<SourceFormProps> = ({
   isLoading = false,
 }) => {
   const [formData, setFormData] = useState<ComponentTemplate>(initialData ? { ...defaultSourceData, ...initialData } : defaultSourceData);
-  const [propertiesJson, setPropertiesJson] = useState<string>(JSON.stringify(formData.defaultProps.properties, null, 2));
+  const [propertiesJson, setPropertiesJson] = useState<string>(JSON.stringify(formData.defaultProps?.properties || {}, null, 2));
   const [jsonError, setJsonError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -44,7 +48,7 @@ export const SourceForm: React.FC<SourceFormProps> = ({
       setPropertiesJson(JSON.stringify(initialData.defaultProps?.properties || {}, null, 2));
     } else {
       setFormData(defaultSourceData);
-      setPropertiesJson(JSON.stringify(defaultSourceData.defaultProps.properties, null, 2));
+      setPropertiesJson(JSON.stringify(defaultSourceData.defaultProps?.properties || {}, null, 2));
     }
   }, [initialData]);
 
@@ -79,12 +83,22 @@ export const SourceForm: React.FC<SourceFormProps> = ({
       toast.error('Cannot save with invalid JSON in additional properties.');
       return;
     }
-    // Ensure type is correctly set from label if not explicitly set
+    
     const finalData = {
       ...formData,
-      type: formData.type || formData.label.toLowerCase().replace(/\s+/g, '-') as FunnelComponent['type'],
+      id: formData.id || formData.label?.toLowerCase().replace(/\s+/g, '-') || '',
+      type: formData.type || formData.label?.toLowerCase().replace(/\s+/g, '-') || '',
+      name: formData.label,
+      description: formData.description || formData.defaultProps?.description || '',
     };
     onSubmit(finalData);
+  };
+
+  const renderIconValue = (icon: ComponentTemplate['icon']) => {
+    if (typeof icon === 'string') {
+      return icon;
+    }
+    return '🔗'; // fallback emoji
   };
 
   return (
@@ -100,12 +114,12 @@ export const SourceForm: React.FC<SourceFormProps> = ({
         </label>
         <Input
           id="component-name"
-          value={formData.label}
+          value={formData.label || ''}
           onChange={(e) => {
             handleChange('label', e.target.value);
             handleDefaultPropsChange('title', e.target.value);
             if (!formData.type) {
-              handleChange('type', e.target.value.toLowerCase().replace(/\s+/g, '-') as FunnelComponent['type']);
+              handleChange('type', e.target.value.toLowerCase().replace(/\s+/g, '-'));
             }
           }}
           placeholder="Unique name for the component (e.g., facebook-ads)"
@@ -121,8 +135,11 @@ export const SourceForm: React.FC<SourceFormProps> = ({
         </label>
         <Textarea
           id="component-description"
-          value={formData.defaultProps.description || ''}
-          onChange={(e) => handleDefaultPropsChange('description', e.target.value)}
+          value={formData.description || ''}
+          onChange={(e) => {
+            handleChange('description', e.target.value);
+            handleDefaultPropsChange('description', e.target.value);
+          }}
           placeholder="Brief description of the component"
           className="mt-1 bg-gray-800 border-gray-600 text-white"
           rows={3}
@@ -159,8 +176,8 @@ export const SourceForm: React.FC<SourceFormProps> = ({
           </label>
           <Input
             id="component-icon"
-            value={formData.icon || ''} // Access icon from formData root
-            onChange={(e) => handleChange('icon', e.target.value)} // Use handleChange for root properties
+            value={renderIconValue(formData.icon)}
+            onChange={(e) => handleChange('icon', e.target.value)}
             placeholder="Single emoji or character (e.g., 🚀)"
             className="mt-1 bg-gray-800 border-gray-600 text-white"
           />
@@ -174,8 +191,8 @@ export const SourceForm: React.FC<SourceFormProps> = ({
           <Input
             id="component-color"
             type="color"
-            value={formData.color || '#6B7280'} // Access color from formData root
-            onChange={(e) => handleChange('color', e.target.value)} // Use handleChange for root properties
+            value={formData.color || '#6B7280'}
+            onChange={(e) => handleChange('color', e.target.value)}
             placeholder="Hex color (e.g., #3B82F6)"
             className="mt-1 bg-gray-800 border-gray-600 text-white w-full h-10 p-1"
           />
@@ -188,7 +205,7 @@ export const SourceForm: React.FC<SourceFormProps> = ({
           Component Status
         </label>
         <Select
-          value={formData.defaultProps.status}
+          value={formData.defaultProps?.status || 'draft'}
           onValueChange={(value: FunnelComponent['data']['status']) => handleDefaultPropsChange('status', value)}
         >
           <SelectTrigger className="mt-1 bg-gray-800 border-gray-600 text-white">
