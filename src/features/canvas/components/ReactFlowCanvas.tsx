@@ -435,12 +435,12 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
         position: position,
         connections: [],
         data: {
-          title: template.defaultProps?.title || template.label,
-          description: template.defaultProps?.description || '',
-          image: template.defaultProps?.properties?.customMockup || template.defaultProps?.image || '',
-          url: template.defaultProps?.url || '',
-          status: template.defaultProps?.status || 'draft',
-          properties: template.defaultProps?.properties || {}
+          title: template.data?.title || template.label,
+          description: template.data?.description || '',
+          image: template.data?.properties?.customMockup || template.data?.image || '',
+          url: template.data?.url || '',
+          status: template.data?.status || 'draft',
+          properties: template.data?.properties || {}
         }
       };
 
@@ -1151,12 +1151,59 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
 };
 
 // Wrapper com Provider
-export const ReactFlowCanvasWrapper: React.FC<ReactFlowCanvasProps> = (props) => {
+export const ReactFlowCanvasWrapper: React.FC<ReactFlowCanvasProps> = ({
+  components,
+  connections,
+  onComponentAdd,
+  onComponentUpdate,
+  onComponentDelete,
+  onConnectionAdd,
+  onConnectionDelete,
+  enableConnectionValidation = true,
+}) => {
+  const handleComponentAdd = useCallback((template: ComponentTemplate) => {
+    if (!template) {
+      console.error('Template is undefined in handleComponentAdd');
+      return;
+    }
+
+    try {
+      const newComponent: FunnelComponent = {
+        id: `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        type: template.type as FunnelComponent['type'],
+        position: { x: 300, y: 200 },
+        data: {
+          title: template.data?.title || template.name || 'New Component',
+          description: template.data?.description || template.description || '',
+          image: template.data?.image || '',
+          url: template.data?.url || '',
+          status: (template.data?.status as any) || 'draft',
+          properties: template.data?.properties || {}
+        }
+      };
+
+      onComponentAdd(newComponent);
+      toast.success(`${template.name} added to canvas!`);
+    } catch (error) {
+      console.error('Error adding component:', error);
+      toast.error('Error adding component. Please try again.');
+    }
+  }, [onComponentAdd]);
+
   return (
     <ReactFlowProvider>
-      <ReactFlowCanvas {...props} />
+      <ReactFlowCanvas
+        components={components}
+        connections={connections}
+        onComponentAdd={handleComponentAdd}
+        onComponentUpdate={onComponentUpdate}
+        onComponentDelete={onComponentDelete}
+        onConnectionAdd={onConnectionAdd}
+        onConnectionDelete={onConnectionDelete}
+        enableConnectionValidation={enableConnectionValidation}
+      />
     </ReactFlowProvider>
   );
 };
 
-export default ReactFlowCanvasWrapper; 
+export default ReactFlowCanvasWrapper;

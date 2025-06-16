@@ -1,19 +1,7 @@
-import React, { useState } from 'react';
+
+import React from 'react';
 import { FunnelComponent, ComponentTemplate } from '../../../types/funnel';
-import { 
-  Edit2, 
-  Trash2, 
-  Link, 
-  Copy, 
-  MoreHorizontal, 
-  Play,
-  Pause,
-  BarChart3,
-  TrendingUp,
-  Eye,
-  Settings,
-  Zap
-} from 'lucide-react';
+import { ComponentNodeHeader } from './ComponentNodeHeader';
 
 interface ComponentNodeCardProps {
   component: FunnelComponent;
@@ -21,10 +9,10 @@ interface ComponentNodeCardProps {
   isSelected: boolean;
   isConnecting: boolean;
   canConnect: boolean;
-  onEditClick: () => void;
-  onDeleteClick: () => void;
-  onConnectionClick: () => void;
-  onDuplicateClick?: () => void;
+  onEditClick: (e?: React.MouseEvent) => void;
+  onDeleteClick: (e?: React.MouseEvent) => void;
+  onConnectionClick: (e?: React.MouseEvent) => void;
+  onDuplicateClick?: (e?: React.MouseEvent) => void;
 }
 
 export const ComponentNodeCard: React.FC<ComponentNodeCardProps> = ({
@@ -38,273 +26,103 @@ export const ComponentNodeCard: React.FC<ComponentNodeCardProps> = ({
   onConnectionClick,
   onDuplicateClick
 }) => {
-  const [showActions, setShowActions] = useState(false);
-
-  // Get status info with better design
-  const getStatusInfo = () => {
-    const status = component.data.status;
-    switch (status) {
-      case 'active':
-        return { color: '#10B981', bgColor: '#10B98115', icon: Play, text: 'Live' };
-      case 'paused':
-        return { color: '#F59E0B', bgColor: '#F59E0B15', icon: Pause, text: 'Paused' };
-      case 'draft':
-        return { color: '#6B7280', bgColor: '#6B728015', icon: Settings, text: 'Draft' };
-      default:
-        return { color: '#8B5CF6', bgColor: '#8B5CF615', icon: Zap, text: 'Ready' };
+  const renderIcon = () => {
+    if (typeof template.icon === 'string') {
+      return <span className="text-2xl">{template.icon}</span>;
     }
+    return <span className="text-2xl">🔧</span>;
   };
-
-  const statusInfo = getStatusInfo();
-  const StatusIcon = statusInfo.icon;
-
-  // Get metrics based on component type
-  const getMetrics = () => {
-    const props = component.data.properties;
-    if (template.category === 'traffic-sources') {
-      return {
-        primary: props?.impressions || '12.5K',
-        secondary: props?.clicks || '856',
-        primaryLabel: 'Impressions',
-        secondaryLabel: 'Clicks'
-      };
-    }
-    if (template.category === 'lead-capture') {
-      return {
-        primary: props?.conversion_rate || '24%',
-        secondary: props?.leads || '205',
-        primaryLabel: 'Conv. Rate',
-        secondaryLabel: 'Leads'
-      };
-    }
-    if (template.category === 'sales-conversion') {
-      return {
-        primary: props?.revenue || '$12.4K',
-        secondary: props?.orders || '42',
-        primaryLabel: 'Revenue',
-        secondaryLabel: 'Orders'
-      };
-    }
-    return {
-      primary: props?.value || '100%',
-      secondary: props?.count || '—',
-      primaryLabel: 'Performance',
-      secondaryLabel: 'Volume'
-    };
-  };
-
-  const metrics = getMetrics();
 
   return (
-    <div className="group relative">
-      {/* Main Card - Funnellytics Style */}
-      <div
-        className={`
-          relative w-72 bg-white rounded-xl shadow-sm border-2 overflow-hidden component-card-modern
-          transition-all duration-300 ease-out hover:shadow-lg hover:-translate-y-0.5
-          ${isSelected ? 'border-blue-500 shadow-blue-500/20 ring-4 ring-blue-500/10' : 'border-gray-200 hover:border-gray-300'}
-          ${canConnect ? 'border-green-500 border-4 shadow-green-500/30 animate-pulse' : ''}
-          ${isConnecting ? 'ring-2 ring-blue-500/50' : ''}
-        `}
-        onMouseEnter={() => setShowActions(true)}
-        onMouseLeave={() => setShowActions(false)}
-      >
-        {/* Header Strip with Gradient */}
-        <div 
-          className="h-2 w-full relative overflow-hidden"
-          style={{ 
-            background: `linear-gradient(90deg, ${template.color}, ${template.color}CC, ${template.color}99)`
-          }}
-        >
-          <div 
-            className="absolute inset-0 opacity-50"
-            style={{
-              background: `linear-gradient(90deg, transparent, ${template.color}40, transparent)`,
-              animation: 'shimmer 3s infinite'
-            }}
-          />
-        </div>
+    <div className={`
+      relative bg-gradient-to-br from-gray-800 to-gray-900 
+      border-2 rounded-xl shadow-lg transition-all duration-200 group
+      ${isSelected ? 'border-blue-400 shadow-blue-400/20' : 'border-gray-600'}
+      ${canConnect ? 'border-green-400 shadow-green-400/30 animate-pulse' : ''}
+      ${isConnecting ? 'border-orange-400' : ''}
+      hover:shadow-xl hover:border-gray-500
+      w-48 min-h-[120px]
+    `}>
+      
+      {/* Header */}
+      <ComponentNodeHeader
+        template={template}
+        isSelected={isSelected}
+        onEditClick={onEditClick}
+        onDeleteClick={onDeleteClick}
+      />
 
-        {/* Content */}
-        <div className="p-5">
-          {/* Header Row */}
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex items-center gap-3 flex-1 min-w-0">
-              {/* Enhanced Icon */}
-              <div className="relative">
-                <div 
-                  className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-medium shadow-sm border"
-                  style={{ 
-                    backgroundColor: `${template.color}10`,
-                    borderColor: `${template.color}20`,
-                    color: template.color
-                  }}
-                >
-                  {template.icon}
-                </div>
-                {/* Status indicator on icon */}
-                <div 
-                  className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center"
-                  style={{ backgroundColor: statusInfo.color }}
-                >
-                  <StatusIcon className="w-2.5 h-2.5 text-white" />
-                </div>
-              </div>
-              
-              {/* Title and Category */}
-              <div className="min-w-0 flex-1">
-                <h3 className="font-semibold text-gray-900 text-base leading-tight truncate">
-                  {component.data.title || template.label}
-                </h3>
-                <div className="flex items-center gap-2 mt-1">
-                  <span 
-                    className="text-xs px-2 py-1 rounded-full font-medium border"
-                    style={{ 
-                      backgroundColor: statusInfo.bgColor,
-                      color: statusInfo.color,
-                      borderColor: `${statusInfo.color}30`
-                    }}
-                  >
-                    {statusInfo.text}
-                  </span>
-                  <span className="text-xs text-gray-500">
-                    {template.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Enhanced Actions */}
-            <div className={`transition-all duration-200 ${showActions || isSelected ? 'opacity-100' : 'opacity-0'}`}>
-              <div className="flex items-center gap-1">
-                {/* Quick Stats Button */}
-                <button
-                  className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 hover:scale-105 action-button"
-                  title="View Analytics"
-                >
-                  <BarChart3 className="w-4 h-4" />
-                </button>
-
-                {/* Primary Actions */}
-                <div className="flex items-center bg-gray-50 rounded-lg p-1 border">
-                  <button
-                    onClick={onEditClick}
-                    className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-white rounded-md transition-all duration-200 hover:scale-105 action-button"
-                    title="Edit Component"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={onConnectionClick}
-                    className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all duration-200 hover:scale-105 action-button"
-                    title="Connect"
-                  >
-                    <Link className="w-4 h-4" />
-                  </button>
-                  {onDuplicateClick && (
-                    <button
-                      onClick={onDuplicateClick}
-                      className="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-md transition-all duration-200 hover:scale-105 action-button"
-                      title="Duplicate"
-                    >
-                      <Copy className="w-4 h-4" />
-                    </button>
-                  )}
-                  <button
-                    onClick={onDeleteClick}
-                    className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-all duration-200 hover:scale-105 action-button"
-                    title="Delete"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Description */}
-          {component.data.description && (
-            <p className="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed">
-              {component.data.description}
+      {/* Content */}
+      <div className="p-4">
+        <div className="flex items-center space-x-3 mb-3">
+          {renderIcon()}
+          <div className="flex-1 min-w-0">
+            <h3 className="text-white font-medium text-sm truncate">
+              {component.data.title}
+            </h3>
+            <p className="text-gray-400 text-xs capitalize">
+              {template.type.replace('-', ' ')}
             </p>
-          )}
-
-          {/* Metrics Dashboard */}
-          <div className="bg-gray-50 rounded-lg p-3 border">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center">
-                <div className="text-lg font-semibold text-gray-900">{metrics.primary}</div>
-                <div className="text-xs text-gray-500 uppercase tracking-wide">{metrics.primaryLabel}</div>
-              </div>
-              <div className="text-center">
-                <div className="text-lg font-semibold text-gray-900">{metrics.secondary}</div>
-                <div className="text-xs text-gray-500 uppercase tracking-wide">{metrics.secondaryLabel}</div>
-              </div>
-            </div>
-            
-            {/* Performance Indicator */}
-            <div className="mt-3 pt-3 border-t border-gray-200">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-gray-500">Performance</span>
-                <div className="flex items-center gap-1 text-green-600">
-                  <TrendingUp className="w-3 h-3" />
-                  <span className="font-medium">+12.5%</span>
-                </div>
-              </div>
-              <div className="mt-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                <div 
-                  className="h-full rounded-full transition-all duration-300 performance-bar"
-                  style={{ 
-                    width: '68%',
-                    background: `linear-gradient(90deg, ${template.color}, ${template.color}CC)`
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Info Tags */}
-          <div className="flex items-center justify-between mt-3">
-            <div className="flex items-center gap-2">
-              <Eye className="w-3 h-3 text-gray-400" />
-              <span className="text-xs text-gray-500">Live tracking</span>
-            </div>
-            <div className="text-xs text-gray-400">
-              ID: {component.id.slice(-6)}
-            </div>
           </div>
         </div>
 
-        {/* Connection Indicator Overlay */}
-        {canConnect && (
-          <div className="absolute inset-0 rounded-xl bg-green-500/5 border-4 border-green-500 animate-pulse flex items-center justify-center">
-            <div className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-              Click to Connect
-            </div>
-          </div>
+        {component.data.description && (
+          <p className="text-gray-300 text-xs leading-relaxed mb-3 line-clamp-2">
+            {component.data.description}
+          </p>
         )}
 
-        {/* Selection Glow */}
-        {isSelected && !canConnect && (
-          <div 
-            className="absolute inset-0 rounded-xl pointer-events-none"
-            style={{
-              background: `linear-gradient(135deg, ${template.color}05, transparent 70%)`,
-              boxShadow: `inset 0 0 0 1px ${template.color}20`
-            }}
-          />
+        {/* Properties summary */}
+        {component.data.properties && Object.keys(component.data.properties).length > 0 && (
+          <div className="text-xs text-gray-400">
+            {Object.keys(component.data.properties).length} properties configured
+          </div>
         )}
       </div>
 
-      {/* Enhanced Connection Points */}
-      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 rounded-full border-2 border-white shadow-sm opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-125 connection-point" 
-           style={{ backgroundColor: template.color }} />
-      <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-4 rounded-full border-2 border-white shadow-sm opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-125 connection-point"
-           style={{ backgroundColor: template.color }} />
-      <div className="absolute -left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 rounded-full border-2 border-white shadow-sm opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-125 connection-point"
-           style={{ backgroundColor: template.color }} />
-      <div className="absolute -right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 rounded-full border-2 border-white shadow-sm opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-125 connection-point"
-           style={{ backgroundColor: template.color }} />
+      {/* Status indicator */}
+      <div className={`
+        absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-gray-800
+        ${component.data.status === 'active' ? 'bg-green-500' : 
+          component.data.status === 'draft' ? 'bg-yellow-500' : 
+          component.data.status === 'inactive' ? 'bg-red-500' : 'bg-gray-500'}
+      `} />
+
+      {/* Actions overlay */}
+      {isSelected && (
+        <div className="absolute -top-8 right-0 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-900 rounded px-2 py-1">
+          <button
+            onClick={onEditClick}
+            className="text-blue-400 hover:text-blue-300 text-xs"
+            title="Edit"
+          >
+            ✏️
+          </button>
+          <button
+            onClick={onConnectionClick}
+            className="text-green-400 hover:text-green-300 text-xs"
+            title="Connect"
+          >
+            🔗
+          </button>
+          {onDuplicateClick && (
+            <button
+              onClick={onDuplicateClick}
+              className="text-purple-400 hover:text-purple-300 text-xs"
+              title="Duplicate"
+            >
+              📄
+            </button>
+          )}
+          <button
+            onClick={onDeleteClick}
+            className="text-red-400 hover:text-red-300 text-xs"
+            title="Delete"
+          >
+            🗑️
+          </button>
+        </div>
+      )}
     </div>
   );
 };

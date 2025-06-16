@@ -1,8 +1,8 @@
-
 import React from 'react';
-import { Input } from '../../../components/ui/input';
-import { Textarea } from '../../../components/ui/textarea';
-import { Button } from '../../../components/ui/button';
+import { Label } from '../../../features/shared/ui/label';
+import { Input } from '../../../features/shared/ui/input';
+import { Textarea } from '../../../features/shared/ui/textarea';
+import { Button } from '../../../features/shared/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
 
 interface DigitalLaunchFieldsProps {

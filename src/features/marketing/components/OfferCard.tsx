@@ -1,8 +1,8 @@
-
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
-import { Badge } from '../../../components/ui/badge';
-import { Button } from '../../../components/ui/button';
+import { LaunchProject } from '../../../types/launch';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../features/shared/ui/card';
+import { Badge } from '../../../features/shared/ui/badge';
+import { Button } from '../../../features/shared/ui/button';
 import { Edit, Trash2, DollarSign, Clock, Target } from 'lucide-react';
 
 export interface Offer {

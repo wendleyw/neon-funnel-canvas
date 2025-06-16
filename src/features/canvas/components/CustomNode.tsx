@@ -343,13 +343,38 @@ const EditNodeModal: React.FC<{
 };
 
 // Main CustomNode Component
-export const CustomNode: React.FC<NodeProps> = React.memo(({ data, selected, id }) => {
+export const CustomNode: React.FC<NodeProps<CustomNodeData>> = React.memo(({ 
+  data, 
+  selected, 
+  id 
+}) => {
   const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
   const [isConnectionTarget, setIsConnectionTarget] = React.useState(false);
   const reactFlowInstance = useReactFlow();
   
-  const template = getTemplateInfo(data.originalType || 'default');
-  
+  const template: ComponentTemplate = useMemo(() => {
+    const foundTemplate = componentTemplates.find(t => t.type === data.originalType);
+    
+    if (!foundTemplate) {
+      return {
+        id: `custom-${data.originalType}`,
+        name: data.title || 'Unknown',
+        type: data.originalType || 'unknown',
+        category: 'custom',
+        icon: '🔧',
+        description: data.description || 'Custom component',
+        data: {
+          title: data.title,
+          description: data.description,
+          status: data.status,
+          properties: {}
+        }
+      };
+    }
+    
+    return foundTemplate;
+  }, [data, componentTemplates]);
+
   // Create a component template object for our renderers
   const componentTemplate: ComponentTemplate = {
     type: data.originalType || 'default',
@@ -591,4 +616,4 @@ export const CustomNode: React.FC<NodeProps> = React.memo(({ data, selected, id 
   );
 });
 
-export default CustomNode; 
+export default CustomNode;

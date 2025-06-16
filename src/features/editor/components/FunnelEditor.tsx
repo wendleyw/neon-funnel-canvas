@@ -372,14 +372,13 @@ export const FunnelEditor: React.FC<FunnelEditorProps> = ({
         id: `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         type: template.type as FunnelComponent['type'],
         position,
-        connections: [],
         data: {
-          title: template.defaultProps?.title || template.label,
-          description: template.defaultProps?.description || '',
-          image: template.defaultProps?.properties?.customMockup || template.defaultProps?.image || '',
-          url: template.defaultProps?.url || '',
-          status: template.defaultProps?.status || 'draft',
-          properties: template.defaultProps?.properties || {}
+          title: template.data?.title || template.name || template.label || 'New Component',
+          description: template.data?.description || template.description || '',
+          image: template.data?.image || '',
+          url: template.data?.url || '',
+          status: (template.data?.status as any) || 'draft',
+          properties: template.data?.properties || {}
         }
       };
 
@@ -393,7 +392,7 @@ export const FunnelEditor: React.FC<FunnelEditorProps> = ({
         }
       }, 100);
       
-      toast.success(`${template.label} added to the center of your visualization!`);
+      toast.success(`${template.name || template.label} added to the center of your visualization!`);
     } catch (error) {
       console.error('Error adding component:', error);
       toast.error('Error adding component. Please try again.');
@@ -518,7 +517,7 @@ export const FunnelEditor: React.FC<FunnelEditorProps> = ({
       <OpenProjectModal
         isOpen={isOpenModalOpen}
         onClose={() => setIsOpenModalOpen(false)}
-        onProjectOpen={handleProjectOpen}
+        onOpen={handleProjectOpen}
         onCreateNew={() => setIsCreateModalOpen(true)}
       />
 
